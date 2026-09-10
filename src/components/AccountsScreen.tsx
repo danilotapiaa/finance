@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { financeService } from '../services/financeService';
 import type { Account } from '../types/database';
 import { TransferModal } from './TransferModal';
+import { AccountModal } from './AccountModal';
 
 export const AccountsScreen: React.FC = () => {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
+  const [accountToEdit, setAccountToEdit] = useState<Account | null>(null);
 
   const loadAccounts = async () => {
     try {
@@ -25,7 +28,7 @@ export const AccountsScreen: React.FC = () => {
 
   const totalBalance = accounts.reduce((sum, acc) => sum + Number(acc.current_balance), 0);
 
-  // Cálculo de distribución porcentual utilizando cada balance correspondiente
+  // Cálculo de distribución porcentual
   const bankBalance = accounts
     .filter((a) => a.type === 'bank')
     .reduce((sum, a) => sum + Number(a.current_balance), 0);
@@ -52,18 +55,31 @@ export const AccountsScreen: React.FC = () => {
 
   return (
     <div className="flex-1 flex flex-col w-full bg-[#F8F9FA] text-[#111827] relative">
-      {/* Header Fijo */}
+      {/* Header Fijo con botones de Transferir y Nueva Cuenta (+) */}
       <header className="sticky top-0 w-full z-30 bg-[#F8F9FA]/90 backdrop-blur-xl border-b border-black/[0.04]">
         <div className="h-16 px-5 flex items-center justify-between w-full">
           <h1 className="text-[24px] font-bold text-[#111827] tracking-tight">Cuentas</h1>
-          <button
-            type="button"
-            onClick={() => setIsTransferModalOpen(true)}
-            className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-full bg-[#E5E7EB] hover:bg-neutral-300 text-[#111827] transition-colors active:scale-95 text-xs font-medium cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-[16px]">swap_horiz</span>
-            <span>Transferir</span>
-          </button>
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={() => setIsTransferModalOpen(true)}
+              className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-full bg-[#E5E7EB] hover:bg-neutral-300 text-[#111827] transition-colors active:scale-95 text-xs font-medium cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[16px]">swap_horiz</span>
+              <span>Transferir</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setAccountToEdit(null);
+                setIsAccountModalOpen(true);
+              }}
+              className="w-8 h-8 rounded-full bg-[#111827] text-white flex items-center justify-center shadow-sm active:scale-95 transition cursor-pointer"
+              title="Añadir nueva cuenta"
+            >
+              <span className="material-symbols-outlined text-[18px]">add</span>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -125,7 +141,10 @@ export const AccountsScreen: React.FC = () => {
 
         {/* Categorías de Cuentas */}
         <div className="space-y-4">
-          <h3 className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider px-1">Tus Cuentas y Metas</h3>
+          <div className="flex items-center justify-between px-1">
+            <h3 className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider">Tus Cuentas y Metas</h3>
+            <span className="text-[11px] text-[#9CA3AF]">Toca una cuenta para editar</span>
+          </div>
 
           <div className="space-y-3">
             {accounts.map((acc) => {
@@ -136,7 +155,11 @@ export const AccountsScreen: React.FC = () => {
               return (
                 <div
                   key={acc.id}
-                  className="bg-white rounded-2xl p-4 shadow-sm border border-black/[0.04] space-y-3"
+                  onClick={() => {
+                    setAccountToEdit(acc);
+                    setIsAccountModalOpen(true);
+                  }}
+                  className="bg-white rounded-2xl p-4 shadow-sm border border-black/[0.04] space-y-3 cursor-pointer hover:border-black/15 transition active:scale-[0.99]"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
@@ -163,7 +186,7 @@ export const AccountsScreen: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Barra de Progreso de Meta si es tipo Ahorro */}
+                  {/* Barra de Progreso si es tipo Ahorro */}
                   {acc.type === 'savings' && target > 0 && (
                     <div className="space-y-1 pt-1">
                       <div className="h-1.5 w-full bg-[#F3F4F6] rounded-full overflow-hidden">
@@ -181,7 +204,7 @@ export const AccountsScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* Nota de Privacidad */}
+        {/* Nota de Seguridad */}
         <div className="p-3.5 bg-white rounded-2xl border border-black/[0.04] flex items-center space-x-3">
           <div className="w-8 h-8 rounded-full bg-[#F3F4F6] flex items-center justify-center text-[#6B7280] flex-shrink-0">
             <span className="material-symbols-outlined text-[18px]">lock</span>
@@ -197,6 +220,14 @@ export const AccountsScreen: React.FC = () => {
         isOpen={isTransferModalOpen}
         onClose={() => setIsTransferModalOpen(false)}
         accounts={accounts}
+        onSuccess={loadAccounts}
+      />
+
+      {/* Modal de Crear / Editar Cuenta */}
+      <AccountModal
+        isOpen={isAccountModalOpen}
+        onClose={() => setIsAccountModalOpen(false)}
+        accountToEdit={accountToEdit}
         onSuccess={loadAccounts}
       />
     </div>

@@ -1,0 +1,23 @@
+{
+  "short_name": "Serene",
+  "name": "Serene Finance",
+  "description": "Gestión financiera personal minimalista y serena",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512 any"
+    },
+    {
+      "src": "/icons.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512 any",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#F8F9FA",
+  "theme_color": "#F8F9FA",
+  "display": "standalone",
+  "orientation": "portrait"
+}

@@ -4,11 +4,13 @@ import { AuthScreen } from './components/AuthScreen';
 import { Dashboard } from './components/Dashboard';
 import { AccountsScreen } from './components/AccountsScreen';
 import { HistoryScreen } from './components/HistoryScreen';
+import { SettingsScreen } from './components/SettingsScreen';
 import { BottomNav, type TabType } from './components/BottomNav';
 
 const MainApp: React.FC = () => {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('hoy');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   if (loading) {
     return (
@@ -22,10 +24,19 @@ const MainApp: React.FC = () => {
     return <AuthScreen />;
   }
 
+  // Si el usuario abre ajustes, se muestra la pantalla de preferencias
+  if (isSettingsOpen) {
+    return (
+      <div className="min-h-screen bg-[#F8F9FA] flex flex-col justify-between max-w-md mx-auto w-full relative shadow-sm">
+        <SettingsScreen onClose={() => setIsSettingsOpen(false)} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col justify-between max-w-md mx-auto w-full relative shadow-sm">
       {activeTab === 'hoy' && (
-        <Dashboard onOpenProfile={() => signOut()} />
+        <Dashboard onOpenProfile={() => setIsSettingsOpen(true)} />
       )}
 
       {activeTab === 'cuentas' && (
