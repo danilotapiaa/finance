@@ -82,8 +82,9 @@ export const financeService = {
   },
 
   // ==========================================
-  // TRANSACCIONES (MOVIMIENTOS)
+  // TRANSACCIONES (CRUD COMPLETO)
   // ==========================================
+  // 1. Obtener recientes
   async getTransactions(limit = 50): Promise<Transaction[]> {
     const { data, error } = await supabase
       .from('transactions')
@@ -99,6 +100,7 @@ export const financeService = {
     return data || [];
   },
 
+  // 2. Obtener por mes
   async getTransactionsByMonth(year: number, month: number): Promise<Transaction[]> {
     const startDate = new Date(year, month - 1, 1).toISOString();
     const endDate = new Date(year, month, 0, 23, 59, 59).toISOString();
@@ -118,6 +120,7 @@ export const financeService = {
     return data || [];
   },
 
+  // 3. Crear transacción
   async createTransaction(transaction: {
     account_id: string;
     category_id: string | null;
@@ -144,6 +147,35 @@ export const financeService = {
     return data;
   },
 
+  // 4. Actualizar transacción existente
+  async updateTransaction(
+    id: string,
+    updates: {
+      account_id?: string;
+      category_id?: string | null;
+      type?: 'expense' | 'income';
+      amount?: number;
+      date?: string;
+      note?: string | null;
+      receipt_url?: string | null;
+    }
+  ): Promise<Transaction> {
+    const { data, error } = await supabase
+      .from('transactions')
+      .update(updates)
+      .eq('id', id)
+      .select(`
+        *,
+        account:accounts(*),
+        category:categories(*)
+      `)
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  // 5. Eliminar transacción
   async deleteTransaction(id: string): Promise<void> {
     const { error } = await supabase
       .from('transactions')

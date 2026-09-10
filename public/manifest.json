@@ -4,12 +4,12 @@
   "description": "Gestión financiera personal minimalista y serena",
   "icons": [
     {
-      "src": "/favicon.svg",
+      "src": "/icono.svg",
       "type": "image/svg+xml",
       "sizes": "192x192 512x512 any"
     },
     {
-      "src": "/icons.svg",
+      "src": "/icono.svg",
       "type": "image/svg+xml",
       "sizes": "192x192 512x512 any",
       "purpose": "any maskable"

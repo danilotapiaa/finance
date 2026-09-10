@@ -1,9 +1,9 @@
-const CACHE_NAME = 'serene-finance-v1';
+const CACHE_NAME = 'serene-finance-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/favicon.svg',
-  '/icons.svg'
+  '/icono.svg',
+  '/manifest.json'
 ];
 
 self.addEventListener('install', (event) => {

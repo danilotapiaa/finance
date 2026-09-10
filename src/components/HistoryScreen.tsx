@@ -57,7 +57,7 @@ export const HistoryScreen: React.FC = () => {
   const netBalance = totalIncome - totalExpense;
   const spentPercent = totalIncome > 0 ? Math.min(100, Math.round((totalExpense / totalIncome) * 100)) : 0;
 
-  // Filtrado por buscador y chips
+  // Filtrado por buscador y tipo
   const filteredTransactions = transactions.filter((tx) => {
     const matchesType = filterType === 'all' || tx.type === filterType;
     const term = searchQuery.toLowerCase();
@@ -175,14 +175,17 @@ export const HistoryScreen: React.FC = () => {
             </div>
           </div>
 
-          {/* Barra de Proporción de Gasto */}
+          {/* Barra de Ritmo de Gasto */}
           <div className="space-y-1 pt-1">
             <div className="flex justify-between items-center text-[10px] text-[#6B7280] font-medium">
               <span>Ritmo de Gasto</span>
               <span>{spentPercent}% gastado</span>
             </div>
             <div className="h-1.5 w-full rounded-full bg-[#F3F4F6] overflow-hidden">
-              <div className="h-full bg-[#111827] transition-all duration-500" style={{ width: `${spentPercent}%` }}></div>
+              <div
+                className="h-full bg-[#111827] transition-all duration-500"
+                style={{ width: `${spentPercent}%` }}
+              ></div>
             </div>
           </div>
         </section>
@@ -198,7 +201,10 @@ export const HistoryScreen: React.FC = () => {
             className="w-full bg-transparent text-xs text-[#111827] placeholder-[#9CA3AF] outline-none"
           />
           {searchQuery && (
-            <button onClick={() => setSearchQuery('')} className="text-[#9CA3AF] hover:text-[#111827] text-xs">
+            <button
+              onClick={() => setSearchQuery('')}
+              className="text-[#9CA3AF] hover:text-[#111827] text-xs cursor-pointer"
+            >
               <span className="material-symbols-outlined text-[16px]">cancel</span>
             </button>
           )}
@@ -320,11 +326,12 @@ export const HistoryScreen: React.FC = () => {
         )}
       </main>
 
-      {/* Modal de Detalle y Eliminación */}
+      {/* Modal de Detalle, Edición y Eliminación */}
       <TransactionDetailModal
         transaction={selectedTransaction}
         onClose={() => setSelectedTransaction(null)}
         onDeleted={loadMonthTransactions}
+        onUpdated={loadMonthTransactions}
       />
     </div>
   );

@@ -17,7 +17,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
 }) => {
   const [name, setName] = useState('');
   const [type, setType] = useState<AccountType>('bank');
-  const [balanceStr, setBalanceStr] = useState('0');
+  const [balanceStr, setBalanceStr] = useState('0.00');
   const [accountNumber, setAccountNumber] = useState('');
   const [targetAmountStr, setTargetAmountStr] = useState('');
   const [icon, setIcon] = useState('account_balance');
@@ -39,7 +39,11 @@ export const AccountModal: React.FC<AccountModalProps> = ({
         setType(accountToEdit.type);
         setBalanceStr(Number(accountToEdit.current_balance).toFixed(2));
         setAccountNumber(accountToEdit.account_number_masked || '');
-        setTargetAmountStr(accountToEdit.target_amount ? Number(accountToEdit.target_amount).toFixed(2) : '');
+        setTargetAmountStr(
+          accountToEdit.target_amount !== null && accountToEdit.target_amount !== undefined
+            ? Number(accountToEdit.target_amount).toFixed(2)
+            : ''
+        );
         setIcon(accountToEdit.icon || 'account_balance');
       } else {
         setName('');
@@ -62,22 +66,34 @@ export const AccountModal: React.FC<AccountModalProps> = ({
       return;
     }
 
-    const numericBalance = parseFloat(balanceStr) || 0;
-    const numericTarget = targetAmountStr ? parseFloat(targetAmountStr) : null;
+    const numericBalance = parseFloat(balanceStr);
+    if (isNaN(numericBalance)) {
+      setErrorMessage('Ingresa un saldo numérico válido');
+      return;
+    }
+
+    const numericTarget = targetAmountStr.trim() !== '' ? parseFloat(targetAmountStr) : null;
+    if (numericTarget !== null && (isNaN(numericTarget) || numericTarget < 0)) {
+      setErrorMessage('Ingresa una meta de ahorro válida');
+      return;
+    }
 
     setIsSubmitting(true);
     setErrorMessage(null);
 
     try {
       if (accountToEdit) {
+        // Actualizar saldo actual y meta de ahorro en Supabase
         await financeService.updateAccount(accountToEdit.id, {
           name: name.trim(),
           type,
+          current_balance: numericBalance,
           account_number_masked: accountNumber.trim() || null,
           target_amount: numericTarget,
           icon,
         });
       } else {
+        // Crear cuenta nueva con saldo inicial y meta
         await financeService.createAccount({
           name: name.trim(),
           type,
@@ -120,7 +136,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
             <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
           <h2 className="text-[15px] font-semibold text-[#111827]">
-            {accountToEdit ? 'Editar Cuenta' : 'Nueva Cuenta'}
+            {accountToEdit ? 'Editar Cuenta y Saldo' : 'Nueva Cuenta'}
           </h2>
           <div className="w-8"></div>
         </div>
@@ -175,22 +191,44 @@ export const AccountModal: React.FC<AccountModalProps> = ({
             </div>
           </div>
 
-          {/* Saldo Inicial (solo visible al crear) */}
-          {!accountToEdit && (
-            <div>
-              <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">
-                Saldo Inicial ($)
+          {/* Saldo de la Cuenta (Siempre visible y editable) */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider">
+                {accountToEdit ? 'Saldo Actual ($)' : 'Saldo Inicial ($)'}
               </label>
-              <input
-                type="number"
-                step="0.01"
-                value={balanceStr}
-                onChange={(e) => setBalanceStr(e.target.value)}
-                placeholder="0.00"
-                className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#111827] tabular-nums"
-              />
+              <span className="text-[10px] text-[#9CA3AF]">
+                {accountToEdit ? 'Ajusta el saldo real' : 'Monto de apertura'}
+              </span>
             </div>
-          )}
+            <input
+              type="number"
+              step="0.01"
+              required
+              value={balanceStr}
+              onChange={(e) => setBalanceStr(e.target.value)}
+              placeholder="0.00"
+              className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-sm text-[#111827] font-semibold focus:outline-none focus:border-[#111827] tabular-nums"
+            />
+          </div>
+
+          {/* Meta de Ahorro Objetivo (Visible y editable) */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-[11px] font-semibold text-[#2E7D56] uppercase tracking-wider">
+                Meta de Ahorro Objetivo ($)
+              </label>
+              <span className="text-[10px] text-[#6B7280]">Opcional</span>
+            </div>
+            <input
+              type="number"
+              step="0.01"
+              value={targetAmountStr}
+              onChange={(e) => setTargetAmountStr(e.target.value)}
+              placeholder="Ej. 6000.00"
+              className="w-full h-11 px-3.5 bg-[#E8F5EE] border border-[#2E7D56]/20 rounded-xl text-sm text-[#2E7D56] font-semibold focus:outline-none focus:border-[#2E7D56] tabular-nums"
+            />
+          </div>
 
           {/* Número de Cuenta Enmascarado */}
           <div>
@@ -205,23 +243,6 @@ export const AccountModal: React.FC<AccountModalProps> = ({
               className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#111827]"
             />
           </div>
-
-          {/* Meta de Ahorro Objetivo (si es de tipo Ahorro) */}
-          {type === 'savings' && (
-            <div>
-              <label className="block text-[11px] font-semibold text-[#2E7D56] uppercase tracking-wider mb-1">
-                Meta de ahorro objetivo ($)
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                value={targetAmountStr}
-                onChange={(e) => setTargetAmountStr(e.target.value)}
-                placeholder="Ej. 6000.00"
-                className="w-full h-11 px-3.5 bg-[#E8F5EE] border border-[#2E7D56]/20 rounded-xl text-sm text-[#2E7D56] font-semibold focus:outline-none focus:border-[#2E7D56] tabular-nums"
-              />
-            </div>
-          )}
 
           {/* Selector de Icono */}
           <div>
@@ -256,7 +277,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
             {isSubmitting ? (
               <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
             ) : accountToEdit ? (
-              'Guardar Cambios'
+              'Guardar Cambios en Cuenta'
             ) : (
               'Crear Cuenta'
             )}
