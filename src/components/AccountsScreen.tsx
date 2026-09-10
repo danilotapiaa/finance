@@ -25,20 +25,22 @@ export const AccountsScreen: React.FC = () => {
 
   const totalBalance = accounts.reduce((sum, acc) => sum + Number(acc.current_balance), 0);
 
-  // Cálculo de distribución porcentual
+  // Cálculo de distribución porcentual utilizando cada balance correspondiente
   const bankBalance = accounts
     .filter((a) => a.type === 'bank')
     .reduce((sum, a) => sum + Number(a.current_balance), 0);
+
   const savingsBalance = accounts
     .filter((a) => a.type === 'savings')
     .reduce((sum, a) => sum + Number(a.current_balance), 0);
+
   const cashBalance = accounts
     .filter((a) => a.type === 'cash')
     .reduce((sum, a) => sum + Number(a.current_balance), 0);
 
   const bankPct = totalBalance > 0 ? Math.round((bankBalance / totalBalance) * 100) : 0;
   const savingsPct = totalBalance > 0 ? Math.round((savingsBalance / totalBalance) * 100) : 0;
-  const cashPct = totalBalance > 0 ? Math.max(0, 100 - bankPct - savingsPct) : 0;
+  const cashPct = totalBalance > 0 ? Math.round((cashBalance / totalBalance) * 100) : 0;
 
   if (loading) {
     return (
@@ -161,7 +163,7 @@ export const AccountsScreen: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Barra de Progreso de Meta */}
+                  {/* Barra de Progreso de Meta si es tipo Ahorro */}
                   {acc.type === 'savings' && target > 0 && (
                     <div className="space-y-1 pt-1">
                       <div className="h-1.5 w-full bg-[#F3F4F6] rounded-full overflow-hidden">
