@@ -52,9 +52,11 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Manejo del teclado numérico integrado
+  // Manejo del teclado numérico integrado con soporte de decimales
   const handleKeypadPress = (key: string) => {
     setErrorMessage(null);
+
+    // Borrado hacia atrás
     if (key === 'backspace') {
       if (amountStr.length <= 1) {
         setAmountStr('0');
@@ -64,6 +66,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       return;
     }
 
+    // Inserción de punto decimal
     if (key === '.') {
       if (!amountStr.includes('.')) {
         setAmountStr(amountStr + '.');
@@ -71,12 +74,15 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       return;
     }
 
-    // Evitar más de 2 decimales
+    // Limitar estrictamente a un máximo de 2 dígitos decimales
     if (amountStr.includes('.')) {
       const parts = amountStr.split('.');
-      if (parts.length >= 2) return;
+      if (parts && parts.length >= 2) {
+        return;
+      }
     }
 
+    // Reemplazo del 0 inicial por el primer dígito entero
     if (amountStr === '0') {
       setAmountStr(key);
     } else {
@@ -132,7 +138,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
         <div className="flex items-center justify-between">
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition active:scale-95"
+            className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition active:scale-95 cursor-pointer"
             type="button"
           >
             <span className="material-symbols-outlined text-[18px]">close</span>
@@ -143,7 +149,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             <button
               type="button"
               onClick={() => setType('expense')}
-              className={`px-3.5 py-1 rounded-full transition-all ${
+              className={`px-3.5 py-1 rounded-full transition-all cursor-pointer ${
                 type === 'expense' ? 'bg-[#111827] text-white shadow-sm' : 'text-gray-500 hover:text-gray-900'
               }`}
             >
@@ -152,7 +158,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             <button
               type="button"
               onClick={() => setType('income')}
-              className={`px-3.5 py-1 rounded-full transition-all ${
+              className={`px-3.5 py-1 rounded-full transition-all cursor-pointer ${
                 type === 'income' ? 'bg-[#2E7D56] text-white shadow-sm' : 'text-gray-500 hover:text-gray-900'
               }`}
             >
@@ -231,7 +237,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   key={cat.id}
                   type="button"
                   onClick={() => setSelectedCategoryId(cat.id)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-medium flex-shrink-0 transition-all ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-medium flex-shrink-0 transition-all cursor-pointer ${
                     isSelected
                       ? 'bg-[#111827] text-white shadow-sm'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -252,7 +258,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               key={key}
               type="button"
               onClick={() => handleKeypadPress(key)}
-              className="h-[44px] text-lg font-medium text-gray-800 rounded-xl hover:bg-gray-100 active:scale-95 transition flex items-center justify-center bg-gray-50/50 border border-gray-100/50"
+              className="h-[44px] text-lg font-medium text-gray-800 rounded-xl hover:bg-gray-100 active:scale-95 transition flex items-center justify-center bg-gray-50/50 border border-gray-100/50 cursor-pointer"
             >
               {key === 'backspace' ? (
                 <span className="material-symbols-outlined text-[20px]">backspace</span>
