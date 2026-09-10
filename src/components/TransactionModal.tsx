@@ -52,7 +52,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Manejo del teclado numérico integrado con soporte de decimales
+  // Manejo del teclado numérico con lógica decimal verificada
   const handleKeypadPress = (key: string) => {
     setErrorMessage(null);
 
@@ -66,7 +66,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       return;
     }
 
-    // Inserción de punto decimal
+    // Inserción del punto decimal
     if (key === '.') {
       if (!amountStr.includes('.')) {
         setAmountStr(amountStr + '.');
@@ -74,15 +74,16 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       return;
     }
 
-    // Limitar estrictamente a un máximo de 2 dígitos decimales
+    // Si ya tiene punto, verificar que la parte decimal no supere los 2 dígitos
     if (amountStr.includes('.')) {
       const parts = amountStr.split('.');
-      if (parts && parts.length >= 2) {
+      const decimalDigits = parts || '';
+      if (decimalDigits.length >= 2) {
         return;
       }
     }
 
-    // Reemplazo del 0 inicial por el primer dígito entero
+    // Si es 0 y se presiona un número, sustituir el 0 inicial
     if (amountStr === '0') {
       setAmountStr(key);
     } else {
