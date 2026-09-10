@@ -26,7 +26,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Inicializar cuenta y categoría por defecto al abrir
+  // Inicializar cuenta y categoría por defecto al abrir el modal
   useEffect(() => {
     if (isOpen) {
       setAmountStr('0');
@@ -52,11 +52,11 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Manejo del teclado numérico con lógica decimal verificada
+  // Manejo del teclado numérico con cálculo directo de decimales
   const handleKeypadPress = (key: string) => {
     setErrorMessage(null);
 
-    // Borrado hacia atrás
+    // 1. Borrar último carácter
     if (key === 'backspace') {
       if (amountStr.length <= 1) {
         setAmountStr('0');
@@ -66,7 +66,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       return;
     }
 
-    // Inserción del punto decimal
+    // 2. Insertar punto decimal
     if (key === '.') {
       if (!amountStr.includes('.')) {
         setAmountStr(amountStr + '.');
@@ -74,16 +74,15 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       return;
     }
 
-    // Si ya tiene punto, verificar que la parte decimal no supere los 2 dígitos
+    // 3. Si ya existe un punto, verificar cuántos dígitos decimales ya fueron escritos
     if (amountStr.includes('.')) {
-      const parts = amountStr.split('.');
-      const decimalDigits = parts || '';
-      if (decimalDigits.length >= 2) {
-        return;
+      const decimalPart = amountStr.substring(amountStr.indexOf('.') + 1);
+      if (decimalPart.length >= 2) {
+        return; // Máximo 2 decimales permitidos
       }
     }
 
-    // Si es 0 y se presiona un número, sustituir el 0 inicial
+    // 4. Si el valor actual es estrictamente "0", se sustituye por el número presionado
     if (amountStr === '0') {
       setAmountStr(key);
     } else {
