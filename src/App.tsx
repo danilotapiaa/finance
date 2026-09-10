@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { AuthScreen } from './components/AuthScreen';
 import { Dashboard } from './components/Dashboard';
 import { AccountsScreen } from './components/AccountsScreen';
+import { HistoryScreen } from './components/HistoryScreen';
 import { BottomNav, type TabType } from './components/BottomNav';
 
 const MainApp: React.FC = () => {
@@ -32,10 +33,7 @@ const MainApp: React.FC = () => {
       )}
 
       {activeTab === 'historial' && (
-        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center text-xs text-[#6B7280] min-h-[60vh]">
-          <p className="font-semibold text-sm text-[#111827] mb-1">Pestaña Historial</p>
-          <p>El historial completo con filtros será montado en el siguiente paso.</p>
-        </div>
+        <HistoryScreen />
       )}
 
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
