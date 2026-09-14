@@ -1,7 +1,5 @@
-const CACHE_NAME = 'serene-finance-v2';
+const CACHE_NAME = 'serene-finance-v3';
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
   '/icono.svg',
   '/manifest.json'
 ];
@@ -27,10 +25,27 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Ignorar llamadas a Supabase y peticiones no GET
   if (event.request.method !== 'GET' || event.request.url.includes('supabase.co')) {
     return;
   }
 
+  // Estrategia Network-First para páginas y navegación HTML:
+  // Siempre busca la versión más reciente en la red para que los cambios se vean al instante.
+  if (event.request.mode === 'navigate' || event.request.headers.get('accept')?.includes('text/html')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request) || caches.match('/index.html'))
+    );
+    return;
+  }
+
+  // Para assets estáticos: Cache-first con fallback a red
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
@@ -41,9 +56,7 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         }
         const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
         return networkResponse;
       });
     })
