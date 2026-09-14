@@ -19,6 +19,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 }) => {
   const [type, setType] = useState<TransactionType>('expense');
   const [amountStr, setAmountStr] = useState('0');
+  // Sin cuenta seleccionada por defecto: selección estrictamente obligatoria
   const [selectedAccountId, setSelectedAccountId] = useState<string>('');
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [note, setNote] = useState('');
@@ -26,25 +27,22 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Inicializar cuenta y categoría por defecto al abrir el modal
   useEffect(() => {
     if (isOpen) {
       setAmountStr('0');
       setNote('');
       setIsEditingNote(false);
       setErrorMessage(null);
-      if (accounts.length > 0) {
-        setSelectedAccountId(accounts[0].id);
-      }
+      setSelectedAccountId(''); // Siempre inicia vacío para obligar al usuario a elegir
     }
-  }, [isOpen, accounts]);
+  }, [isOpen]);
 
-  // Filtrar categorías según tipo (gasto o ingreso)
   const filteredCategories = categories.filter((c) => c.type === type);
 
   useEffect(() => {
-    if (filteredCategories.length > 0) {
-      setSelectedCategoryId(filteredCategories[0].id);
+    const [firstCategory] = filteredCategories;
+    if (firstCategory) {
+      setSelectedCategoryId(firstCategory.id);
     } else {
       setSelectedCategoryId(null);
     }
@@ -52,11 +50,9 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Manejo del teclado numérico con cálculo directo de decimales
   const handleKeypadPress = (key: string) => {
     setErrorMessage(null);
 
-    // 1. Borrar último carácter
     if (key === 'backspace') {
       if (amountStr.length <= 1) {
         setAmountStr('0');
@@ -66,7 +62,6 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       return;
     }
 
-    // 2. Insertar punto decimal
     if (key === '.') {
       if (!amountStr.includes('.')) {
         setAmountStr(amountStr + '.');
@@ -74,15 +69,13 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       return;
     }
 
-    // 3. Si ya existe un punto, verificar cuántos dígitos decimales ya fueron escritos
     if (amountStr.includes('.')) {
       const decimalPart = amountStr.substring(amountStr.indexOf('.') + 1);
       if (decimalPart.length >= 2) {
-        return; // Máximo 2 decimales permitidos
+        return;
       }
     }
 
-    // 4. Si el valor actual es estrictamente "0", se sustituye por el número presionado
     if (amountStr === '0') {
       setAmountStr(key);
     } else {
@@ -97,8 +90,9 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       return;
     }
 
+    // Validación obligatoria: exige elegir una cuenta
     if (!selectedAccountId) {
-      setErrorMessage('Debes seleccionar una cuenta');
+      setErrorMessage('Debes seleccionar la cuenta obligatoriamente');
       return;
     }
 
@@ -134,7 +128,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
         {/* Píldora de arrastre */}
         <div className="w-9 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
 
-        {/* Barra superior de acciones */}
+        {/* Barra superior */}
         <div className="flex items-center justify-between">
           <button
             onClick={onClose}
@@ -144,7 +138,6 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
 
-          {/* Selector Gasto / Ingreso */}
           <div className="bg-gray-100 p-1 rounded-full flex gap-1 items-center text-xs font-medium">
             <button
               type="button"
@@ -181,7 +174,6 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             </span>
           </div>
 
-          {/* Campo de Nota Dinámica */}
           {isEditingNote ? (
             <input
               type="text"
@@ -204,21 +196,38 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
         </div>
 
         {errorMessage && (
-          <div className="p-2.5 bg-red-50 text-red-600 rounded-xl text-xs text-center">
+          <div className="p-2.5 bg-red-50 text-red-600 rounded-xl text-xs text-center font-medium">
             {errorMessage}
           </div>
         )}
 
-        {/* Selectores de Cuenta y Categoría */}
+        {/* Selectores */}
         <div className="flex flex-col gap-2.5">
-          {/* Cuenta de Cargo/Destino */}
-          <div className="flex items-center justify-between bg-gray-50/80 border border-gray-100 rounded-xl px-3 py-2 text-xs">
-            <span className="text-gray-400 font-medium">Cuenta</span>
+          {/* Selector Obligatorio de Cuenta */}
+          <div
+            className={`flex items-center justify-between border rounded-xl px-3 py-2.5 text-xs transition ${
+              !selectedAccountId
+                ? 'bg-[#FDF2F0] border-[#C25E4A]/30'
+                : 'bg-gray-50/80 border-gray-100'
+            }`}
+          >
+            <span className="text-gray-500 font-medium">
+              Cuenta <span className="text-[#C25E4A]">*</span>
+            </span>
             <select
+              required
               value={selectedAccountId}
-              onChange={(e) => setSelectedAccountId(e.target.value)}
-              className="bg-transparent text-gray-800 font-semibold cursor-pointer outline-none text-right"
+              onChange={(e) => {
+                setSelectedAccountId(e.target.value);
+                setErrorMessage(null);
+              }}
+              className={`bg-transparent font-semibold cursor-pointer outline-none text-right text-xs max-w-[220px] truncate ${
+                !selectedAccountId ? 'text-[#C25E4A] font-bold' : 'text-gray-800'
+              }`}
             >
+              <option value="" disabled>
+                -- Seleccionar cuenta obligatoria --
+              </option>
               {accounts.map((acc) => (
                 <option key={acc.id} value={acc.id}>
                   {acc.name} (${Number(acc.current_balance).toFixed(2)})
@@ -227,7 +236,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             </select>
           </div>
 
-          {/* Categorías Dinámicas */}
+          {/* Categorías */}
           <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none text-xs">
             <span className="text-gray-400 font-medium flex-shrink-0 mr-1">Categoría</span>
             {filteredCategories.map((cat) => {
@@ -251,7 +260,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
           </div>
         </div>
 
-        {/* Teclado Numérico Táctil */}
+        {/* Teclado Numérico */}
         <div className="grid grid-cols-3 gap-1.5 pt-1">
           {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'backspace'].map((key) => (
             <button
@@ -269,7 +278,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
           ))}
         </div>
 
-        {/* Botón Principal Guardar */}
+        {/* Botón Guardar */}
         <button
           type="button"
           onClick={handleSubmit}

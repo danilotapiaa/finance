@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { financeService } from '../services/financeService';
 import type { Account, Category, Transaction, Profile } from '../types/database';
@@ -18,34 +18,48 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Carga de datos dinámica desde Supabase
-  const loadData = async () => {
+  // Carga robusta de datos: independiente y no bloqueante
+  const loadData = useCallback(async () => {
     try {
-      const [profData, accData, catData, txData] = await Promise.all([
+      const results = await Promise.allSettled([
         financeService.getProfile(),
         financeService.getAccounts(),
         financeService.getCategories(),
         financeService.getTransactions(10),
       ]);
-      setProfile(profData);
-      setAccounts(accData);
-      setCategories(catData);
-      setTransactions(txData);
+
+      const [profRes, accRes, catRes, txRes] = results;
+
+      if (profRes.status === 'fulfilled' && profRes.value) {
+        setProfile(profRes.value);
+      }
+      if (accRes.status === 'fulfilled') {
+        setAccounts(accRes.value);
+      }
+      if (catRes.status === 'fulfilled') {
+        setCategories(catRes.value);
+      }
+      if (txRes.status === 'fulfilled') {
+        setTransactions(txRes.value);
+      }
     } catch (err) {
       console.error('Error cargando datos del dashboard:', err);
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    loadData();
   }, []);
 
-  // Cálculo dinámico del Balance Total consolidado
+  // Se ejecuta de inmediato cuando el usuario se autentica
+  useEffect(() => {
+    if (user?.id) {
+      loadData();
+    }
+  }, [user?.id, loadData]);
+
+  // Balance Total Consolidado
   const totalBalance = accounts.reduce((sum, acc) => sum + Number(acc.current_balance), 0);
 
-  // Cálculo dinámico del flujo mensual (mes actual)
+  // Flujo mensual
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
 
@@ -66,14 +80,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
   const spentPercent = totalIncome > 0 ? Math.min(100, Math.round((totalExpense / totalIncome) * 100)) : 0;
   const availableBalance = Math.max(0, totalIncome - totalExpense);
 
-  // Formato de fecha
   const todayFormatted = new Intl.DateTimeFormat('es-ES', {
     weekday: 'long',
     day: 'numeric',
     month: 'short',
   }).format(new Date());
 
-  const userName = profile?.full_name || user?.user_metadata?.full_name || 'Usuario';
+  const userName = profile?.full_name || user?.user_metadata?.full_name || 'Danilo Tapia';
   const userInitials = (userName || 'U')
     .split(' ')
     .filter(Boolean)
@@ -82,7 +95,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
     .substring(0, 2)
     .toUpperCase();
 
-  if (loading) {
+  if (loading && accounts.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[60vh]">
         <div className="w-6 h-6 border-2 border-[#111827]/20 border-t-[#111827] rounded-full animate-spin"></div>
@@ -92,7 +105,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
 
   return (
     <div className="flex-1 flex flex-col w-full bg-[#F8F9FA] text-[#111827] relative">
-      {/* 1. Header Unificado (Delimitado al contenedor para que el botón + y avatar siempre se vean) */}
+      {/* 1. Header Unificado */}
       <header className="sticky top-0 w-full z-30 bg-[#F8F9FA]/90 backdrop-blur-xl border-b border-black/[0.04]">
         <div className="h-16 px-5 flex items-center justify-between w-full">
           <div className="flex flex-col justify-center">
@@ -105,7 +118,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
           </div>
 
           <div className="flex items-center space-x-2.5">
-            {/* Botón Nueva Transacción (+) */}
             <button
               type="button"
               onClick={() => setIsModalOpen(true)}
@@ -115,7 +127,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
               <span className="material-symbols-outlined text-[20px]">add</span>
             </button>
 
-            {/* Avatar / Perfil */}
             <button
               type="button"
               onClick={onOpenProfile}
@@ -162,7 +173,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
           </div>
         </section>
 
-        {/* 3. Carrusel de Cuentas Reales de Supabase */}
+        {/* 3. Carrusel de Cuentas Reales */}
         <section className="flex flex-col space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold text-[#111827]">Mis Cuentas</h2>

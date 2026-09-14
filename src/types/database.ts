@@ -1,6 +1,8 @@
 export type AccountType = 'bank' | 'savings' | 'cash' | 'credit';
 export type TransactionType = 'expense' | 'income';
 export type CategoryType = 'expense' | 'income';
+export type DebtType = 'lend' | 'borrow'; // 'lend' = me deben, 'borrow' = debo
+export type DebtStatus = 'pending' | 'partial' | 'paid';
 
 export interface Profile {
   id: string;
@@ -53,7 +55,6 @@ export interface Transaction {
   receipt_url: string | null;
   created_at: string;
   updated_at: string;
-  // Relaciones
   account?: Account;
   category?: Category;
 }
@@ -67,7 +68,32 @@ export interface Transfer {
   concept: string | null;
   date: string;
   created_at: string;
-  // Relaciones
   from_account?: Account;
   to_account?: Account;
+}
+
+export interface Debt {
+  id: string;
+  user_id: string;
+  person_name: string;
+  type: DebtType;
+  total_amount: number;
+  paid_amount: number;
+  due_date: string | null;
+  note: string | null;
+  status: DebtStatus;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DebtPayment {
+  id: string;
+  debt_id: string;
+  user_id: string;
+  account_id: string | null;
+  amount: number;
+  date: string;
+  note: string | null;
+  created_at: string;
+  account?: Account;
 }

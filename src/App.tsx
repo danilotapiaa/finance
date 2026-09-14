@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { AuthScreen } from './components/AuthScreen';
 import { Dashboard } from './components/Dashboard';
 import { AccountsScreen } from './components/AccountsScreen';
+import { DebtsScreen } from './components/DebtsScreen';
 import { HistoryScreen } from './components/HistoryScreen';
 import { SettingsScreen } from './components/SettingsScreen';
 import { BottomNav, type TabType } from './components/BottomNav';
@@ -24,30 +25,31 @@ const MainApp: React.FC = () => {
     return <AuthScreen />;
   }
 
-  // Si el usuario abre ajustes, se muestra la pantalla de preferencias
-  if (isSettingsOpen) {
-    return (
-      <div className="min-h-screen bg-[#F8F9FA] flex flex-col justify-between max-w-md mx-auto w-full relative shadow-sm">
-        <SettingsScreen onClose={() => setIsSettingsOpen(false)} />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col justify-between max-w-md mx-auto w-full relative shadow-sm">
-      {activeTab === 'hoy' && (
-        <Dashboard onOpenProfile={() => setIsSettingsOpen(true)} />
-      )}
+      {isSettingsOpen ? (
+        <SettingsScreen onClose={() => setIsSettingsOpen(false)} />
+      ) : (
+        <>
+          {activeTab === 'hoy' && (
+            <Dashboard onOpenProfile={() => setIsSettingsOpen(true)} />
+          )}
 
-      {activeTab === 'cuentas' && (
-        <AccountsScreen />
-      )}
+          {activeTab === 'cuentas' && (
+            <AccountsScreen />
+          )}
 
-      {activeTab === 'historial' && (
-        <HistoryScreen />
-      )}
+          {activeTab === 'deudas' && (
+            <DebtsScreen />
+          )}
 
-      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+          {activeTab === 'historial' && (
+            <HistoryScreen />
+          )}
+
+          <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+        </>
+      )}
     </div>
   );
 };
