@@ -21,6 +21,15 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [discreteModeAuto, setDiscreteModeAuto] = useState(false);
 
+  // Estados para restablecer datos
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const [deleteAccounts, setDeleteAccounts] = useState(false);
+  const [confirmationText, setConfirmationText] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
+  const [resetError, setResetError] = useState<string | null>(null);
+
+  const CONFIRM_WORD = 'RESTABLECER';
+
   useEffect(() => {
     const loadProfile = async () => {
       try {
@@ -89,6 +98,35 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
       alert('Ocurrió un error al exportar los datos.');
     } finally {
       setIsExporting(false);
+    }
+  };
+
+  // Restablecer datos en Supabase a 0
+  const handleResetAllData = async () => {
+    if (confirmationText.trim().toUpperCase() !== CONFIRM_WORD) {
+      setResetError(`Escribe "${CONFIRM_WORD}" para confirmar.`);
+      return;
+    }
+
+    try {
+      setIsResetting(true);
+      setResetError(null);
+
+      await financeService.resetUserData({ deleteAccounts });
+
+      setIsResetModalOpen(false);
+      setStatusMessage('Datos restablecidos a cero correctamente');
+
+      // Recarga limpia de la aplicación para sincronizar todas las vistas
+      setTimeout(() => {
+        window.location.reload();
+      }, 1200);
+    } catch (err: unknown) {
+      console.error('Error al restablecer datos:', err);
+      const msg = err instanceof Error ? err.message : 'Error inesperado al restablecer datos.';
+      setResetError(msg);
+    } finally {
+      setIsResetting(false);
     }
   };
 
@@ -314,6 +352,30 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
                 {isExporting ? 'hourglass_empty' : 'download'}
               </span>
             </button>
+
+            {/* Restablecer datos a cero */}
+            <button
+              type="button"
+              onClick={() => {
+                setConfirmationText('');
+                setResetError(null);
+                setIsResetModalOpen(true);
+              }}
+              className="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-neutral-50 active:bg-neutral-100 transition-colors cursor-pointer group"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-7 h-7 rounded-lg bg-[#FDF2F0] text-[#C25E4A] flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[17px]">restart_alt</span>
+                </div>
+                <div>
+                  <span className="text-[13px] font-medium text-[#C25E4A] block">Restablecer datos</span>
+                  <span className="text-[11px] text-[#6B7280]">Borrar movimientos y volver a empezar desde $0.00</span>
+                </div>
+              </div>
+              <span className="material-symbols-outlined text-[18px] text-[#9CA3AF] group-hover:text-[#C25E4A] transition-colors">
+                chevron_right
+              </span>
+            </button>
           </div>
         </section>
 
@@ -338,6 +400,97 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
           <p className="text-[11px] text-[#6B7280]">Tus datos viven protegidos en tu base de datos de Supabase.</p>
         </footer>
       </main>
+
+      {/* Modal de Confirmación para Restablecer (Estética Serene Finance) */}
+      {isResetModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-5 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-black/[0.06] space-y-4 animate-in zoom-in-95 duration-200">
+            {/* Icono y Encabezado */}
+            <div className="text-center space-y-1.5">
+              <div className="w-12 h-12 rounded-2xl bg-[#FDF2F0] text-[#C25E4A] flex items-center justify-center mx-auto mb-2">
+                <span className="material-symbols-outlined text-[24px]">restart_alt</span>
+              </div>
+              <h3 className="text-[18px] font-bold text-[#111827] tracking-tight">
+                Restablecer datos
+              </h3>
+              <p className="text-[12px] text-[#6B7280] leading-relaxed">
+                Se eliminarán tus transacciones, transferencias y deudas. Los saldos de tus cuentas volverán a <strong>$0.00</strong>.
+              </p>
+            </div>
+
+            {/* Selector de Cuentas */}
+            <div className="p-3 bg-[#F8F9FA] rounded-2xl border border-black/[0.05]">
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={deleteAccounts}
+                  onChange={(e) => setDeleteAccounts(e.target.checked)}
+                  disabled={isResetting}
+                  className="mt-0.5 w-4 h-4 rounded text-[#111827] accent-[#111827] cursor-pointer"
+                />
+                <div className="text-[11px] leading-tight">
+                  <span className="font-semibold text-[#111827] block">Eliminar también mis cuentas</span>
+                  <span className="text-[#6B7280] mt-0.5 block">
+                    Si lo dejas desmarcado, conservarás tus cuentas listas para usar con balance en $0.00.
+                  </span>
+                </div>
+              </label>
+            </div>
+
+            {/* Input de confirmación */}
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider text-center">
+                Escribe <span className="text-[#C25E4A] font-bold">{CONFIRM_WORD}</span>
+              </label>
+              <input
+                type="text"
+                value={confirmationText}
+                onChange={(e) => setConfirmationText(e.target.value)}
+                placeholder={CONFIRM_WORD}
+                disabled={isResetting}
+                className="w-full h-11 px-3 bg-[#F8F9FA] border border-black/10 rounded-xl text-center text-sm font-semibold tracking-widest text-[#111827] placeholder:text-[#9CA3AF] outline-none focus:border-black/30 transition"
+              />
+            </div>
+
+            {/* Mensaje de error si ocurre */}
+            {resetError && (
+              <div className="p-2.5 bg-[#FDF2F0] text-[#C25E4A] border border-[#C25E4A]/15 rounded-xl text-xs text-center font-medium">
+                {resetError}
+              </div>
+            )}
+
+            {/* Botones de acción */}
+            <div className="flex items-center gap-2.5 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  if (!isResetting) {
+                    setIsResetModalOpen(false);
+                    setConfirmationText('');
+                    setResetError(null);
+                  }
+                }}
+                disabled={isResetting}
+                className="flex-1 h-11 bg-[#F3F4F6] hover:bg-[#E5E7EB] rounded-2xl text-xs font-semibold text-[#111827] transition active:scale-[0.98] cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleResetAllData}
+                disabled={isResetting || confirmationText.trim().toUpperCase() !== CONFIRM_WORD}
+                className="flex-1 h-11 bg-[#C25E4A] hover:bg-[#A94E3C] disabled:opacity-40 rounded-2xl text-xs font-semibold text-white flex items-center justify-center gap-1.5 transition active:scale-[0.98] cursor-pointer shadow-sm"
+              >
+                {isResetting ? (
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <span>Restablecer</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

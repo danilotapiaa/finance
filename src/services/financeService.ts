@@ -1,6 +1,14 @@
 import { supabase } from '../lib/supabase';
 import type { Account, Category, Transaction, Transfer, Profile, Debt, DebtPayment } from '../types/database';
 
+export interface ResetOptions {
+  /**
+   * Si es true, desactiva o elimina las cuentas.
+   * Si es false (recomendado), conserva las cuentas creadas pero con saldo en 0.00.
+   */
+  deleteAccounts?: boolean;
+}
+
 export const financeService = {
   // ==========================================
   // PERFIL (Optimizado sin bloqueos de red)
@@ -294,5 +302,111 @@ export const financeService = {
 
     if (error) throw error;
     return data;
+  },
+
+  // ==========================================
+  // RESTABLECER DATOS DEL USUARIO A CERO
+  // ==========================================
+  async resetUserData(options: ResetOptions = { deleteAccounts: false }): Promise<void> {
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
+    if (!user) throw new Error('No autenticado');
+
+    // 1. Obtener todas las cuentas del usuario
+    const { data: accounts } = await supabase
+      .from('accounts')
+      .select('id')
+      .eq('user_id', user.id);
+
+    // 2. Blindaje: poner el saldo de cada cuenta en 0.00 de inmediato
+    if (accounts && accounts.length > 0) {
+      for (const acc of accounts) {
+        try {
+          await supabase
+            .from('accounts')
+            .update({ balance: 0 })
+            .eq('id', acc.id);
+        } catch (e) {
+          console.warn(`No se pudo actualizar saldo a 0 en cuenta ${acc.id}:`, e);
+        }
+      }
+    }
+
+    // 3. Purgar abonos de deudas primero para evitar fallos de Foreign Key
+    try {
+      const { data: debts } = await supabase
+        .from('debts')
+        .select('id')
+        .eq('user_id', user.id);
+
+      if (debts && debts.length > 0) {
+        const debtIds = debts.map((d) => d.id);
+        await supabase
+          .from('debt_payments')
+          .delete()
+          .in('debt_id', debtIds);
+      }
+    } catch (e) {
+      console.warn('Aviso purgando debt_payments por debt_id:', e);
+    }
+
+    try {
+      await supabase
+        .from('debt_payments')
+        .delete()
+        .eq('user_id', user.id);
+    } catch (e) {
+      console.warn('Aviso purgando debt_payments por user_id:', e);
+    }
+
+    // 4. Purgar deudas
+    try {
+      await supabase
+        .from('debts')
+        .delete()
+        .eq('user_id', user.id);
+    } catch (e) {
+      console.warn('Aviso purgando debts:', e);
+    }
+
+    // 5. Purgar transferencias
+    try {
+      await supabase
+        .from('transfers')
+        .delete()
+        .eq('user_id', user.id);
+    } catch (e) {
+      console.warn('Aviso purgando transfers:', e);
+    }
+
+    // 6. Purgar transacciones
+    try {
+      await supabase
+        .from('transactions')
+        .delete()
+        .eq('user_id', user.id);
+    } catch (e) {
+      console.warn('Aviso purgando transactions:', e);
+    }
+
+    // 7. Si se solicitó eliminar cuentas
+    if (options.deleteAccounts && accounts && accounts.length > 0) {
+      for (const acc of accounts) {
+        // Intentar hard delete
+        const { error: hardDelErr } = await supabase
+          .from('accounts')
+          .delete()
+          .eq('id', acc.id);
+
+        // Si PostgreSQL o RLS bloquean el DELETE, aplicar soft delete (is_active = false)
+        // Como getAccounts() solo lee is_active = true, desaparecen por completo
+        if (hardDelErr) {
+          await supabase
+            .from('accounts')
+            .update({ is_active: false, balance: 0 })
+            .eq('id', acc.id);
+        }
+      }
+    }
   },
 };
