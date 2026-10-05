@@ -59,6 +59,56 @@ export const AccountModal: React.FC<AccountModalProps> = ({
 
   if (!isOpen) return null;
 
+  const handleTypeChange = (newType: AccountType) => {
+    setType(newType);
+    const defaultIcons: Record<AccountType, string> = {
+      bank: 'account_balance',
+      savings: 'savings',
+      cash: 'payments',
+      credit: 'credit_card',
+    };
+    setIcon(defaultIcons[newType]);
+  };
+
+  const config = {
+    bank: {
+      namePlaceholder: 'Ej. Banco Pichincha, BBVA, Santander...',
+      balanceLabel: accountToEdit ? 'Saldo Actual ($)' : 'Saldo Inicial ($)',
+      balanceSub: accountToEdit ? 'Ajusta el saldo real' : 'Monto de apertura',
+      showTarget: false,
+      showDigits: true,
+      digitsLabel: 'Últimos dígitos o N° de cuenta (opcional)',
+      digitsPlaceholder: '•••• 4821',
+    },
+    savings: {
+      namePlaceholder: 'Ej. Fondo de Emergencia, Ahorro Vacaciones...',
+      balanceLabel: accountToEdit ? 'Saldo Actual Ahorrado ($)' : 'Saldo Inicial ($)',
+      balanceSub: accountToEdit ? 'Monto actual en el fondo' : 'Monto de apertura',
+      showTarget: true,
+      showDigits: true,
+      digitsLabel: 'N° de cuenta o referencia (opcional)',
+      digitsPlaceholder: '•••• 9021',
+    },
+    cash: {
+      namePlaceholder: 'Ej. Billetera personal, Efectivo en casa, Caja chica...',
+      balanceLabel: accountToEdit ? 'Efectivo Actual ($)' : 'Efectivo Inicial ($)',
+      balanceSub: accountToEdit ? 'Dinero disponible en mano' : 'Monto inicial en efectivo',
+      showTarget: false,
+      showDigits: false,
+      digitsLabel: '',
+      digitsPlaceholder: '',
+    },
+    credit: {
+      namePlaceholder: 'Ej. Visa Platinum, Mastercard Débito / Crédito...',
+      balanceLabel: accountToEdit ? 'Saldo / Límite Disponible ($)' : 'Saldo Inicial / Cupo ($)',
+      balanceSub: accountToEdit ? 'Saldo disponible actual' : 'Límite o saldo inicial',
+      showTarget: false,
+      showDigits: true,
+      digitsLabel: 'Últimos 4 dígitos de la tarjeta (opcional)',
+      digitsPlaceholder: '•••• 1234',
+    },
+  }[type];
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
@@ -72,7 +122,11 @@ export const AccountModal: React.FC<AccountModalProps> = ({
       return;
     }
 
-    const numericTarget = targetAmountStr.trim() !== '' ? parseFloat(targetAmountStr) : null;
+    const numericTarget =
+      type === 'savings' && targetAmountStr.trim() !== ''
+        ? parseFloat(targetAmountStr)
+        : null;
+
     if (numericTarget !== null && (isNaN(numericTarget) || numericTarget < 0)) {
       setErrorMessage('Ingresa una meta de ahorro válida');
       return;
@@ -81,6 +135,8 @@ export const AccountModal: React.FC<AccountModalProps> = ({
     setIsSubmitting(true);
     setErrorMessage(null);
 
+    const cleanAccountNumber = type === 'cash' ? null : (accountNumber.trim() || null);
+
     try {
       if (accountToEdit) {
         // Actualizar saldo actual y meta de ahorro en Supabase
@@ -88,7 +144,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
           name: name.trim(),
           type,
           current_balance: numericBalance,
-          account_number_masked: accountNumber.trim() || null,
+          account_number_masked: cleanAccountNumber,
           target_amount: numericTarget,
           icon,
         });
@@ -99,7 +155,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
           type,
           initial_balance: numericBalance,
           current_balance: numericBalance,
-          account_number_masked: accountNumber.trim() || null,
+          account_number_masked: cleanAccountNumber,
           target_amount: numericTarget,
           color: null,
           icon,
@@ -157,7 +213,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Ej. Banco Pichincha, Billetera USD..."
+              placeholder={config.namePlaceholder}
               className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#111827]"
             />
           </div>
@@ -179,7 +235,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
                   <button
                     key={t}
                     type="button"
-                    onClick={() => setType(t)}
+                    onClick={() => handleTypeChange(t)}
                     className={`py-2 rounded-xl font-medium transition cursor-pointer ${
                       type === t ? 'bg-white text-[#111827] shadow-sm font-semibold' : 'text-[#6B7280]'
                     }`}
@@ -191,14 +247,14 @@ export const AccountModal: React.FC<AccountModalProps> = ({
             </div>
           </div>
 
-          {/* Saldo de la Cuenta (Siempre visible y editable) */}
+          {/* Saldo de la Cuenta */}
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider">
-                {accountToEdit ? 'Saldo Actual ($)' : 'Saldo Inicial ($)'}
+                {config.balanceLabel}
               </label>
               <span className="text-[10px] text-[#9CA3AF]">
-                {accountToEdit ? 'Ajusta el saldo real' : 'Monto de apertura'}
+                {config.balanceSub}
               </span>
             </div>
             <input
@@ -212,37 +268,41 @@ export const AccountModal: React.FC<AccountModalProps> = ({
             />
           </div>
 
-          {/* Meta de Ahorro Objetivo (Visible y editable) */}
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="text-[11px] font-semibold text-[#2E7D56] uppercase tracking-wider">
-                Meta de Ahorro Objetivo ($)
-              </label>
-              <span className="text-[10px] text-[#6B7280]">Opcional</span>
+          {/* Meta de Ahorro Objetivo (Solo para cuentas de Ahorro) */}
+          {config.showTarget && (
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[11px] font-semibold text-[#2E7D56] uppercase tracking-wider">
+                  Meta de Ahorro Objetivo ($)
+                </label>
+                <span className="text-[10px] text-[#6B7280]">Opcional</span>
+              </div>
+              <input
+                type="number"
+                step="0.01"
+                value={targetAmountStr}
+                onChange={(e) => setTargetAmountStr(e.target.value)}
+                placeholder="Ej. 6000.00"
+                className="w-full h-11 px-3.5 bg-[#E8F5EE] border border-[#2E7D56]/20 rounded-xl text-sm text-[#2E7D56] font-semibold focus:outline-none focus:border-[#2E7D56] tabular-nums"
+              />
             </div>
-            <input
-              type="number"
-              step="0.01"
-              value={targetAmountStr}
-              onChange={(e) => setTargetAmountStr(e.target.value)}
-              placeholder="Ej. 6000.00"
-              className="w-full h-11 px-3.5 bg-[#E8F5EE] border border-[#2E7D56]/20 rounded-xl text-sm text-[#2E7D56] font-semibold focus:outline-none focus:border-[#2E7D56] tabular-nums"
-            />
-          </div>
+          )}
 
-          {/* Número de Cuenta Enmascarado */}
-          <div>
-            <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">
-              Últimos dígitos o referencia (opcional)
-            </label>
-            <input
-              type="text"
-              value={accountNumber}
-              onChange={(e) => setAccountNumber(e.target.value)}
-              placeholder="•••• 4821"
-              className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#111827]"
-            />
-          </div>
+          {/* Número de Cuenta / Dígitos (Oculto para Efectivo) */}
+          {config.showDigits && (
+            <div>
+              <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">
+                {config.digitsLabel}
+              </label>
+              <input
+                type="text"
+                value={accountNumber}
+                onChange={(e) => setAccountNumber(e.target.value)}
+                placeholder={config.digitsPlaceholder}
+                className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#111827]"
+              />
+            </div>
+          )}
 
           {/* Selector de Icono */}
           <div>

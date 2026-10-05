@@ -56,8 +56,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
     }
   }, [user?.id, loadData]);
 
-  // Balance Total Consolidado
-  const totalBalance = accounts.reduce((sum, acc) => sum + Number(acc.current_balance), 0);
+  // Balance Disponible Consolidado (Banco, Tarjeta, Efectivo)
+  const spendableBalance = accounts
+    .filter((acc) => acc.type !== 'savings')
+    .reduce((sum, acc) => sum + Number(acc.current_balance), 0);
+
+  // Balance Total en Ahorros (Separado)
+  const savingsBalance = accounts
+    .filter((acc) => acc.type === 'savings')
+    .reduce((sum, acc) => sum + Number(acc.current_balance), 0);
 
   // Flujo mensual
   const currentMonth = new Date().getMonth();
@@ -141,10 +148,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
 
       {/* Contenido Principal */}
       <main className="flex-1 flex flex-col w-full px-5 pb-32 pt-4 space-y-6">
-        {/* 2. Hero Balance Total */}
+        {/* 2. Hero Balance Disponible */}
         <section className="flex flex-col items-center text-center space-y-1.5 py-1">
           <div className="flex items-center space-x-1.5 text-[#6B7280]">
-            <span className="text-xs font-medium">Balance Total</span>
+            <span className="text-xs font-medium">Balance Disponible</span>
             <button
               type="button"
               onClick={() => setIsBalanceVisible(!isBalanceVisible)}
@@ -159,17 +166,28 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
           <div className="flex items-baseline justify-center tracking-tight">
             <span className="text-2xl text-[#6B7280] font-normal mr-1">$</span>
             <span className="text-4xl font-bold tracking-tight text-[#111827] tabular-nums">
-              {isBalanceVisible ? totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 }) : '••••••'}
+              {isBalanceVisible ? spendableBalance.toLocaleString('en-US', { minimumFractionDigits: 2 }) : '••••••'}
             </span>
           </div>
 
-          <div className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-[#E8F5EE] text-[#2E7D56]">
-            <span className="material-symbols-outlined text-[14px]">
-              {netMonth >= 0 ? 'arrow_upward' : 'arrow_downward'}
-            </span>
-            <span className="text-xs font-semibold tabular-nums">
-              {netMonth >= 0 ? `+$${netMonth.toFixed(2)}` : `-$${Math.abs(netMonth).toFixed(2)}`} este mes
-            </span>
+          <div className="flex flex-wrap items-center justify-center gap-2 pt-0.5">
+            <div className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-[#E8F5EE] text-[#2E7D56]">
+              <span className="material-symbols-outlined text-[14px]">
+                {netMonth >= 0 ? 'arrow_upward' : 'arrow_downward'}
+              </span>
+              <span className="text-xs font-semibold tabular-nums">
+                {netMonth >= 0 ? `+$${netMonth.toFixed(2)}` : `-$${Math.abs(netMonth).toFixed(2)}`} este mes
+              </span>
+            </div>
+
+            {savingsBalance > 0 && (
+              <div className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-[#F3F4F6] text-[#4B5563]">
+                <span className="material-symbols-outlined text-[14px] text-[#2E7D56]">savings</span>
+                <span className="text-xs font-semibold tabular-nums">
+                  {isBalanceVisible ? `$${savingsBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '••••••'} en ahorros
+                </span>
+              </div>
+            )}
           </div>
         </section>
 

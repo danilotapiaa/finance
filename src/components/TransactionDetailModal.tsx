@@ -116,9 +116,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
   // Eliminar transacción
   const handleDelete = async () => {
-    const confirmDelete = window.confirm(
-      '¿Estás seguro de que deseas eliminar este movimiento? El saldo de tu cuenta se actualizará automáticamente.'
-    );
+    const confirmDelete = window.confirm('¿Estás seguro de que deseas eliminar este movimiento?');
     if (!confirmDelete) return;
 
     setIsDeleting(true);

@@ -226,7 +226,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               }`}
             >
               <option value="" disabled>
-                -- Seleccionar cuenta obligatoria --
+                Seleccionar cuenta...
               </option>
               {accounts.map((acc) => (
                 <option key={acc.id} value={acc.id}>

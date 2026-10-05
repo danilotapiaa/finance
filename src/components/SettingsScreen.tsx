@@ -18,8 +18,6 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
   const [currency, setCurrency] = useState('USD');
   const [numberFormat, setNumberFormat] = useState('14,850.00');
   const [firstDayOfWeek, setFirstDayOfWeek] = useState('Lunes');
-  const [biometricEnabled, setBiometricEnabled] = useState(false);
-  const [discreteModeAuto, setDiscreteModeAuto] = useState(false);
 
   // Estados para restablecer datos
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
@@ -39,8 +37,6 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
           setCurrency(data.currency || 'USD');
           setNumberFormat(data.number_format || '14,850.00');
           setFirstDayOfWeek(data.first_day_of_week === 'sunday' ? 'Domingo' : 'Lunes');
-          setBiometricEnabled(data.biometric_enabled || false);
-          setDiscreteModeAuto(data.discrete_mode_auto || false);
         }
       } catch (err) {
         console.error('Error cargando perfil:', err);
@@ -180,8 +176,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
             <h2 className="text-[16px] font-semibold text-[#111827] truncate tracking-tight">{userName}</h2>
             <p className="text-[12px] text-[#6B7280] truncate">{user?.email}</p>
             <div className="mt-1 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#E8F5EE] text-[10px] font-semibold text-[#2E7D56] border border-[#2E7D56]/15">
-              <span className="material-symbols-outlined text-[12px]">shield</span>
-              <span>Bóveda Local Encriptada</span>
+              <span className="material-symbols-outlined text-[12px]">verified_user</span>
+              <span>Cuenta verificada</span>
             </div>
           </div>
         </section>
@@ -258,77 +254,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
           </div>
         </section>
 
-        {/* Sección 2: Seguridad y Privacidad */}
-        <section className="space-y-1.5">
-          <h3 className="px-2 text-[11px] font-semibold uppercase tracking-wider text-[#6B7280]">Seguridad y Privacidad</h3>
-          <div className="bg-white rounded-2xl border border-black/[0.05] divide-y divide-black/[0.05] shadow-sm overflow-hidden text-xs">
-            {/* Bloqueo Biométrico */}
-            <div className="px-4 py-3 flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-7 h-7 rounded-lg bg-[#F3F4F6] text-[#111827] flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[17px]">lock</span>
-                </div>
-                <div>
-                  <p className="text-[13px] font-medium text-[#111827]">Bloqueo con Face ID / PIN</p>
-                  <p className="text-[11px] text-[#6B7280]">Requerir credenciales al abrir la app</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={biometricEnabled}
-                onClick={() => {
-                  const newVal = !biometricEnabled;
-                  setBiometricEnabled(newVal);
-                  handleSavePreference({ biometric_enabled: newVal });
-                }}
-                className={`relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ease-in-out duration-200 ${
-                  biometricEnabled ? 'bg-[#111827]' : 'bg-[#E5E7EB]'
-                }`}
-              >
-                <span
-                  className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-sm ring-0 transition ease-in-out duration-200 ${
-                    biometricEnabled ? 'translate-x-5' : 'translate-x-0'
-                  }`}
-                />
-              </button>
-            </div>
-
-            {/* Modo discreto automático */}
-            <div className="px-4 py-3 flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-7 h-7 rounded-lg bg-[#F3F4F6] text-[#111827] flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[17px]">visibility_off</span>
-                </div>
-                <div>
-                  <p className="text-[13px] font-medium text-[#111827]">Modo discreto automático</p>
-                  <p className="text-[11px] text-[#6B7280]">Ocultar saldos por defecto al iniciar</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={discreteModeAuto}
-                onClick={() => {
-                  const newVal = !discreteModeAuto;
-                  setDiscreteModeAuto(newVal);
-                  handleSavePreference({ discrete_mode_auto: newVal });
-                }}
-                className={`relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ease-in-out duration-200 ${
-                  discreteModeAuto ? 'bg-[#111827]' : 'bg-[#E5E7EB]'
-                }`}
-              >
-                <span
-                  className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-sm ring-0 transition ease-in-out duration-200 ${
-                    discreteModeAuto ? 'translate-x-5' : 'translate-x-0'
-                  }`}
-                />
-              </button>
-            </div>
-          </div>
-        </section>
-
-        {/* Sección 3: Datos y Respaldo */}
+        {/* Sección 2: Datos y Respaldo */}
         <section className="space-y-1.5">
           <h3 className="px-2 text-[11px] font-semibold uppercase tracking-wider text-[#6B7280]">Datos y Respaldo</h3>
           <div className="bg-white rounded-2xl border border-black/[0.05] divide-y divide-black/[0.05] shadow-sm overflow-hidden text-xs">
@@ -397,7 +323,6 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
             <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D56]"></span>
             <span>SERENE FINANCE • V1.0.0</span>
           </div>
-          <p className="text-[11px] text-[#6B7280]">Tus datos viven protegidos en tu base de datos de Supabase.</p>
         </footer>
       </main>
 

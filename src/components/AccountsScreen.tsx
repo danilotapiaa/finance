@@ -26,24 +26,28 @@ export const AccountsScreen: React.FC = () => {
     loadAccounts();
   }, []);
 
-  const totalBalance = accounts.reduce((sum, acc) => sum + Number(acc.current_balance), 0);
+  const spendableAccounts = accounts.filter((a) => a.type !== 'savings');
+  const savingsAccounts = accounts.filter((a) => a.type === 'savings');
 
-  // Cálculo de distribución porcentual
+  const spendableBalance = spendableAccounts.reduce((sum, acc) => sum + Number(acc.current_balance), 0);
+  const savingsBalance = savingsAccounts.reduce((sum, acc) => sum + Number(acc.current_balance), 0);
+
+  // Cálculo de distribución porcentual de cuentas para gastar
   const bankBalance = accounts
     .filter((a) => a.type === 'bank')
     .reduce((sum, a) => sum + Number(a.current_balance), 0);
 
-  const savingsBalance = accounts
-    .filter((a) => a.type === 'savings')
+  const creditBalance = accounts
+    .filter((a) => a.type === 'credit')
     .reduce((sum, a) => sum + Number(a.current_balance), 0);
 
   const cashBalance = accounts
     .filter((a) => a.type === 'cash')
     .reduce((sum, a) => sum + Number(a.current_balance), 0);
 
-  const bankPct = totalBalance > 0 ? Math.round((bankBalance / totalBalance) * 100) : 0;
-  const savingsPct = totalBalance > 0 ? Math.round((savingsBalance / totalBalance) * 100) : 0;
-  const cashPct = totalBalance > 0 ? Math.round((cashBalance / totalBalance) * 100) : 0;
+  const bankPct = spendableBalance > 0 ? Math.round((bankBalance / spendableBalance) * 100) : 0;
+  const creditPct = spendableBalance > 0 ? Math.round((creditBalance / spendableBalance) * 100) : 0;
+  const cashPct = spendableBalance > 0 ? Math.round((cashBalance / spendableBalance) * 100) : 0;
 
   if (loading) {
     return (
@@ -85,26 +89,26 @@ export const AccountsScreen: React.FC = () => {
 
       {/* Contenido Principal */}
       <main className="flex-1 flex flex-col w-full px-5 pb-32 pt-4 space-y-5">
-        {/* Total Hero */}
+        {/* Total Hero - Solo Banco, Tarjeta y Efectivo */}
         <section className="bg-white rounded-2xl p-5 shadow-sm border border-black/[0.04] space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-semibold text-[#6B7280] tracking-wider uppercase">
-              Total en Cuentas
+              Balance Disponible
             </span>
             <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#F3F4F6] text-[#6B7280]">
-              {accounts.length} activas
+              {spendableAccounts.length} activas
             </span>
           </div>
 
           <div className="text-3xl font-bold tracking-tight text-[#111827] tabular-nums">
-            ${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            ${spendableBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </div>
 
-          {/* Barra de Distribución Proporcional */}
+          {/* Barra de Distribución Proporcional (Bancos, Tarjetas, Efectivo) */}
           <div className="space-y-1.5 pt-1">
             <div className="h-2 w-full bg-[#F3F4F6] rounded-full overflow-hidden flex">
               <div className="h-full bg-[#111827]" style={{ width: `${bankPct}%` }} title={`Bancos ${bankPct}%`}></div>
-              <div className="h-full bg-[#2E7D56]" style={{ width: `${savingsPct}%` }} title={`Ahorros ${savingsPct}%`}></div>
+              <div className="h-full bg-[#4F46E5]" style={{ width: `${creditPct}%` }} title={`Tarjetas ${creditPct}%`}></div>
               <div className="h-full bg-[#9CA3AF]" style={{ width: `${cashPct}%` }} title={`Efectivo ${cashPct}%`}></div>
             </div>
 
@@ -112,15 +116,39 @@ export const AccountsScreen: React.FC = () => {
               <span className="flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-[#111827]"></span>Bancos {bankPct}%
               </span>
-              <span className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-[#2E7D56]"></span>Ahorros {savingsPct}%
-              </span>
+              {creditBalance > 0 && (
+                <span className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-[#4F46E5]"></span>Tarjetas {creditPct}%
+                </span>
+              )}
               <span className="flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-[#9CA3AF]"></span>Efectivo {cashPct}%
               </span>
             </div>
           </div>
         </section>
+
+        {/* Tarjeta de Balance en Ahorros */}
+        {savingsAccounts.length > 0 && (
+          <section className="bg-[#E8F5EE]/60 rounded-2xl p-4 shadow-sm border border-[#2E7D56]/20 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-xl bg-[#2E7D56]/10 text-[#2E7D56] flex items-center justify-center">
+                <span className="material-symbols-outlined text-[22px]">savings</span>
+              </div>
+              <div>
+                <span className="text-[11px] font-semibold text-[#2E7D56] uppercase tracking-wider block">
+                  Balance en Ahorros
+                </span>
+                <div className="text-xl font-bold text-[#111827] tabular-nums mt-0.5">
+                  ${savingsBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                </div>
+              </div>
+            </div>
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-white/80 text-[#2E7D56] border border-[#2E7D56]/15">
+              {savingsAccounts.length} {savingsAccounts.length === 1 ? 'fondo' : 'fondos'}
+            </span>
+          </section>
+        )}
 
         {/* Tarjeta de Acción Rápida: Transferir entre cuentas */}
         <section
@@ -142,8 +170,7 @@ export const AccountsScreen: React.FC = () => {
         {/* Categorías de Cuentas */}
         <div className="space-y-4">
           <div className="flex items-center justify-between px-1">
-            <h3 className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider">Tus Cuentas y Metas</h3>
-            <span className="text-[11px] text-[#9CA3AF]">Toca una cuenta para editar</span>
+            <h3 className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider">Mis Cuentas</h3>
           </div>
 
           <div className="space-y-3">
@@ -202,16 +229,6 @@ export const AccountsScreen: React.FC = () => {
               );
             })}
           </div>
-        </div>
-
-        {/* Nota de Seguridad */}
-        <div className="p-3.5 bg-white rounded-2xl border border-black/[0.04] flex items-center space-x-3">
-          <div className="w-8 h-8 rounded-full bg-[#F3F4F6] flex items-center justify-center text-[#6B7280] flex-shrink-0">
-            <span className="material-symbols-outlined text-[18px]">lock</span>
-          </div>
-          <p className="text-xs text-[#6B7280]">
-            Tus cuentas se actualizan automáticamente de forma atómica mediante triggers de Supabase.
-          </p>
         </div>
       </main>
 

@@ -129,7 +129,7 @@ export const AuthScreen: React.FC = () => {
             {loading ? (
               <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
             ) : isRegistering ? (
-              'Crear mi Bóveda'
+              'Crear cuenta'
             ) : (
               'Entrar'
             )}
@@ -138,9 +138,8 @@ export const AuthScreen: React.FC = () => {
       </div>
 
       {/* Pie con nota de privacidad */}
-      <div className="text-center text-[11px] text-[#9CA3AF] space-y-1">
-        <p>Bóveda personal cifrada punto a punto con Supabase.</p>
-        <p>Tus credenciales nunca se comparten con terceros.</p>
+      <div className="text-center text-[11px] text-[#9CA3AF]">
+        <p>Tus datos financieros están siempre seguros y protegidos.</p>
       </div>
     </div>
   );
