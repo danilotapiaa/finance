@@ -1,6 +1,9 @@
-const CACHE_NAME = 'serene-finance-v3';
+const CACHE_NAME = 'serene-finance-v4';
 const STATIC_ASSETS = [
   '/icono.svg',
+  '/apple-touch-icon.png',
+  '/pwa-192x192.png',
+  '/pwa-512x512.png',
   '/manifest.json'
 ];
 

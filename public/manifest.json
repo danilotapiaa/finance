@@ -4,19 +4,37 @@
   "description": "Gestión financiera personal minimalista y serena",
   "icons": [
     {
-      "src": "/icono.svg",
-      "type": "image/svg+xml",
-      "sizes": "192x192 512x512 any"
+      "src": "/apple-touch-icon.png",
+      "type": "image/png",
+      "sizes": "180x180",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
     },
     {
       "src": "/icono.svg",
       "type": "image/svg+xml",
-      "sizes": "192x192 512x512 any",
-      "purpose": "any maskable"
+      "sizes": "any"
     }
   ],
   "start_url": "/",
-  "background_color": "#F8F9FA",
+  "background_color": "#111827",
   "theme_color": "#F8F9FA",
   "display": "standalone",
   "orientation": "portrait"
