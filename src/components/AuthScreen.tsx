@@ -86,7 +86,7 @@ export const AuthScreen: React.FC = () => {
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="Alejandro González"
+                placeholder="Ej. Juan Pérez"
                 className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#111827] transition"
               />
             </div>

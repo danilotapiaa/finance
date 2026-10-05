@@ -126,7 +126,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
     }
   };
 
-  const userName = profile?.full_name || user?.user_metadata?.full_name || 'Danilo Tapia';
+  const userName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuario';
   const userInitials = (userName || 'U')
     .split(' ')
     .filter(Boolean)

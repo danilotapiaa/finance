@@ -324,7 +324,7 @@ export const financeService = {
         try {
           await supabase
             .from('accounts')
-            .update({ balance: 0 })
+            .update({ current_balance: 0, initial_balance: 0 })
             .eq('id', acc.id);
         } catch (e) {
           console.warn(`No se pudo actualizar saldo a 0 en cuenta ${acc.id}:`, e);
@@ -403,7 +403,7 @@ export const financeService = {
         if (hardDelErr) {
           await supabase
             .from('accounts')
-            .update({ is_active: false, balance: 0 })
+            .update({ is_active: false, current_balance: 0 })
             .eq('id', acc.id);
         }
       }

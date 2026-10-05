@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { financeService } from '../services/financeService';
 import type { Transaction } from '../types/database';
 import { TransactionDetailModal } from './TransactionDetailModal';
@@ -13,7 +13,7 @@ export const HistoryScreen: React.FC = () => {
   // Fecha del mes seleccionado
   const [currentDate, setCurrentDate] = useState(() => new Date());
 
-  const loadMonthTransactions = async () => {
+  const loadMonthTransactions = useCallback(async () => {
     setLoading(true);
     try {
       const year = currentDate.getFullYear();
@@ -25,11 +25,11 @@ export const HistoryScreen: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentDate]);
 
   useEffect(() => {
     loadMonthTransactions();
-  }, [currentDate]);
+  }, [loadMonthTransactions]);
 
   // Navegación de mes
   const handlePrevMonth = () => {

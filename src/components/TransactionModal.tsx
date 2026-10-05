@@ -40,9 +40,9 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   const filteredCategories = categories.filter((c) => c.type === type);
 
   useEffect(() => {
-    const [firstCategory] = filteredCategories;
-    if (firstCategory) {
-      setSelectedCategoryId(firstCategory.id);
+    const matching = categories.filter((c) => c.type === type);
+    if (matching.length > 0) {
+      setSelectedCategoryId(matching[0].id);
     } else {
       setSelectedCategoryId(null);
     }

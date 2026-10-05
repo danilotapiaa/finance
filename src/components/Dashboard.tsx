@@ -93,7 +93,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
     month: 'short',
   }).format(new Date());
 
-  const userName = profile?.full_name || user?.user_metadata?.full_name || 'Danilo Tapia';
+  const userName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuario';
   const userInitials = (userName || 'U')
     .split(' ')
     .filter(Boolean)

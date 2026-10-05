@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { financeService } from '../services/financeService';
 import type { Debt, Account } from '../types/database';
 import { DebtModal } from './DebtModal';
@@ -15,7 +15,7 @@ export const DebtsScreen: React.FC = () => {
   const [isNewDebtOpen, setIsNewDebtOpen] = useState(false);
   const [selectedDebtForPayment, setSelectedDebtForPayment] = useState<Debt | null>(null);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const [debtData, accData] = await Promise.all([
         financeService.getDebts(),
@@ -28,11 +28,11 @@ export const DebtsScreen: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   // Cálculos consolidados
   const totalLendPending = debts
