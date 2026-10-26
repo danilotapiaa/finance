@@ -1,3 +1,28 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production build outputs
+dist/
+dist-ssr/
+build/
+*.local
+
+# Environment & Credentials
+.env
+.env.*
+!.env.example
+
+# Database scripts & dumps
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+
+# Deployment & Vercel
+.vercel
+
 # Logs
 logs
 *.log
@@ -7,19 +32,23 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
+# Editor & System files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-.env
+
+# Testing & Coverage
+coverage/
+.nyc_output/
+
+# Temporary files & caches
+*.tmp
+*.temp
+.eslintcache
