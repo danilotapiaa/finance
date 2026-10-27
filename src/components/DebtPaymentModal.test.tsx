@@ -82,11 +82,12 @@ describe('DebtPaymentModal', () => {
     expect(screen.getByPlaceholderText('0.00')).toHaveValue(80)
   })
 
-  it('valida un monto mayor a cero', async () => {
-    const user = userEvent.setup()
+  it('valida un monto mayor a cero', () => {
     renderModal()
 
-    await user.click(screen.getByRole('button', { name: 'Confirmar Abono' }))
+    fireEvent.submit(
+      screen.getByRole('button', { name: 'Confirmar Abono' }).closest('form')!
+    )
 
     expect(
       screen.getByText('Ingresa un monto válido mayor a 0')

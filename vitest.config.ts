@@ -10,13 +10,15 @@ export default defineConfig({
     restoreMocks: true,
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'html'],
+      reporter: ['text', 'html', 'lcov'],
       include: ['src/**/*.{ts,tsx}'],
       exclude: [
         'src/main.tsx',
+        'src/lib/supabase.ts',
         'src/types/**',
         'src/test/**',
         'src/**/*.d.ts',
+        'src/**/*.test.{ts,tsx}',
       ],
     },
   },

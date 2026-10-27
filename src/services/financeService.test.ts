@@ -41,6 +41,30 @@ const createQuery = (result: QueryResult = { data: null, error: null }) => {
   return query as never
 }
 
+const createRejectedQuery = (error: unknown) => {
+  const query: Record<string, unknown> = {}
+  const chain = () => query
+
+  Object.assign(query, {
+    select: vi.fn(chain),
+    insert: vi.fn(chain),
+    update: vi.fn(chain),
+    delete: vi.fn(chain),
+    eq: vi.fn(chain),
+    gte: vi.fn(chain),
+    lte: vi.fn(chain),
+    in: vi.fn(chain),
+    order: vi.fn(chain),
+    limit: vi.fn(chain),
+    maybeSingle: vi.fn(() => Promise.reject(error)),
+    single: vi.fn(() => Promise.reject(error)),
+    then: (onFulfilled: unknown, onRejected: unknown) =>
+      Promise.reject(error).then(onFulfilled as never, onRejected as never),
+  })
+
+  return query as never
+}
+
 const session = {
   data: { session: { user: { id: 'user-1' } } },
 }
@@ -548,6 +572,31 @@ describe('financeService', () => {
       expect(
         (accountsUpdate as never as { update: ReturnType<typeof vi.fn> }).update
       ).toHaveBeenCalledWith({ is_active: false, current_balance: 0 })
+    })
+
+    it('continúa y avisa aunque fallen las purgas intermedias', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const accountsSelect = createQuery({ data: [{ id: 'acc-1' }], error: null })
+      const debtsSelect = createQuery({ data: [{ id: 'debt-1' }], error: null })
+      const rejected = createRejectedQuery({ message: 'denied' })
+
+      let accountCalls = 0
+      let debtCalls = 0
+      mockSupabase.from.mockImplementation((table: string) => {
+        if (table === 'accounts') {
+          accountCalls += 1
+          return accountCalls === 1 ? accountsSelect : rejected
+        }
+        if (table === 'debts') {
+          debtCalls += 1
+          return debtCalls === 1 ? debtsSelect : rejected
+        }
+        return rejected
+      })
+
+      await expect(financeService.resetUserData()).resolves.toBeUndefined()
+
+      expect(warn).toHaveBeenCalledTimes(6)
     })
   })
 })

@@ -199,6 +199,60 @@ describe('AccountModal', () => {
     expect(await screen.findByText('Nombre duplicado')).toBeInTheDocument()
   })
 
+  it('valida la meta de ahorro', async () => {
+    const user = userEvent.setup()
+    renderModal()
+
+    await user.click(screen.getByRole('button', { name: 'Ahorro' }))
+    await user.type(
+      screen.getByPlaceholderText('Ej. Fondo de Emergencia, Ahorro Vacaciones...'),
+      'Fondo'
+    )
+    fireEvent.change(screen.getByPlaceholderText('Ej. 6000.00'), {
+      target: { value: '-5' },
+    })
+    fireEvent.submit(screen.getByRole('button', { name: 'Crear Cuenta' }).closest('form')!)
+
+    expect(
+      screen.getByText('Ingresa una meta de ahorro válida')
+    ).toBeInTheDocument()
+    expect(financeServiceMock.createAccount).not.toHaveBeenCalled()
+  })
+
+  it('permite elegir un icono representativo', async () => {
+    const user = userEvent.setup()
+    renderModal()
+
+    await user.type(
+      screen.getByPlaceholderText('Ej. Banco Pichincha, BBVA, Santander...'),
+      'Billetera'
+    )
+    await user.click(screen.getByTitle('Billetera'))
+    await user.click(screen.getByRole('button', { name: 'Crear Cuenta' }))
+
+    await waitFor(() =>
+      expect(financeServiceMock.createAccount).toHaveBeenCalledWith(
+        expect.objectContaining({ icon: 'wallet' })
+      )
+    )
+  })
+
+  it('muestra un error genérico ante fallos desconocidos', async () => {
+    const user = userEvent.setup()
+    financeServiceMock.createAccount.mockRejectedValue('fallo')
+    renderModal()
+
+    await user.type(
+      screen.getByPlaceholderText('Ej. Banco Pichincha, BBVA, Santander...'),
+      'Banco'
+    )
+    await user.click(screen.getByRole('button', { name: 'Crear Cuenta' }))
+
+    expect(
+      await screen.findByText('Ocurrió un error al guardar la cuenta.')
+    ).toBeInTheDocument()
+  })
+
   it('cierra el modal con el botón de la esquina', async () => {
     const user = userEvent.setup()
     const { onClose } = renderModal()
