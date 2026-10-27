@@ -184,6 +184,32 @@ describe('TransferModal', () => {
     expect(await screen.findByText('Sin conexión')).toBeInTheDocument()
   })
 
+  it('restablece el formulario al reabrir', async () => {
+    const user = userEvent.setup()
+    const onClose = vi.fn()
+    const onSuccess = vi.fn()
+    const props = { onClose, onSuccess, accounts }
+    const { rerender } = render(<TransferModal isOpen {...props} />)
+
+    await user.click(screen.getByRole('button', { name: '+$100' }))
+    await user.type(
+      screen.getByPlaceholderText('Concepto: ej. Aporte de ahorro mensual'),
+      'Aporte'
+    )
+    await user.click(screen.getByTitle('Intercambiar origen y destino'))
+
+    rerender(<TransferModal isOpen={false} {...props} />)
+    rerender(<TransferModal isOpen {...props} />)
+
+    const selects = screen.getAllByRole('combobox')
+    expect(selects[0]).toHaveValue('acc-1')
+    expect(selects[1]).toHaveValue('acc-2')
+    expect(screen.queryByText('100')).not.toBeInTheDocument()
+    expect(
+      screen.getByPlaceholderText('Concepto: ej. Aporte de ahorro mensual')
+    ).toHaveValue('')
+  })
+
   it('cierra el modal', async () => {
     const user = userEvent.setup()
     const { onClose } = renderModal()

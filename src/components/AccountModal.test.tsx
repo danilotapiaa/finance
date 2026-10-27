@@ -253,6 +253,33 @@ describe('AccountModal', () => {
     ).toBeInTheDocument()
   })
 
+  it('restablece el formulario al reabrir', async () => {
+    const user = userEvent.setup()
+    const onClose = vi.fn()
+    const onSuccess = vi.fn()
+    const props = { onClose, onSuccess, accountToEdit: null }
+    const { rerender } = render(<AccountModal isOpen {...props} />)
+
+    await user.type(
+      screen.getByPlaceholderText('Ej. Banco Pichincha, BBVA, Santander...'),
+      'Cuenta temporal'
+    )
+    await user.click(screen.getByRole('button', { name: 'Ahorro' }))
+    fireEvent.change(screen.getByPlaceholderText('Ej. 6000.00'), {
+      target: { value: '1000' },
+    })
+
+    rerender(<AccountModal isOpen={false} {...props} />)
+    rerender(<AccountModal isOpen {...props} />)
+
+    expect(screen.getByText('Nueva Cuenta')).toBeInTheDocument()
+    expect(
+      screen.getByPlaceholderText('Ej. Banco Pichincha, BBVA, Santander...')
+    ).toHaveValue('')
+    expect(screen.getByPlaceholderText('0.00')).toHaveValue(0)
+    expect(screen.queryByPlaceholderText('Ej. 6000.00')).not.toBeInTheDocument()
+  })
+
   it('cierra el modal con el botón de la esquina', async () => {
     const user = userEvent.setup()
     const { onClose } = renderModal()

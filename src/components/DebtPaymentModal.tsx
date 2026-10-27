@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Debt, Account } from '../types/database';
 import { financeService } from '../services/financeService';
 
@@ -20,6 +20,17 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
   const [note, setNote] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const debtId = debt?.id;
+
+  useEffect(() => {
+    if (debtId) {
+      setAmountStr('');
+      setSelectedAccountId('');
+      setNote('');
+      setErrorMessage(null);
+      setIsSubmitting(false);
+    }
+  }, [debtId]);
 
   if (!debt) return null;
 

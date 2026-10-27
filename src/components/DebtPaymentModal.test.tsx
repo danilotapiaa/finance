@@ -168,6 +168,73 @@ describe('DebtPaymentModal', () => {
     expect(await screen.findByText('No se pudo registrar')).toBeInTheDocument()
   })
 
+  it('limpia el formulario al reabrir o cambiar de deuda', async () => {
+    const user = userEvent.setup()
+    const onClose = vi.fn()
+    const onSuccess = vi.fn()
+    const otherDebt = makeDebt({
+      id: 'debt-2',
+      person_name: 'Ana Torres',
+      total_amount: 50,
+      paid_amount: 0,
+    })
+    const { rerender } = render(
+      <DebtPaymentModal
+        debt={debt}
+        accounts={accounts}
+        onClose={onClose}
+        onSuccess={onSuccess}
+      />
+    )
+
+    fireEvent.change(screen.getByPlaceholderText('0.00'), {
+      target: { value: '20' },
+    })
+    fireEvent.change(screen.getByRole('combobox'), {
+      target: { value: 'acc-1' },
+    })
+    await user.type(
+      screen.getByPlaceholderText('Ej. Transferencia bancaria parte 1...'),
+      'Parte 1'
+    )
+
+    rerender(
+      <DebtPaymentModal
+        debt={null}
+        accounts={accounts}
+        onClose={onClose}
+        onSuccess={onSuccess}
+      />
+    )
+    rerender(
+      <DebtPaymentModal
+        debt={debt}
+        accounts={accounts}
+        onClose={onClose}
+        onSuccess={onSuccess}
+      />
+    )
+
+    expect(screen.getByPlaceholderText('0.00')).toHaveValue(null)
+    expect(screen.getByRole('combobox')).toHaveValue('')
+    expect(
+      screen.getByPlaceholderText('Ej. Transferencia bancaria parte 1...')
+    ).toHaveValue('')
+
+    rerender(
+      <DebtPaymentModal
+        debt={otherDebt}
+        accounts={accounts}
+        onClose={onClose}
+        onSuccess={onSuccess}
+      />
+    )
+
+    expect(screen.getByText('Ana Torres')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('0.00')).toHaveValue(null)
+    expect(screen.getByRole('combobox')).toHaveValue('')
+  })
+
   it('cierra el modal', async () => {
     const user = userEvent.setup()
     const { onClose } = renderModal()

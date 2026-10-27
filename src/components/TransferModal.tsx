@@ -25,14 +25,12 @@ export const TransferModal: React.FC<TransferModalProps> = ({
   const quickPresets: number[] = [50, 100, 250];
 
   useEffect(() => {
-    if (isOpen && accounts.length >= 2) {
-      const firstAccount = accounts.find((_, idx) => idx === 0);
-      const secondAccount = accounts.find((_, idx) => idx === 1);
+    if (isOpen) {
+      const firstAccount = accounts[0];
+      const secondAccount = accounts[1];
 
-      if (firstAccount && secondAccount) {
-        setFromAccountId(firstAccount.id);
-        setToAccountId(secondAccount.id);
-      }
+      setFromAccountId(firstAccount?.id ?? '');
+      setToAccountId(secondAccount?.id ?? '');
       setAmountStr('0');
       setConcept('');
       setErrorMessage(null);

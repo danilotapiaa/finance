@@ -179,6 +179,35 @@ describe('TransactionModal', () => {
     expect(await screen.findByText('Saldo insuficiente')).toBeInTheDocument()
   })
 
+  it('restablece el formulario al reabrir', async () => {
+    const user = userEvent.setup()
+    const onClose = vi.fn()
+    const onSuccess = vi.fn()
+    const props = {
+      onClose,
+      onSuccess,
+      accounts,
+      categories,
+    }
+    const { rerender } = render(<TransactionModal isOpen {...props} />)
+
+    await user.click(screen.getByRole('button', { name: 'Ingreso' }))
+    await pressKeys(user, ['4', '5'])
+    fireEvent.change(screen.getByRole('combobox'), {
+      target: { value: 'acc-1' },
+    })
+    await user.click(screen.getByText('Toca para escribir nota...'))
+    await user.type(screen.getByPlaceholderText('Escribe una nota...'), 'Nota')
+
+    rerender(<TransactionModal isOpen={false} {...props} />)
+    rerender(<TransactionModal isOpen {...props} />)
+
+    expect(screen.getByRole('button', { name: 'Guardar Gasto' })).toBeInTheDocument()
+    expect(screen.queryByText('45')).not.toBeInTheDocument()
+    expect(screen.getByRole('combobox')).toHaveValue('')
+    expect(screen.getByText('Toca para escribir nota...')).toBeInTheDocument()
+  })
+
   it('cierra el modal', async () => {
     const user = userEvent.setup()
     const { onClose } = renderModal()

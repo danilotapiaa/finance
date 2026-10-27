@@ -141,6 +141,64 @@ describe('DebtModal', () => {
     expect(await screen.findByText('Error de red')).toBeInTheDocument()
   })
 
+  it('limpia el formulario al reabrirse tras guardar', async () => {
+    const user = userEvent.setup()
+    const onClose = vi.fn()
+    const onSuccess = vi.fn()
+    const { rerender } = render(
+      <DebtModal isOpen onClose={onClose} onSuccess={onSuccess} />
+    )
+
+    await user.click(
+      screen.getByRole('button', { name: 'Debo dinero (Me prestaron)' })
+    )
+    await user.type(screen.getByPlaceholderText('Ej. Carlos Martínez'), 'Carlos')
+    fireEvent.change(screen.getByPlaceholderText('0.00'), {
+      target: { value: '100' },
+    })
+    fireEvent.change(document.querySelector('input[type="date"]')!, {
+      target: { value: '2026-12-31' },
+    })
+    await user.type(
+      screen.getByPlaceholderText('Ej. Préstamo para repuesto de auto...'),
+      'Repuesto'
+    )
+    await user.click(screen.getByRole('button', { name: 'Guardar Registro' }))
+
+    await waitFor(() => expect(onClose).toHaveBeenCalled())
+
+    rerender(<DebtModal isOpen={false} onClose={onClose} onSuccess={onSuccess} />)
+    rerender(<DebtModal isOpen onClose={onClose} onSuccess={onSuccess} />)
+
+    expect(screen.getByText('Nuevo Préstamo (Me deben)')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Ej. Carlos Martínez')).toHaveValue('')
+    expect(screen.getByPlaceholderText('0.00')).toHaveValue(null)
+    expect(document.querySelector('input[type="date"]')).toHaveValue('')
+    expect(
+      screen.getByPlaceholderText('Ej. Préstamo para repuesto de auto...')
+    ).toHaveValue('')
+  })
+
+  it('descarta un borrador al cerrar sin guardar', async () => {
+    const user = userEvent.setup()
+    const onClose = vi.fn()
+    const onSuccess = vi.fn()
+    const { rerender } = render(
+      <DebtModal isOpen onClose={onClose} onSuccess={onSuccess} />
+    )
+
+    await user.type(screen.getByPlaceholderText('Ej. Carlos Martínez'), 'Borrador')
+    fireEvent.change(screen.getByPlaceholderText('0.00'), {
+      target: { value: '25' },
+    })
+
+    rerender(<DebtModal isOpen={false} onClose={onClose} onSuccess={onSuccess} />)
+    rerender(<DebtModal isOpen onClose={onClose} onSuccess={onSuccess} />)
+
+    expect(screen.getByPlaceholderText('Ej. Carlos Martínez')).toHaveValue('')
+    expect(screen.getByPlaceholderText('0.00')).toHaveValue(null)
+  })
+
   it('cierra el modal', async () => {
     const user = userEvent.setup()
     const { onClose } = renderModal()

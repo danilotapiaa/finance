@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { DebtType } from '../types/database';
 import { financeService } from '../services/financeService';
 
@@ -16,6 +16,18 @@ export const DebtModal: React.FC<DebtModalProps> = ({ isOpen, onClose, onSuccess
   const [note, setNote] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setPersonName('');
+      setType('lend');
+      setAmountStr('');
+      setDueDate('');
+      setNote('');
+      setErrorMessage(null);
+      setIsSubmitting(false);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

@@ -29,6 +29,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
+      setType('expense');
       setAmountStr('0');
       setNote('');
       setIsEditingNote(false);
