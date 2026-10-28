@@ -25,7 +25,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
         financeService.getProfile(),
         financeService.getAccounts(),
         financeService.getCategories(),
-        financeService.getTransactions(10),
+        financeService.getTransactions(100),
       ]);
 
       const [profRes, accRes, catRes, txRes] = results;
@@ -41,6 +41,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
       }
       if (txRes.status === 'fulfilled') {
         setTransactions(txRes.value);
+      } else {
+        setTransactions([]);
       }
     } catch (err) {
       console.error('Error cargando datos del dashboard:', err);
@@ -70,7 +72,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
 
-  const monthTransactions = transactions.filter((tx) => {
+  const monthTransactions = (transactions ?? []).filter((tx) => {
     const d = new Date(tx.date);
     return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
   });
@@ -271,7 +273,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
           </div>
 
           <div className="bg-surface rounded-2xl p-2 shadow-sm border border-ink/[0.04] space-y-1">
-            {transactions.length === 0 ? (
+            {(transactions ?? []).length === 0 ? (
               <div className="text-center py-6 text-xs text-subtle">
                 Aún no tienes movimientos. Toca el botón <strong>+</strong> para registrar el primero.
               </div>

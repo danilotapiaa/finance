@@ -156,6 +156,24 @@ export const financeService = {
       .single();
 
     if (error) throw error;
+    
+    // Actualizar saldo de la cuenta implicada
+    if (data.account_id) {
+      const { data: acc } = await supabase
+        .from('accounts')
+        .select('current_balance')
+        .eq('id', data.account_id)
+        .single();
+      const current = acc?.current_balance ?? 0;
+      const newBalance = transaction.type === 'income'
+        ? current + transaction.amount
+        : current - transaction.amount;
+      await supabase
+        .from('accounts')
+        .update({ current_balance: newBalance })
+        .eq('id', data.account_id);
+    }
+    
     return data;
   },
 
@@ -220,6 +238,35 @@ export const financeService = {
       .single();
 
     if (error) throw error;
+    
+    // Actualizar saldos de ambas cuentas
+    if (data.from_account_id) {
+      const { data: fromAcc } = await supabase
+        .from('accounts')
+        .select('current_balance')
+        .eq('id', data.from_account_id)
+        .single();
+      const fromCurrent = fromAcc?.current_balance ?? 0;
+      const fromNewBalance = Math.max(0, fromCurrent - transfer.amount);
+      await supabase
+        .from('accounts')
+        .update({ current_balance: fromNewBalance })
+        .eq('id', data.from_account_id);
+    }
+    if (data.to_account_id) {
+      const { data: toAcc } = await supabase
+        .from('accounts')
+        .select('current_balance')
+        .eq('id', data.to_account_id)
+        .single();
+      const toCurrent = toAcc?.current_balance ?? 0;
+      const toNewBalance = toCurrent + transfer.amount;
+      await supabase
+        .from('accounts')
+        .update({ current_balance: toNewBalance })
+        .eq('id', data.to_account_id);
+    }
+    
     return data;
   },
 
@@ -301,6 +348,20 @@ export const financeService = {
       .single();
 
     if (error) throw error;
+    
+    // Actualizar deuda
+    const { data: debt } = await supabase
+      .from('debts')
+      .select('total_amount, paid_amount, status')
+      .eq('id', payment.debt_id)
+      .single();
+    const newPaid = (Number(debt?.paid_amount ?? 0) + payment.amount).toFixed(2);
+    const newStatus = Number(newPaid) >= Number(debt?.total_amount) ? 'paid' : 'partial';
+    await supabase
+      .from('debts')
+      .update({ paid_amount: newPaid, status: newStatus })
+      .eq('id', payment.debt_id);
+    
     return data;
   },
 

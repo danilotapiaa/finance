@@ -62,9 +62,32 @@ const setupHappyPath = () => {
     makeTransaction({
       id: 'tx-3',
       type: 'income',
-      amount: 999,
-      note: 'Ingreso viejo',
-      date: '2020-01-10T12:00:00.000Z',
+      amount: 200,
+      note: 'Ahorro',
+      date: currentMonthDate,
+    }),
+  ])
+  financeServiceMock.getTransactionsByMonth.mockResolvedValue([
+    makeTransaction({
+      id: 'tx-1',
+      type: 'income',
+      amount: 300,
+      note: 'Salario',
+      date: currentMonthDate,
+    }),
+    makeTransaction({
+      id: 'tx-2',
+      type: 'expense',
+      amount: 50,
+      note: 'Supermercado',
+      date: currentMonthDate,
+    }),
+    makeTransaction({
+      id: 'tx-3',
+      type: 'income',
+      amount: 200,
+      note: 'Ahorro',
+      date: currentMonthDate,
     }),
   ])
 }
@@ -103,11 +126,10 @@ describe('Dashboard', () => {
 
     await screen.findByText('Hola, Danilo')
 
-    expect(screen.getByText('$300.00')).toBeInTheDocument()
+    expect(screen.getByText('+$450.00 este mes')).toBeInTheDocument()
     expect(screen.getAllByText('$50.00')).toHaveLength(2)
-    expect(screen.getByText('+$250.00 este mes')).toBeInTheDocument()
-    expect(screen.getByText('17% del ingreso utilizado')).toBeInTheDocument()
-    expect(screen.getByText('$250.00 disponible')).toBeInTheDocument()
+    expect(screen.getByText('10% del ingreso utilizado')).toBeInTheDocument()
+    expect(screen.getByText('$450.00 disponible')).toBeInTheDocument()
     expect(screen.queryByText('$1299.00')).not.toBeInTheDocument()
   })
 
@@ -153,6 +175,7 @@ describe('Dashboard', () => {
 
   it('muestra el estado vacío cuando no hay movimientos', async () => {
     financeServiceMock.getTransactions.mockResolvedValue([])
+    financeServiceMock.getTransactionsByMonth.mockResolvedValue([])
 
     renderDashboard()
 
