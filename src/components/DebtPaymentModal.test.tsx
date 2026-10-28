@@ -58,7 +58,7 @@ describe('DebtPaymentModal', () => {
   it('muestra el resumen de la deuda pendiente', () => {
     renderModal()
 
-    expect(screen.getByText('Registrar Abono')).toBeInTheDocument()
+    expect(screen.getByText('Registrar abono')).toBeInTheDocument()
     expect(screen.getByText('Abono recibido de:')).toBeInTheDocument()
     expect(screen.getByText('Carlos Martínez')).toBeInTheDocument()
     expect(screen.getByText('$80.00')).toBeInTheDocument()
@@ -68,9 +68,7 @@ describe('DebtPaymentModal', () => {
     renderModal({ debt: makeDebt({ type: 'borrow' }) })
 
     expect(screen.getByText('Pago realizado a:')).toBeInTheDocument()
-    expect(
-      screen.getByText(/¿De qué cuenta salió el pago\?/)
-    ).toBeInTheDocument()
+    expect(screen.getByText('Cuenta (opcional)')).toBeInTheDocument()
   })
 
   it('rellena el saldo pendiente con Pagar todo', async () => {
@@ -86,7 +84,7 @@ describe('DebtPaymentModal', () => {
     renderModal()
 
     fireEvent.submit(
-      screen.getByRole('button', { name: 'Confirmar Abono' }).closest('form')!
+      screen.getByRole('button', { name: 'Confirmar abono' }).closest('form')!
     )
 
     expect(
@@ -101,7 +99,7 @@ describe('DebtPaymentModal', () => {
     fireEvent.change(screen.getByPlaceholderText('0.00'), {
       target: { value: '100' },
     })
-    await user.click(screen.getByRole('button', { name: 'Confirmar Abono' }))
+    await user.click(screen.getByRole('button', { name: 'Confirmar abono' }))
 
     expect(
       screen.getByText('El abono no puede superar el saldo pendiente de $80.00')
@@ -122,7 +120,7 @@ describe('DebtPaymentModal', () => {
       screen.getByPlaceholderText('Ej. Transferencia bancaria parte 1...'),
       '  Parte 1  '
     )
-    await user.click(screen.getByRole('button', { name: 'Confirmar Abono' }))
+    await user.click(screen.getByRole('button', { name: 'Confirmar abono' }))
 
     await waitFor(() =>
       expect(financeServiceMock.createDebtPayment).toHaveBeenCalledWith({
@@ -144,7 +142,7 @@ describe('DebtPaymentModal', () => {
     fireEvent.change(screen.getByPlaceholderText('0.00'), {
       target: { value: '20' },
     })
-    await user.click(screen.getByRole('button', { name: 'Confirmar Abono' }))
+    await user.click(screen.getByRole('button', { name: 'Confirmar abono' }))
 
     await waitFor(() =>
       expect(financeServiceMock.createDebtPayment).toHaveBeenCalledWith(
@@ -163,7 +161,7 @@ describe('DebtPaymentModal', () => {
     fireEvent.change(screen.getByPlaceholderText('0.00'), {
       target: { value: '20' },
     })
-    await user.click(screen.getByRole('button', { name: 'Confirmar Abono' }))
+    await user.click(screen.getByRole('button', { name: 'Confirmar abono' }))
 
     expect(await screen.findByText('No se pudo registrar')).toBeInTheDocument()
   })

@@ -86,7 +86,7 @@ export const DebtsScreen: React.FC = () => {
             className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-full bg-[#111827] text-white transition active:scale-95 text-xs font-semibold shadow-sm cursor-pointer"
           >
             <span className="material-symbols-outlined text-[16px]">add</span>
-            <span>Nueva Deuda</span>
+              <span>Nueva deuda</span>
           </button>
         </div>
       </header>
@@ -100,8 +100,8 @@ export const DebtsScreen: React.FC = () => {
             <div className="flex flex-col space-y-0.5">
               <div className="flex items-center space-x-1.5">
                 <div className="w-2 h-2 rounded-full bg-[#2E7D56]"></div>
-                <span className="text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider">
-                  Por Cobrar (Me deben)
+                <span className="text-xs font-medium text-[#6B7280]">
+                  Me deben
                 </span>
               </div>
               <span className="text-xl font-bold text-[#2E7D56] tabular-nums">
@@ -113,8 +113,8 @@ export const DebtsScreen: React.FC = () => {
             <div className="flex flex-col space-y-0.5">
               <div className="flex items-center space-x-1.5">
                 <div className="w-2 h-2 rounded-full bg-[#C25E4A]"></div>
-                <span className="text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider">
-                  Por Pagar (Debo)
+                <span className="text-xs font-medium text-[#6B7280]">
+                  Debo
                 </span>
               </div>
               <span className="text-xl font-bold text-[#C25E4A] tabular-nums">
@@ -124,7 +124,7 @@ export const DebtsScreen: React.FC = () => {
           </div>
 
           <div className="pt-2 border-t border-neutral-100 flex items-center justify-between text-xs text-[#6B7280]">
-            <span>Balance neto de deudas:</span>
+            <span>Balance neto</span>
             <span className={`font-bold tabular-nums ${netDebtDifference >= 0 ? 'text-[#2E7D56]' : 'text-[#C25E4A]'}`}>
               {netDebtDifference >= 0 ? `+$${netDebtDifference.toFixed(2)}` : `-$${Math.abs(netDebtDifference).toFixed(2)}`}
             </span>
@@ -138,7 +138,7 @@ export const DebtsScreen: React.FC = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Buscar por nombre de persona..."
+            placeholder="Buscar persona..."
             className="w-full bg-transparent text-xs text-[#111827] placeholder-[#9CA3AF] outline-none"
           />
           {searchQuery && (
@@ -183,7 +183,7 @@ export const DebtsScreen: React.FC = () => {
         <div className="space-y-3">
           {filteredDebts.length === 0 ? (
             <div className="bg-white rounded-2xl p-8 text-center text-xs text-[#9CA3AF] border border-black/[0.04]">
-              No hay registros en esta sección.
+              No hay deudas en esta sección.
             </div>
           ) : (
             filteredDebts.map((debt) => {
@@ -214,13 +214,13 @@ export const DebtsScreen: React.FC = () => {
                       <div>
                         <h4 className="text-sm font-semibold text-[#111827]">{debt.person_name}</h4>
                         <span className="text-[11px] text-[#6B7280] block">
-                          {isLend ? 'Préstamo otorgado' : 'Deuda contraída'} • Total: ${total.toFixed(2)}
+                          Total ${total.toFixed(2)}
                         </span>
                       </div>
                     </div>
 
                     <div className="text-right">
-                      <span className="text-[10px] uppercase font-semibold text-[#6B7280] block">Pendiente</span>
+                      <span className="text-[11px] font-medium text-[#6B7280] block">Pendiente</span>
                       <span
                         className={`text-base font-bold tabular-nums ${
                           isLend ? 'text-[#2E7D56]' : 'text-[#C25E4A]'
@@ -233,8 +233,8 @@ export const DebtsScreen: React.FC = () => {
 
                   {/* Barra de Progreso de Amortización */}
                   <div className="space-y-1 pt-0.5">
-                    <div className="flex justify-between text-[10px] text-[#6B7280]">
-                      <span>Pagado: ${paid.toFixed(2)} ({progressPct}%)</span>
+                    <div className="flex justify-between text-[11px] text-[#6B7280]">
+                      <span>Pagado ${paid.toFixed(2)}</span>
                       {debt.due_date && (
                         <span>Límite: {new Date(debt.due_date).toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })}</span>
                       )}
@@ -265,7 +265,7 @@ export const DebtsScreen: React.FC = () => {
                         onClick={() => setSelectedDebtForPayment(debt)}
                         className="px-3.5 py-1.5 rounded-full bg-[#111827] text-white text-[11px] font-semibold transition active:scale-95 shadow-sm cursor-pointer"
                       >
-                        Registrar Abono
+                        Registrar abono
                       </button>
                     )}
                   </div>

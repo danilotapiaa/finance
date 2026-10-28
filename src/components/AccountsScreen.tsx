@@ -92,11 +92,8 @@ export const AccountsScreen: React.FC = () => {
         {/* Total Hero - Solo Banco, Tarjeta y Efectivo */}
         <section className="bg-white rounded-2xl p-5 shadow-sm border border-black/[0.04] space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-[#6B7280] tracking-wider uppercase">
-              Balance Disponible
-            </span>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#F3F4F6] text-[#6B7280]">
-              {spendableAccounts.length} activas
+            <span className="text-xs font-medium text-[#6B7280]">
+              Balance disponible
             </span>
           </div>
 
@@ -136,17 +133,14 @@ export const AccountsScreen: React.FC = () => {
                 <span className="material-symbols-outlined text-[22px]">savings</span>
               </div>
               <div>
-                <span className="text-[11px] font-semibold text-[#2E7D56] uppercase tracking-wider block">
-                  Balance en Ahorros
+                <span className="text-xs font-medium text-[#2E7D56] block">
+                  Balance en ahorros
                 </span>
                 <div className="text-xl font-bold text-[#111827] tabular-nums mt-0.5">
                   ${savingsBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </div>
               </div>
             </div>
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-white/80 text-[#2E7D56] border border-[#2E7D56]/15">
-              {savingsAccounts.length} {savingsAccounts.length === 1 ? 'fondo' : 'fondos'}
-            </span>
           </section>
         )}
 
@@ -161,7 +155,6 @@ export const AccountsScreen: React.FC = () => {
             </div>
             <div>
               <h4 className="text-sm font-semibold text-[#111827]">Transferir entre cuentas</h4>
-              <p className="text-xs text-[#6B7280]">Mueve saldo de banco a ahorros o efectivo al instante</p>
             </div>
           </div>
           <span className="material-symbols-outlined text-[#9CA3AF] text-[20px]">chevron_right</span>
@@ -170,7 +163,7 @@ export const AccountsScreen: React.FC = () => {
         {/* Categorías de Cuentas */}
         <div className="space-y-4">
           <div className="flex items-center justify-between px-1">
-            <h3 className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider">Mis Cuentas</h3>
+            <h3 className="text-sm font-semibold text-[#111827]">Mis cuentas</h3>
           </div>
 
           <div className="space-y-3">
@@ -195,9 +188,11 @@ export const AccountsScreen: React.FC = () => {
                       </div>
                       <div>
                         <h4 className="text-sm font-semibold text-[#111827]">{acc.name}</h4>
-                        <span className="text-[11px] text-[#6B7280] font-mono">
-                          {acc.account_number_masked || (acc.type === 'savings' ? 'Meta de ahorro' : 'Disponible')}
-                        </span>
+                        {acc.account_number_masked && (
+                          <span className="text-[11px] text-[#6B7280] font-mono">
+                            {acc.account_number_masked}
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -205,11 +200,6 @@ export const AccountsScreen: React.FC = () => {
                       <span className="text-base font-bold text-[#111827] tabular-nums block">
                         ${balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </span>
-                      {acc.type === 'savings' && target > 0 && (
-                        <span className="text-[10px] font-semibold text-[#2E7D56] bg-[#E8F5EE] px-2 py-0.5 rounded-full">
-                          {progressPct}% meta
-                        </span>
-                      )}
                     </div>
                   </div>
 
@@ -219,7 +209,7 @@ export const AccountsScreen: React.FC = () => {
                       <div className="h-1.5 w-full bg-[#F3F4F6] rounded-full overflow-hidden">
                         <div className="h-full bg-[#2E7D56] rounded-full" style={{ width: `${progressPct}%` }}></div>
                       </div>
-                      <div className="flex justify-between text-[10px] text-[#6B7280]">
+                      <div className="flex justify-between text-[11px] text-[#6B7280]">
                         <span>Objetivo: ${target.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                         <span>Faltan: ${Math.max(0, target - balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                       </div>

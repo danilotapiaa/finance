@@ -26,7 +26,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
             >
               calendar_today
             </span>
-            <span className="text-[10px] mt-0.5">Hoy</span>
+            <span className="text-[11px] mt-0.5">Hoy</span>
           </button>
 
           {/* Tab 2: Cuentas */}
@@ -43,7 +43,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
             >
               account_balance_wallet
             </span>
-            <span className="text-[10px] mt-0.5">Cuentas</span>
+            <span className="text-[11px] mt-0.5">Cuentas</span>
           </button>
 
           {/* Tab 3: Deudas */}
@@ -60,7 +60,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
             >
               handshake
             </span>
-            <span className="text-[10px] mt-0.5">Deudas</span>
+            <span className="text-[11px] mt-0.5">Deudas</span>
           </button>
 
           {/* Tab 4: Historial */}
@@ -77,7 +77,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
             >
               receipt_long
             </span>
-            <span className="text-[10px] mt-0.5">Historial</span>
+            <span className="text-[11px] mt-0.5">Historial</span>
           </button>
         </nav>
       </div>

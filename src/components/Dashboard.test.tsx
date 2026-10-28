@@ -96,7 +96,6 @@ describe('Dashboard', () => {
     expect(await screen.findByText('Hola, Danilo')).toBeInTheDocument()
     expect(screen.getByText('150.00')).toBeInTheDocument()
     expect(screen.getByText(/\$200\.00 en ahorros/)).toBeInTheDocument()
-    expect(screen.getByText('3 activas')).toBeInTheDocument()
   })
 
   it('calcula el flujo mensual solo con transacciones del mes actual', async () => {
@@ -119,7 +118,6 @@ describe('Dashboard', () => {
     expect(screen.getByText('Supermercado')).toBeInTheDocument()
     expect(screen.getByText('+$300.00')).toBeInTheDocument()
     expect(screen.getByText('-$50.00')).toBeInTheDocument()
-    expect(screen.getByText('3 registrados')).toBeInTheDocument()
   })
 
   it('oculta los saldos al alternar la visibilidad', async () => {

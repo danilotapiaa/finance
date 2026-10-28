@@ -90,7 +90,7 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
           >
             <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
-          <h2 className="text-[15px] font-semibold text-[#111827]">Registrar Abono</h2>
+          <h2 className="text-[15px] font-semibold text-[#111827]">Registrar abono</h2>
           <div className="w-8"></div>
         </div>
 
@@ -118,13 +118,13 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
           {/* Monto del Abono */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider">
-                Monto del Abono ($)
+              <label className="text-xs font-medium text-[#6B7280]">
+                Monto ($)
               </label>
               <button
                 type="button"
                 onClick={() => setAmountStr(remaining.toFixed(2))}
-                className="text-[10px] font-semibold text-[#2E7D56] bg-[#E8F5EE] px-2 py-0.5 rounded-full cursor-pointer"
+                className="text-[11px] font-semibold text-[#2E7D56] bg-[#E8F5EE] px-2 py-0.5 rounded-full cursor-pointer"
               >
                 Pagar todo ($ {remaining.toFixed(2)})
               </button>
@@ -142,8 +142,8 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
 
           {/* Cuenta donde entra o sale el dinero (opcional) */}
           <div>
-            <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">
-              {isLend ? '¿Dónde ingresó el dinero? (opcional)' : '¿De qué cuenta salió el pago? (opcional)'}
+            <label className="block text-xs font-medium text-[#6B7280] mb-1">
+              Cuenta (opcional)
             </label>
             <select
               value={selectedAccountId}
@@ -161,8 +161,8 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
 
           {/* Nota */}
           <div>
-            <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">
-              Nota o comprobante (opcional)
+            <label className="block text-xs font-medium text-[#6B7280] mb-1">
+              Nota (opcional)
             </label>
             <input
               type="text"
@@ -181,7 +181,7 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
             {isSubmitting ? (
               <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
             ) : (
-              'Confirmar Abono'
+              'Confirmar abono'
             )}
           </button>
         </form>

@@ -66,9 +66,8 @@ describe('TransactionDetailModal', () => {
   it('muestra el detalle de un gasto', () => {
     renderModal()
 
-    expect(screen.getByText('Detalle del Movimiento')).toBeInTheDocument()
+    expect(screen.getByText('Detalle')).toBeInTheDocument()
     expect(screen.getByText('-$50.00')).toBeInTheDocument()
-    expect(screen.getByText('Gasto registrado')).toBeInTheDocument()
     expect(screen.getByText('Banco')).toBeInTheDocument()
     expect(screen.getByText('Alimentación')).toBeInTheDocument()
     expect(screen.getAllByText('Café con el equipo').length).toBeGreaterThan(0)
@@ -84,7 +83,6 @@ describe('TransactionDetailModal', () => {
     })
 
     expect(screen.getByText('+$100.00')).toBeInTheDocument()
-    expect(screen.getByText('Ingreso registrado')).toBeInTheDocument()
   })
 
   it('abre el modo de edición con los valores actuales', async () => {
@@ -93,10 +91,10 @@ describe('TransactionDetailModal', () => {
 
     await user.click(screen.getByRole('button', { name: 'Editar' }))
 
-    expect(screen.getByText('Editar Movimiento')).toBeInTheDocument()
+    expect(screen.getByText('Editar movimiento')).toBeInTheDocument()
     expect(screen.getByDisplayValue('50.00')).toBeInTheDocument()
     expect(screen.getByDisplayValue('Café con el equipo')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Guardar Cambios' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Guardar cambios' })).toBeInTheDocument()
   })
 
   it('guarda los cambios del movimiento', async () => {
@@ -107,7 +105,7 @@ describe('TransactionDetailModal', () => {
     fireEvent.change(screen.getByDisplayValue('50.00'), {
       target: { value: '75' },
     })
-    await user.click(screen.getByRole('button', { name: 'Guardar Cambios' }))
+    await user.click(screen.getByRole('button', { name: 'Guardar cambios' }))
 
     await waitFor(() =>
       expect(financeServiceMock.updateTransaction).toHaveBeenCalledWith(
@@ -133,7 +131,7 @@ describe('TransactionDetailModal', () => {
     await user.click(screen.getByRole('button', { name: 'Editar' }))
     await user.click(screen.getByRole('button', { name: 'Cancelar' }))
 
-    expect(screen.getByText('Detalle del Movimiento')).toBeInTheDocument()
+    expect(screen.getByText('Detalle')).toBeInTheDocument()
   })
 
   it('valida el monto al guardar', async () => {
@@ -145,7 +143,7 @@ describe('TransactionDetailModal', () => {
       target: { value: '' },
     })
     fireEvent.submit(
-      screen.getByRole('button', { name: 'Guardar Cambios' }).closest('form')!
+      screen.getByRole('button', { name: 'Guardar cambios' }).closest('form')!
     )
 
     expect(
@@ -160,7 +158,7 @@ describe('TransactionDetailModal', () => {
     const { onClose, onDeleted } = renderModal()
 
     await user.click(
-      screen.getByRole('button', { name: /Eliminar este movimiento/ })
+      screen.getByRole('button', { name: /Eliminar$/ })
     )
 
     expect(confirm).toHaveBeenCalled()
@@ -177,7 +175,7 @@ describe('TransactionDetailModal', () => {
     renderModal()
 
     await user.click(
-      screen.getByRole('button', { name: /Eliminar este movimiento/ })
+      screen.getByRole('button', { name: /Eliminar$/ })
     )
 
     expect(financeServiceMock.deleteTransaction).not.toHaveBeenCalled()
@@ -192,7 +190,7 @@ describe('TransactionDetailModal', () => {
     renderModal()
 
     await user.click(
-      screen.getByRole('button', { name: /Eliminar este movimiento/ })
+      screen.getByRole('button', { name: /Eliminar$/ })
     )
 
     expect(await screen.findByText('No se pudo eliminar')).toBeInTheDocument()
@@ -206,7 +204,7 @@ describe('TransactionDetailModal', () => {
     renderModal()
 
     await user.click(screen.getByRole('button', { name: 'Editar' }))
-    await user.click(screen.getByRole('button', { name: 'Guardar Cambios' }))
+    await user.click(screen.getByRole('button', { name: 'Guardar cambios' }))
 
     expect(await screen.findByText('Error de red')).toBeInTheDocument()
   })

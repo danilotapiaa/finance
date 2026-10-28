@@ -116,7 +116,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
       <header className="sticky top-0 w-full z-30 bg-[#F8F9FA]/90 backdrop-blur-xl border-b border-black/[0.04]">
         <div className="h-16 px-5 flex items-center justify-between w-full">
           <div className="flex flex-col justify-center">
-            <span className="text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider capitalize">
+            <span className="text-[11px] font-medium text-[#6B7280] capitalize">
               {todayFormatted}
             </span>
             <span className="text-[17px] font-semibold text-[#111827] tracking-tight">
@@ -195,7 +195,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
         <section className="flex flex-col space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold text-[#111827]">Mis Cuentas</h2>
-            <span className="text-xs text-[#6B7280] font-medium">{accounts.length} activas</span>
           </div>
 
           <div className="flex space-x-3.5 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-none">
@@ -208,7 +207,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
                   <div className="w-8 h-8 rounded-full bg-[#F3F4F6] flex items-center justify-center text-[#111827]">
                     <span className="material-symbols-outlined text-[18px]">{acc.icon || 'account_balance'}</span>
                   </div>
-                  <span className="text-[11px] text-[#6B7280] font-mono">{acc.account_number_masked || 'Activa'}</span>
+                  <span className="text-[11px] text-[#6B7280] font-mono">{acc.account_number_masked}</span>
                 </div>
                 <div>
                   <span className="text-xs text-[#6B7280] block truncate">{acc.name}</span>
@@ -269,7 +268,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
         <section className="flex flex-col space-y-2.5">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold text-[#111827]">Movimientos recientes</h2>
-            <span className="text-xs text-[#6B7280] font-medium">{transactions.length} registrados</span>
           </div>
 
           <div className="bg-white rounded-2xl p-2 shadow-sm border border-black/[0.04] space-y-1">
@@ -300,7 +298,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
                           {tx.note || tx.category?.name || 'Movimiento'}
                         </span>
                         <span className="text-[11px] text-[#6B7280] truncate">
-                          {tx.category?.name} • {tx.account?.name}
+                          {tx.category?.name}{tx.account?.name ? ` en ${tx.account.name}` : ''}
                         </span>
                       </div>
                     </div>

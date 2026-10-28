@@ -77,9 +77,9 @@ describe('DebtsScreen', () => {
     expect(await screen.findByText('Carlos Martínez')).toBeInTheDocument()
     expect(screen.queryByText('Luis Pérez')).not.toBeInTheDocument()
     expect(screen.queryByText('Ana Torres')).not.toBeInTheDocument()
-    expect(screen.getByText(/Préstamo otorgado/)).toBeInTheDocument()
+    expect(screen.getByText('Total $100.00')).toBeInTheDocument()
     expect(screen.getAllByText('$80.00')).toHaveLength(2)
-    expect(screen.getByText('Pagado: $20.00 (20%)')).toBeInTheDocument()
+    expect(screen.getByText('Pagado $20.00')).toBeInTheDocument()
   })
 
   it('cambia entre los segmentos de deudas', async () => {
@@ -90,11 +90,11 @@ describe('DebtsScreen', () => {
     await user.click(screen.getByRole('button', { name: 'Debo' }))
     expect(screen.getByText('Luis Pérez')).toBeInTheDocument()
     expect(screen.queryByText('Carlos Martínez')).not.toBeInTheDocument()
-    expect(screen.getByText(/Deuda contraída/)).toBeInTheDocument()
+    expect(screen.getByText('Total $30.00')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Saldadas' }))
     expect(screen.getByText('Ana Torres')).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Registrar Abono' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Registrar abono' })).not.toBeInTheDocument()
   })
 
   it('filtra por nombre y limpia la búsqueda', async () => {
@@ -103,7 +103,7 @@ describe('DebtsScreen', () => {
     await screen.findByText('Carlos Martínez')
 
     await user.type(
-      screen.getByPlaceholderText('Buscar por nombre de persona...'),
+      screen.getByPlaceholderText('Buscar persona...'),
       'luis'
     )
     expect(screen.queryByText('Carlos Martínez')).not.toBeInTheDocument()
@@ -121,7 +121,7 @@ describe('DebtsScreen', () => {
     render(<DebtsScreen />)
     await screen.findByText('Carlos Martínez')
 
-    await user.click(screen.getByRole('button', { name: /Nueva Deuda/ }))
+    await user.click(screen.getByRole('button', { name: /Nueva deuda/ }))
 
     expect(screen.getByText('Modal nueva deuda')).toBeInTheDocument()
   })
@@ -131,7 +131,7 @@ describe('DebtsScreen', () => {
     render(<DebtsScreen />)
     await screen.findByText('Carlos Martínez')
 
-    await user.click(screen.getByRole('button', { name: 'Registrar Abono' }))
+    await user.click(screen.getByRole('button', { name: 'Registrar abono' }))
 
     expect(screen.getByText('Modal abono Carlos Martínez')).toBeInTheDocument()
   })
@@ -182,7 +182,7 @@ describe('DebtsScreen', () => {
     render(<DebtsScreen />)
 
     expect(
-      await screen.findByText('No hay registros en esta sección.')
+      await screen.findByText('No hay deudas en esta sección.')
     ).toBeInTheDocument()
   })
 })

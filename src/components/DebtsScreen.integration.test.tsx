@@ -35,7 +35,7 @@ describe('DebtsScreen con modales reales', () => {
     render(<DebtsScreen />)
     await screen.findByText('Carlos Martínez')
 
-    await user.click(screen.getByRole('button', { name: /Nueva Deuda/ }))
+    await user.click(screen.getByRole('button', { name: /Nueva deuda/ }))
     await user.type(
       screen.getByPlaceholderText('Ej. Carlos Martínez'),
       'Nuevo Deudor'
@@ -43,16 +43,16 @@ describe('DebtsScreen con modales reales', () => {
     fireEvent.change(screen.getByPlaceholderText('0.00'), {
       target: { value: '75' },
     })
-    await user.click(screen.getByRole('button', { name: 'Guardar Registro' }))
+    await user.click(screen.getByRole('button', { name: 'Guardar deuda' }))
 
     await waitFor(() => expect(financeServiceMock.createDebt).toHaveBeenCalled())
     await waitFor(() =>
       expect(
-        screen.queryByText('Nuevo Préstamo (Me deben)')
+        screen.queryByText('Nuevo préstamo')
       ).not.toBeInTheDocument()
     )
 
-    await user.click(screen.getByRole('button', { name: /Nueva Deuda/ }))
+    await user.click(screen.getByRole('button', { name: /Nueva deuda/ }))
 
     expect(screen.getByPlaceholderText('Ej. Carlos Martínez')).toHaveValue('')
     expect(screen.getByPlaceholderText('0.00')).toHaveValue(null)
@@ -63,11 +63,11 @@ describe('DebtsScreen con modales reales', () => {
     render(<DebtsScreen />)
     await screen.findByText('Carlos Martínez')
 
-    await user.click(screen.getByRole('button', { name: 'Registrar Abono' }))
+    await user.click(screen.getByRole('button', { name: 'Registrar abono' }))
     fireEvent.change(screen.getByPlaceholderText('0.00'), {
       target: { value: '10' },
     })
-    await user.click(screen.getByRole('button', { name: 'Confirmar Abono' }))
+    await user.click(screen.getByRole('button', { name: 'Confirmar abono' }))
 
     await waitFor(() =>
       expect(financeServiceMock.createDebtPayment).toHaveBeenCalled()
@@ -76,7 +76,7 @@ describe('DebtsScreen con modales reales', () => {
       expect(screen.queryByText('Abono recibido de:')).not.toBeInTheDocument()
     )
 
-    await user.click(screen.getByRole('button', { name: 'Registrar Abono' }))
+    await user.click(screen.getByRole('button', { name: 'Registrar abono' }))
 
     expect(screen.getByPlaceholderText('0.00')).toHaveValue(null)
   })

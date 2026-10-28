@@ -182,7 +182,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               value={note}
               onChange={(e) => setNote(e.target.value)}
               onBlur={() => setIsEditingNote(false)}
-              placeholder="Escribe una nota..."
+              placeholder="Nota"
               className="text-xs text-center border-b border-gray-300 focus:outline-none focus:border-gray-900 py-1 w-48 text-gray-800"
             />
           ) : (
@@ -191,7 +191,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               className="text-xs text-gray-400 flex items-center justify-center gap-1.5 cursor-pointer hover:text-gray-600 transition-colors"
             >
               <span className="material-symbols-outlined text-[14px]">edit_note</span>
-              <span>{note ? note : 'Toca para escribir nota...'}</span>
+              <span>{note ? note : 'Añadir nota'}</span>
             </div>
           )}
         </div>
@@ -289,7 +289,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
           {isSubmitting ? (
             <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
           ) : (
-            `Guardar ${type === 'expense' ? 'Gasto' : 'Ingreso'}`
+            `Guardar ${type === 'expense' ? 'gasto' : 'ingreso'}`
           )}
         </button>
       </div>

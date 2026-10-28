@@ -60,7 +60,6 @@ describe('AccountsScreen', () => {
     render(<AccountsScreen />)
 
     expect(await screen.findByText('$175.00')).toBeInTheDocument()
-    expect(screen.getByText('3 activas')).toBeInTheDocument()
     expect(screen.getByText('Bancos 57%')).toBeInTheDocument()
     expect(screen.getByText('Tarjetas 29%')).toBeInTheDocument()
     expect(screen.getByText('Efectivo 14%')).toBeInTheDocument()
@@ -71,10 +70,8 @@ describe('AccountsScreen', () => {
 
     await screen.findByText('$175.00')
 
-    expect(screen.getByText('Balance en Ahorros')).toBeInTheDocument()
+    expect(screen.getByText('Balance en ahorros')).toBeInTheDocument()
     expect(screen.getAllByText('$200.00')).toHaveLength(2)
-    expect(screen.getByText('1 fondo')).toBeInTheDocument()
-    expect(screen.getByText('50% meta')).toBeInTheDocument()
     expect(screen.getByText(/Objetivo: \$400\.00/)).toBeInTheDocument()
     expect(screen.getByText(/Faltan: \$200\.00/)).toBeInTheDocument()
   })

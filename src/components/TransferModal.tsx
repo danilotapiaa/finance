@@ -149,7 +149,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
           >
             <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
-          <h2 className="text-[16px] font-semibold text-[#111827]">Transferencia Interna</h2>
+          <h2 className="text-[16px] font-semibold text-[#111827]">Transferencia</h2>
           <div className="w-8"></div>
         </div>
 
@@ -157,7 +157,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
         <div className="relative bg-[#F8F9FA] rounded-2xl border border-black/[0.05] p-3 space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">De</span>
+              <span className="text-xs font-medium text-[#6B7280]">Desde</span>
               <select
                 value={fromAccountId}
                 onChange={(e) => setFromAccountId(e.target.value)}
@@ -170,9 +170,6 @@ export const TransferModal: React.FC<TransferModalProps> = ({
                 ))}
               </select>
             </div>
-            <span className="text-[11px] text-[#6B7280] font-mono">
-              Disp: ${Number(fromAccount?.current_balance || 0).toFixed(2)}
-            </span>
           </div>
 
           <div className="relative flex items-center justify-center py-1">
@@ -189,7 +186,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#2E7D56]">A</span>
+              <span className="text-xs font-medium text-[#2E7D56]">Hacia</span>
               <select
                 value={toAccountId}
                 onChange={(e) => setToAccountId(e.target.value)}
@@ -202,15 +199,11 @@ export const TransferModal: React.FC<TransferModalProps> = ({
                 ))}
               </select>
             </div>
-            <span className="text-[11px] text-[#6B7280] font-mono">
-              Actual: ${Number(toAccount?.current_balance || 0).toFixed(2)}
-            </span>
           </div>
         </div>
 
         {/* Display del Importe */}
         <div className="text-center py-1">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-[#9CA3AF]">Monto a mover</span>
           <div className="flex items-baseline justify-center tracking-tight">
             <span className="text-2xl text-gray-400 font-normal mr-1">$</span>
             <span className="text-4xl font-bold tracking-tight text-gray-900 tabular-nums">{amountStr}</span>
@@ -247,7 +240,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
           type="text"
           value={concept}
           onChange={(e) => setConcept(e.target.value)}
-          placeholder="Concepto: ej. Aporte de ahorro mensual"
+          placeholder="Ej. Aporte mensual"
           className="w-full h-10 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-xs text-[#111827] focus:outline-none focus:border-[#111827]"
         />
 
@@ -282,7 +275,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
           {isSubmitting ? (
             <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
           ) : (
-            'Confirmar Transferencia'
+            'Transferir'
           )}
         </button>
       </div>

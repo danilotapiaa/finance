@@ -69,7 +69,7 @@ describe('TransactionModal', () => {
     expect(screen.getByRole('button', { name: 'Gasto' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Alimentación/ })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Salario/ })).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Guardar Gasto' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Guardar gasto' })).toBeInTheDocument()
   })
 
   it('cambia a ingreso y muestra las categorías de ingreso', async () => {
@@ -80,7 +80,7 @@ describe('TransactionModal', () => {
 
     expect(screen.getByRole('button', { name: /Salario/ })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Alimentación/ })).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Guardar Ingreso' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Guardar ingreso' })).toBeInTheDocument()
   })
 
   it('construye el monto con el teclado', async () => {
@@ -96,7 +96,7 @@ describe('TransactionModal', () => {
     const user = userEvent.setup()
     renderModal()
 
-    await user.click(screen.getByRole('button', { name: 'Guardar Gasto' }))
+    await user.click(screen.getByRole('button', { name: 'Guardar gasto' }))
 
     expect(
       screen.getByText('Ingresa un monto válido mayor a 0')
@@ -108,7 +108,7 @@ describe('TransactionModal', () => {
     renderModal()
 
     await pressKeys(user, ['5', '0'])
-    await user.click(screen.getByRole('button', { name: 'Guardar Gasto' }))
+    await user.click(screen.getByRole('button', { name: 'Guardar gasto' }))
 
     expect(
       screen.getByText('Debes seleccionar la cuenta obligatoriamente')
@@ -124,9 +124,9 @@ describe('TransactionModal', () => {
     fireEvent.change(screen.getByRole('combobox'), {
       target: { value: 'acc-1' },
     })
-    await user.click(screen.getByText('Toca para escribir nota...'))
-    await user.type(screen.getByPlaceholderText('Escribe una nota...'), '  Café  ')
-    await user.click(screen.getByRole('button', { name: 'Guardar Gasto' }))
+    await user.click(screen.getByText('Añadir nota'))
+    await user.type(screen.getByPlaceholderText('Nota'), '  Café  ')
+    await user.click(screen.getByRole('button', { name: 'Guardar gasto' }))
 
     await waitFor(() =>
       expect(financeServiceMock.createTransaction).toHaveBeenCalledWith({
@@ -151,7 +151,7 @@ describe('TransactionModal', () => {
     fireEvent.change(screen.getByRole('combobox'), {
       target: { value: 'acc-1' },
     })
-    await user.click(screen.getByRole('button', { name: 'Guardar Ingreso' }))
+    await user.click(screen.getByRole('button', { name: 'Guardar ingreso' }))
 
     await waitFor(() =>
       expect(financeServiceMock.createTransaction).toHaveBeenCalledWith(
@@ -174,7 +174,7 @@ describe('TransactionModal', () => {
     fireEvent.change(screen.getByRole('combobox'), {
       target: { value: 'acc-1' },
     })
-    await user.click(screen.getByRole('button', { name: 'Guardar Gasto' }))
+    await user.click(screen.getByRole('button', { name: 'Guardar gasto' }))
 
     expect(await screen.findByText('Saldo insuficiente')).toBeInTheDocument()
   })
@@ -196,16 +196,16 @@ describe('TransactionModal', () => {
     fireEvent.change(screen.getByRole('combobox'), {
       target: { value: 'acc-1' },
     })
-    await user.click(screen.getByText('Toca para escribir nota...'))
-    await user.type(screen.getByPlaceholderText('Escribe una nota...'), 'Nota')
+    await user.click(screen.getByText('Añadir nota'))
+    await user.type(screen.getByPlaceholderText('Nota'), 'Nota')
 
     rerender(<TransactionModal isOpen={false} {...props} />)
     rerender(<TransactionModal isOpen {...props} />)
 
-    expect(screen.getByRole('button', { name: 'Guardar Gasto' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Guardar gasto' })).toBeInTheDocument()
     expect(screen.queryByText('45')).not.toBeInTheDocument()
     expect(screen.getByRole('combobox')).toHaveValue('')
-    expect(screen.getByText('Toca para escribir nota...')).toBeInTheDocument()
+    expect(screen.getByText('Añadir nota')).toBeInTheDocument()
   })
 
   it('cierra el modal', async () => {

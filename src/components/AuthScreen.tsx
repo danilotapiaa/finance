@@ -36,14 +36,13 @@ export const AuthScreen: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#F8F9FA] text-[#111827] flex flex-col justify-between px-6 py-12 selection:bg-neutral-200">
+    <div className="min-h-screen w-full bg-[#F8F9FA] text-[#111827] flex flex-col justify-center gap-10 px-6 py-12 selection:bg-neutral-200">
       {/* Cabecera / Identidad */}
-      <div className="pt-8 text-center space-y-2">
+      <div className="text-center space-y-2">
         <div className="w-12 h-12 rounded-2xl bg-[#111827] text-white flex items-center justify-center mx-auto shadow-md">
           <span className="material-symbols-outlined text-[24px]">account_balance_wallet</span>
         </div>
         <h1 className="text-2xl font-bold tracking-tight mt-4">Serene Finance</h1>
-        <p className="text-xs text-[#6B7280]">Gestión patrimonial personal simple y sin fricción</p>
       </div>
 
       {/* Formulario Principal */}
@@ -56,7 +55,7 @@ export const AuthScreen: React.FC = () => {
               !isRegistering ? 'bg-white text-[#111827] shadow-sm' : 'text-[#6B7280] hover:text-[#111827]'
             }`}
           >
-            Iniciar Sesión
+            Iniciar sesión
           </button>
           <button
             type="button"
@@ -65,7 +64,7 @@ export const AuthScreen: React.FC = () => {
               isRegistering ? 'bg-white text-[#111827] shadow-sm' : 'text-[#6B7280] hover:text-[#111827]'
             }`}
           >
-            Crear Cuenta
+            Registrarme
           </button>
         </div>
 
@@ -78,8 +77,8 @@ export const AuthScreen: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-3">
           {isRegistering && (
             <div>
-              <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">
-                Nombre Completo
+              <label className="block text-xs font-medium text-[#6B7280] mb-1">
+                Nombre completo
               </label>
               <input
                 type="text"
@@ -93,8 +92,8 @@ export const AuthScreen: React.FC = () => {
           )}
 
           <div>
-            <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">
-              Correo Electrónico
+            <label className="block text-xs font-medium text-[#6B7280] mb-1">
+              Correo electrónico
             </label>
             <input
               type="email"
@@ -107,7 +106,7 @@ export const AuthScreen: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">
+            <label className="block text-xs font-medium text-[#6B7280] mb-1">
               Contraseña
             </label>
             <input
@@ -135,11 +134,6 @@ export const AuthScreen: React.FC = () => {
             )}
           </button>
         </form>
-      </div>
-
-      {/* Pie con nota de privacidad */}
-      <div className="text-center text-[11px] text-[#9CA3AF]">
-        <p>Tus datos financieros están siempre seguros y protegidos.</p>
       </div>
     </div>
   );

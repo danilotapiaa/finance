@@ -33,8 +33,8 @@ describe('DebtModal', () => {
   it('inicia como préstamo otorgado', () => {
     renderModal()
 
-    expect(screen.getByText('Nuevo Préstamo (Me deben)')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Guardar Registro' })).toBeInTheDocument()
+    expect(screen.getByText('Nuevo préstamo')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Guardar deuda' })).toBeInTheDocument()
   })
 
   it('cambia el título al registrar una deuda contraída', async () => {
@@ -42,16 +42,16 @@ describe('DebtModal', () => {
     renderModal()
 
     await user.click(
-      screen.getByRole('button', { name: 'Debo dinero (Me prestaron)' })
+      screen.getByRole('button', { name: 'Debo' })
     )
 
-    expect(screen.getByText('Nueva Deuda (Debo)')).toBeInTheDocument()
+    expect(screen.getByText('Nueva deuda')).toBeInTheDocument()
   })
 
   it('valida el nombre de la persona', () => {
     renderModal()
 
-    fireEvent.submit(screen.getByRole('button', { name: 'Guardar Registro' }).closest('form')!)
+    fireEvent.submit(screen.getByRole('button', { name: 'Guardar deuda' }).closest('form')!)
 
     expect(screen.getByText('Ingresa el nombre de la persona')).toBeInTheDocument()
     expect(financeServiceMock.createDebt).not.toHaveBeenCalled()
@@ -63,7 +63,7 @@ describe('DebtModal', () => {
     fireEvent.change(screen.getByPlaceholderText('Ej. Carlos Martínez'), {
       target: { value: 'Carlos' },
     })
-    fireEvent.submit(screen.getByRole('button', { name: 'Guardar Registro' }).closest('form')!)
+    fireEvent.submit(screen.getByRole('button', { name: 'Guardar deuda' }).closest('form')!)
 
     expect(
       screen.getByText('Ingresa un monto válido mayor a 0')
@@ -88,7 +88,7 @@ describe('DebtModal', () => {
       screen.getByPlaceholderText('Ej. Préstamo para repuesto de auto...'),
       'Repuesto'
     )
-    await user.click(screen.getByRole('button', { name: 'Guardar Registro' }))
+    await user.click(screen.getByRole('button', { name: 'Guardar deuda' }))
 
     await waitFor(() =>
       expect(financeServiceMock.createDebt).toHaveBeenCalledWith({
@@ -108,13 +108,13 @@ describe('DebtModal', () => {
     renderModal()
 
     await user.click(
-      screen.getByRole('button', { name: 'Debo dinero (Me prestaron)' })
+      screen.getByRole('button', { name: 'Debo' })
     )
     await user.type(screen.getByPlaceholderText('Ej. Carlos Martínez'), 'Luis')
     fireEvent.change(screen.getByPlaceholderText('0.00'), {
       target: { value: '75.5' },
     })
-    await user.click(screen.getByRole('button', { name: 'Guardar Registro' }))
+    await user.click(screen.getByRole('button', { name: 'Guardar deuda' }))
 
     await waitFor(() =>
       expect(financeServiceMock.createDebt).toHaveBeenCalledWith({
@@ -136,7 +136,7 @@ describe('DebtModal', () => {
     fireEvent.change(screen.getByPlaceholderText('0.00'), {
       target: { value: '100' },
     })
-    await user.click(screen.getByRole('button', { name: 'Guardar Registro' }))
+    await user.click(screen.getByRole('button', { name: 'Guardar deuda' }))
 
     expect(await screen.findByText('Error de red')).toBeInTheDocument()
   })
@@ -150,7 +150,7 @@ describe('DebtModal', () => {
     )
 
     await user.click(
-      screen.getByRole('button', { name: 'Debo dinero (Me prestaron)' })
+      screen.getByRole('button', { name: 'Debo' })
     )
     await user.type(screen.getByPlaceholderText('Ej. Carlos Martínez'), 'Carlos')
     fireEvent.change(screen.getByPlaceholderText('0.00'), {
@@ -163,14 +163,14 @@ describe('DebtModal', () => {
       screen.getByPlaceholderText('Ej. Préstamo para repuesto de auto...'),
       'Repuesto'
     )
-    await user.click(screen.getByRole('button', { name: 'Guardar Registro' }))
+    await user.click(screen.getByRole('button', { name: 'Guardar deuda' }))
 
     await waitFor(() => expect(onClose).toHaveBeenCalled())
 
     rerender(<DebtModal isOpen={false} onClose={onClose} onSuccess={onSuccess} />)
     rerender(<DebtModal isOpen onClose={onClose} onSuccess={onSuccess} />)
 
-    expect(screen.getByText('Nuevo Préstamo (Me deben)')).toBeInTheDocument()
+    expect(screen.getByText('Nuevo préstamo')).toBeInTheDocument()
     expect(screen.getByPlaceholderText('Ej. Carlos Martínez')).toHaveValue('')
     expect(screen.getByPlaceholderText('0.00')).toHaveValue(null)
     expect(document.querySelector('input[type="date"]')).toHaveValue('')

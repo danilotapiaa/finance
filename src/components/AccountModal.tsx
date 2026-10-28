@@ -73,7 +73,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
   const config = {
     bank: {
       namePlaceholder: 'Ej. Banco Pichincha, BBVA, Santander...',
-      balanceLabel: accountToEdit ? 'Saldo Actual ($)' : 'Saldo Inicial ($)',
+      balanceLabel: accountToEdit ? 'Saldo actual ($)' : 'Saldo inicial ($)',
       balanceSub: accountToEdit ? 'Ajusta el saldo real' : 'Monto de apertura',
       showTarget: false,
       showDigits: true,
@@ -82,7 +82,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
     },
     savings: {
       namePlaceholder: 'Ej. Fondo de Emergencia, Ahorro Vacaciones...',
-      balanceLabel: accountToEdit ? 'Saldo Actual Ahorrado ($)' : 'Saldo Inicial ($)',
+      balanceLabel: accountToEdit ? 'Saldo actual ahorrado ($)' : 'Saldo inicial ($)',
       balanceSub: accountToEdit ? 'Monto actual en el fondo' : 'Monto de apertura',
       showTarget: true,
       showDigits: true,
@@ -91,7 +91,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
     },
     cash: {
       namePlaceholder: 'Ej. Billetera personal, Efectivo en casa, Caja chica...',
-      balanceLabel: accountToEdit ? 'Efectivo Actual ($)' : 'Efectivo Inicial ($)',
+      balanceLabel: accountToEdit ? 'Efectivo actual ($)' : 'Efectivo inicial ($)',
       balanceSub: accountToEdit ? 'Dinero disponible en mano' : 'Monto inicial en efectivo',
       showTarget: false,
       showDigits: false,
@@ -100,7 +100,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
     },
     credit: {
       namePlaceholder: 'Ej. Visa Platinum, Mastercard Débito / Crédito...',
-      balanceLabel: accountToEdit ? 'Saldo / Límite Disponible ($)' : 'Saldo Inicial / Cupo ($)',
+      balanceLabel: accountToEdit ? 'Saldo / límite disponible ($)' : 'Saldo inicial / cupo ($)',
       balanceSub: accountToEdit ? 'Saldo disponible actual' : 'Límite o saldo inicial',
       showTarget: false,
       showDigits: true,
@@ -192,7 +192,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
             <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
           <h2 className="text-[15px] font-semibold text-[#111827]">
-            {accountToEdit ? 'Editar Cuenta y Saldo' : 'Nueva Cuenta'}
+            {accountToEdit ? 'Editar cuenta' : 'Nueva cuenta'}
           </h2>
           <div className="w-8"></div>
         </div>
@@ -205,8 +205,8 @@ export const AccountModal: React.FC<AccountModalProps> = ({
         <form onSubmit={handleSubmit} className="space-y-3.5 pt-1 text-xs">
           {/* Nombre de la Cuenta */}
           <div>
-            <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">
-              Nombre de la Cuenta
+            <label className="block text-xs font-medium text-[#6B7280] mb-1">
+              Nombre de la cuenta
             </label>
             <input
               type="text"
@@ -220,8 +220,8 @@ export const AccountModal: React.FC<AccountModalProps> = ({
 
           {/* Tipo de Cuenta */}
           <div>
-            <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">
-              Tipo de Activo
+            <label className="block text-xs font-medium text-[#6B7280] mb-1">
+              Tipo de cuenta
             </label>
             <div className="grid grid-cols-4 gap-1.5 bg-[#F8F9FA] p-1 rounded-2xl border border-black/[0.05]">
               {(['bank', 'savings', 'cash', 'credit'] as AccountType[]).map((t) => {
@@ -250,12 +250,9 @@ export const AccountModal: React.FC<AccountModalProps> = ({
           {/* Saldo de la Cuenta */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider">
+              <label className="text-xs font-medium text-[#6B7280]">
                 {config.balanceLabel}
               </label>
-              <span className="text-[10px] text-[#9CA3AF]">
-                {config.balanceSub}
-              </span>
             </div>
             <input
               type="number"
@@ -272,10 +269,9 @@ export const AccountModal: React.FC<AccountModalProps> = ({
           {config.showTarget && (
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-[11px] font-semibold text-[#2E7D56] uppercase tracking-wider">
-                  Meta de Ahorro Objetivo ($)
+                <label className="text-xs font-medium text-[#2E7D56]">
+                  Meta de ahorro (opcional)
                 </label>
-                <span className="text-[10px] text-[#6B7280]">Opcional</span>
               </div>
               <input
                 type="number"
@@ -291,7 +287,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
           {/* Número de Cuenta / Dígitos (Oculto para Efectivo) */}
           {config.showDigits && (
             <div>
-              <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">
+              <label className="block text-xs font-medium text-[#6B7280] mb-1">
                 {config.digitsLabel}
               </label>
               <input
@@ -306,8 +302,8 @@ export const AccountModal: React.FC<AccountModalProps> = ({
 
           {/* Selector de Icono */}
           <div>
-            <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">
-              Icono Representativo
+            <label className="block text-xs font-medium text-[#6B7280] mb-1">
+              Icono
             </label>
             <div className="flex gap-2">
               {availableIcons.map((ic) => (
@@ -337,9 +333,9 @@ export const AccountModal: React.FC<AccountModalProps> = ({
             {isSubmitting ? (
               <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
             ) : accountToEdit ? (
-              'Guardar Cambios en Cuenta'
+              'Guardar cambios'
             ) : (
-              'Crear Cuenta'
+              'Crear cuenta'
             )}
           </button>
         </form>

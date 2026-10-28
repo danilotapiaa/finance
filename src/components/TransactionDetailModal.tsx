@@ -153,7 +153,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
             <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
           <h2 className="text-[15px] font-semibold text-[#111827]">
-            {isEditing ? 'Editar Movimiento' : 'Detalle del Movimiento'}
+            {isEditing ? 'Editar movimiento' : 'Detalle'}
           </h2>
           <button
             type="button"
@@ -195,7 +195,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
             {/* Monto */}
             <div>
-              <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">
+              <label className="block text-xs font-medium text-[#6B7280] mb-1">
                 Monto ($)
               </label>
               <input
@@ -211,8 +211,8 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
             {/* Cuenta */}
             <div>
-              <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">
-                Cuenta de cargo / depósito
+              <label className="block text-xs font-medium text-[#6B7280] mb-1">
+                Cuenta
               </label>
               <select
                 value={editAccountId}
@@ -229,7 +229,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
             {/* Categoría */}
             <div>
-              <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">
+              <label className="block text-xs font-medium text-[#6B7280] mb-1">
                 Categoría
               </label>
               <select
@@ -248,8 +248,8 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
             {/* Fecha y Hora */}
             <div>
-              <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">
-                Fecha y Hora
+              <label className="block text-xs font-medium text-[#6B7280] mb-1">
+                Fecha y hora
               </label>
               <input
                 type="datetime-local"
@@ -262,8 +262,8 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
             {/* Nota */}
             <div>
-              <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">
-                Concepto o Nota
+              <label className="block text-xs font-medium text-[#6B7280] mb-1">
+                Nota
               </label>
               <input
                 type="text"
@@ -283,7 +283,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
               {isSaving ? (
                 <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
               ) : (
-                'Guardar Cambios'
+                'Guardar cambios'
               )}
             </button>
           </form>
@@ -312,10 +312,6 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
               >
                 {isIncome ? `+$${amountNumber.toFixed(2)}` : `-$${amountNumber.toFixed(2)}`}
               </div>
-
-              <span className="mt-1.5 inline-flex items-center px-2.5 py-0.5 rounded-full bg-[#F8F9FA] border border-black/5 text-[11px] font-medium text-[#6B7280]">
-                {isIncome ? 'Ingreso registrado' : 'Gasto registrado'}
-              </span>
             </div>
 
             {/* Metadatos Agrupados */}
@@ -333,7 +329,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                   <span className="material-symbols-outlined text-sm">account_balance</span>
                   <span className="font-medium">Cuenta</span>
                 </div>
-                <span className="font-semibold text-[#111827]">{transaction.account?.name || 'Cuenta activa'}</span>
+                <span className="font-semibold text-[#111827]">{transaction.account?.name || 'Sin cuenta'}</span>
               </div>
 
               <div className="p-3.5 flex items-center justify-between">
@@ -365,7 +361,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 className="w-full h-11 bg-white hover:bg-neutral-50 border border-black/10 rounded-xl text-xs font-semibold text-[#111827] flex items-center justify-center gap-1.5 transition active:scale-[0.98] cursor-pointer shadow-sm"
               >
                 <span className="material-symbols-outlined text-sm">edit</span>
-                <span>Editar este movimiento</span>
+                <span>Editar movimiento</span>
               </button>
 
               <button
@@ -375,7 +371,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 className="w-full h-11 bg-[#FDF2F0] hover:bg-[#FBE8E5] border border-[#C25E4A]/15 rounded-xl text-xs font-semibold text-[#C25E4A] flex items-center justify-center gap-1.5 transition active:scale-[0.98] cursor-pointer disabled:opacity-50"
               >
                 <span className="material-symbols-outlined text-sm">delete</span>
-                <span>{isDeleting ? 'Eliminando...' : 'Eliminar este movimiento'}</span>
+                <span>{isDeleting ? 'Eliminando...' : 'Eliminar'}</span>
               </button>
             </div>
           </>

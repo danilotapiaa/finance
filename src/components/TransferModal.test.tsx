@@ -61,7 +61,7 @@ describe('TransferModal', () => {
   it('preselecciona las dos primeras cuentas y los montos rápidos', () => {
     renderModal()
 
-    expect(screen.getByText('Transferencia Interna')).toBeInTheDocument()
+    expect(screen.getByText('Transferencia')).toBeInTheDocument()
     const selects = screen.getAllByRole('combobox')
     expect(selects[0]).toHaveValue('acc-1')
     expect(selects[1]).toHaveValue('acc-2')
@@ -103,7 +103,7 @@ describe('TransferModal', () => {
     const user = userEvent.setup()
     renderModal()
 
-    await user.click(screen.getByRole('button', { name: 'Confirmar Transferencia' }))
+    await user.click(screen.getByRole('button', { name: 'Transferir' }))
 
     expect(
       screen.getByText('Ingresa un monto válido mayor a 0')
@@ -118,7 +118,7 @@ describe('TransferModal', () => {
     fireEvent.change(screen.getAllByRole('combobox')[1], {
       target: { value: 'acc-1' },
     })
-    await user.click(screen.getByRole('button', { name: 'Confirmar Transferencia' }))
+    await user.click(screen.getByRole('button', { name: 'Transferir' }))
 
     expect(
       screen.getByText('La cuenta de origen y destino deben ser diferentes')
@@ -130,7 +130,7 @@ describe('TransferModal', () => {
     renderModal()
 
     await user.click(screen.getByRole('button', { name: '+$250' }))
-    await user.click(screen.getByRole('button', { name: 'Confirmar Transferencia' }))
+    await user.click(screen.getByRole('button', { name: 'Transferir' }))
 
     expect(screen.getByText('Saldo insuficiente en Banco')).toBeInTheDocument()
   })
@@ -141,10 +141,10 @@ describe('TransferModal', () => {
 
     await user.click(screen.getByRole('button', { name: '+$50' }))
     await user.type(
-      screen.getByPlaceholderText('Concepto: ej. Aporte de ahorro mensual'),
+      screen.getByPlaceholderText('Ej. Aporte mensual'),
       '  Ahorro mensual  '
     )
-    await user.click(screen.getByRole('button', { name: 'Confirmar Transferencia' }))
+    await user.click(screen.getByRole('button', { name: 'Transferir' }))
 
     await waitFor(() =>
       expect(financeServiceMock.createTransfer).toHaveBeenCalledWith({
@@ -164,7 +164,7 @@ describe('TransferModal', () => {
     renderModal()
 
     await user.click(screen.getByRole('button', { name: '+$50' }))
-    await user.click(screen.getByRole('button', { name: 'Confirmar Transferencia' }))
+    await user.click(screen.getByRole('button', { name: 'Transferir' }))
 
     await waitFor(() =>
       expect(financeServiceMock.createTransfer).toHaveBeenCalledWith(
@@ -179,7 +179,7 @@ describe('TransferModal', () => {
     renderModal()
 
     await user.click(screen.getByRole('button', { name: '+$50' }))
-    await user.click(screen.getByRole('button', { name: 'Confirmar Transferencia' }))
+    await user.click(screen.getByRole('button', { name: 'Transferir' }))
 
     expect(await screen.findByText('Sin conexión')).toBeInTheDocument()
   })
@@ -193,7 +193,7 @@ describe('TransferModal', () => {
 
     await user.click(screen.getByRole('button', { name: '+$100' }))
     await user.type(
-      screen.getByPlaceholderText('Concepto: ej. Aporte de ahorro mensual'),
+      screen.getByPlaceholderText('Ej. Aporte mensual'),
       'Aporte'
     )
     await user.click(screen.getByTitle('Intercambiar origen y destino'))
@@ -206,7 +206,7 @@ describe('TransferModal', () => {
     expect(selects[1]).toHaveValue('acc-2')
     expect(screen.queryByText('100')).not.toBeInTheDocument()
     expect(
-      screen.getByPlaceholderText('Concepto: ej. Aporte de ahorro mensual')
+      screen.getByPlaceholderText('Ej. Aporte mensual')
     ).toHaveValue('')
   })
 

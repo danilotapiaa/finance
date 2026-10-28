@@ -36,7 +36,7 @@ describe('AuthScreen', () => {
     const user = userEvent.setup()
     render(<AuthScreen />)
 
-    await user.click(screen.getByRole('button', { name: 'Crear Cuenta' }))
+    await user.click(screen.getByRole('button', { name: 'Registrarme' }))
 
     expect(screen.getByPlaceholderText('Ej. Juan Pérez')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Crear cuenta' })).toBeInTheDocument()
@@ -57,7 +57,7 @@ describe('AuthScreen', () => {
     const user = userEvent.setup()
     render(<AuthScreen />)
 
-    await user.click(screen.getByRole('button', { name: 'Crear Cuenta' }))
+    await user.click(screen.getByRole('button', { name: 'Registrarme' }))
     await fillLogin(user)
     fireEvent.submit(screen.getByRole('button', { name: 'Crear cuenta' }).closest('form')!)
 
@@ -72,7 +72,7 @@ describe('AuthScreen', () => {
     authState.signUp.mockResolvedValue(undefined)
     render(<AuthScreen />)
 
-    await user.click(screen.getByRole('button', { name: 'Crear Cuenta' }))
+    await user.click(screen.getByRole('button', { name: 'Registrarme' }))
     await user.type(screen.getByPlaceholderText('Ej. Juan Pérez'), '  Danilo Tapia  ')
     await fillLogin(user)
     await user.click(screen.getByRole('button', { name: 'Crear cuenta' }))

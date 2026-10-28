@@ -43,12 +43,12 @@ describe('AccountModal', () => {
   it('muestra el formulario de nueva cuenta', () => {
     renderModal()
 
-    expect(screen.getByText('Nueva Cuenta')).toBeInTheDocument()
+    expect(screen.getByText('Nueva cuenta')).toBeInTheDocument()
     expect(
       screen.getByPlaceholderText('Ej. Banco Pichincha, BBVA, Santander...')
     ).toBeInTheDocument()
     expect(screen.getByPlaceholderText('0.00')).toHaveValue(0)
-    expect(screen.getByRole('button', { name: 'Crear Cuenta' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Crear cuenta' })).toBeInTheDocument()
   })
 
   it('muestra la meta y los dígitos solo para ahorros', async () => {
@@ -78,7 +78,7 @@ describe('AccountModal', () => {
   it('valida el nombre obligatorio', () => {
     renderModal()
 
-    fireEvent.submit(screen.getByRole('button', { name: 'Crear Cuenta' }).closest('form')!)
+    fireEvent.submit(screen.getByRole('button', { name: 'Crear cuenta' }).closest('form')!)
 
     expect(
       screen.getByText('Por favor ingresa un nombre para la cuenta')
@@ -96,7 +96,7 @@ describe('AccountModal', () => {
     fireEvent.change(screen.getByPlaceholderText('0.00'), {
       target: { value: '' },
     })
-    fireEvent.submit(screen.getByRole('button', { name: 'Crear Cuenta' }).closest('form')!)
+    fireEvent.submit(screen.getByRole('button', { name: 'Crear cuenta' }).closest('form')!)
 
     expect(screen.getByText('Ingresa un saldo numérico válido')).toBeInTheDocument()
   })
@@ -113,7 +113,7 @@ describe('AccountModal', () => {
       target: { value: '150.50' },
     })
     await user.type(screen.getByPlaceholderText('•••• 4821'), '•••• 1234')
-    await user.click(screen.getByRole('button', { name: 'Crear Cuenta' }))
+    await user.click(screen.getByRole('button', { name: 'Crear cuenta' }))
 
     await waitFor(() =>
       expect(financeServiceMock.createAccount).toHaveBeenCalledWith({
@@ -139,7 +139,7 @@ describe('AccountModal', () => {
     await user.click(screen.getByRole('button', { name: 'Ahorro' }))
     await user.type(screen.getByPlaceholderText('Ej. Fondo de Emergencia, Ahorro Vacaciones...'), 'Fondo')
     await user.type(screen.getByPlaceholderText('Ej. 6000.00'), '1000')
-    await user.click(screen.getByRole('button', { name: 'Crear Cuenta' }))
+    await user.click(screen.getByRole('button', { name: 'Crear cuenta' }))
 
     await waitFor(() =>
       expect(financeServiceMock.createAccount).toHaveBeenCalledWith(
@@ -163,14 +163,14 @@ describe('AccountModal', () => {
     })
     const { onClose, onSuccess } = renderModal({ accountToEdit: account })
 
-    expect(screen.getByText('Editar Cuenta y Saldo')).toBeInTheDocument()
+    expect(screen.getByText('Editar cuenta')).toBeInTheDocument()
     expect(screen.getByDisplayValue('Cuenta principal')).toBeInTheDocument()
     expect(screen.getByDisplayValue('100.00')).toBeInTheDocument()
 
     fireEvent.change(screen.getByDisplayValue('100.00'), {
       target: { value: '250' },
     })
-    await user.click(screen.getByRole('button', { name: 'Guardar Cambios en Cuenta' }))
+    await user.click(screen.getByRole('button', { name: 'Guardar cambios' }))
 
     await waitFor(() =>
       expect(financeServiceMock.updateAccount).toHaveBeenCalledWith(
@@ -194,7 +194,7 @@ describe('AccountModal', () => {
       screen.getByPlaceholderText('Ej. Banco Pichincha, BBVA, Santander...'),
       'Banco'
     )
-    await user.click(screen.getByRole('button', { name: 'Crear Cuenta' }))
+    await user.click(screen.getByRole('button', { name: 'Crear cuenta' }))
 
     expect(await screen.findByText('Nombre duplicado')).toBeInTheDocument()
   })
@@ -211,7 +211,7 @@ describe('AccountModal', () => {
     fireEvent.change(screen.getByPlaceholderText('Ej. 6000.00'), {
       target: { value: '-5' },
     })
-    fireEvent.submit(screen.getByRole('button', { name: 'Crear Cuenta' }).closest('form')!)
+    fireEvent.submit(screen.getByRole('button', { name: 'Crear cuenta' }).closest('form')!)
 
     expect(
       screen.getByText('Ingresa una meta de ahorro válida')
@@ -228,7 +228,7 @@ describe('AccountModal', () => {
       'Billetera'
     )
     await user.click(screen.getByTitle('Billetera'))
-    await user.click(screen.getByRole('button', { name: 'Crear Cuenta' }))
+    await user.click(screen.getByRole('button', { name: 'Crear cuenta' }))
 
     await waitFor(() =>
       expect(financeServiceMock.createAccount).toHaveBeenCalledWith(
@@ -246,7 +246,7 @@ describe('AccountModal', () => {
       screen.getByPlaceholderText('Ej. Banco Pichincha, BBVA, Santander...'),
       'Banco'
     )
-    await user.click(screen.getByRole('button', { name: 'Crear Cuenta' }))
+    await user.click(screen.getByRole('button', { name: 'Crear cuenta' }))
 
     expect(
       await screen.findByText('Ocurrió un error al guardar la cuenta.')
@@ -272,7 +272,7 @@ describe('AccountModal', () => {
     rerender(<AccountModal isOpen={false} {...props} />)
     rerender(<AccountModal isOpen {...props} />)
 
-    expect(screen.getByText('Nueva Cuenta')).toBeInTheDocument()
+    expect(screen.getByText('Nueva cuenta')).toBeInTheDocument()
     expect(
       screen.getByPlaceholderText('Ej. Banco Pichincha, BBVA, Santander...')
     ).toHaveValue('')

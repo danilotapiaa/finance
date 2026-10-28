@@ -175,16 +175,12 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
           <div className="flex-1 min-w-0">
             <h2 className="text-[16px] font-semibold text-[#111827] truncate tracking-tight">{userName}</h2>
             <p className="text-[12px] text-[#6B7280] truncate">{user?.email}</p>
-            <div className="mt-1 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#E8F5EE] text-[10px] font-semibold text-[#2E7D56] border border-[#2E7D56]/15">
-              <span className="material-symbols-outlined text-[12px]">verified_user</span>
-              <span>Cuenta verificada</span>
-            </div>
           </div>
         </section>
 
         {/* Sección 1: Preferencias Generales */}
         <section className="space-y-1.5">
-          <h3 className="px-2 text-[11px] font-semibold uppercase tracking-wider text-[#6B7280]">Preferencias Generales</h3>
+          <h3 className="px-2 text-xs font-medium text-[#6B7280]">Preferencias</h3>
           <div className="bg-white rounded-2xl border border-black/[0.05] divide-y divide-black/[0.05] shadow-sm overflow-hidden text-xs">
             {/* Moneda Principal */}
             <div className="px-4 py-3.5 flex items-center justify-between">
@@ -256,7 +252,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
 
         {/* Sección 2: Datos y Respaldo */}
         <section className="space-y-1.5">
-          <h3 className="px-2 text-[11px] font-semibold uppercase tracking-wider text-[#6B7280]">Datos y Respaldo</h3>
+          <h3 className="px-2 text-xs font-medium text-[#6B7280]">Datos y respaldo</h3>
           <div className="bg-white rounded-2xl border border-black/[0.05] divide-y divide-black/[0.05] shadow-sm overflow-hidden text-xs">
             {/* Exportar movimientos a CSV */}
             <button
@@ -271,7 +267,6 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
                 </div>
                 <div>
                   <span className="text-[13px] font-medium text-[#111827] block">Exportar movimientos (CSV)</span>
-                  <span className="text-[11px] text-[#6B7280]">Descarga una copia completa de tus finanzas</span>
                 </div>
               </div>
               <span className="material-symbols-outlined text-[18px] text-[#9CA3AF]">
@@ -295,7 +290,6 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
                 </div>
                 <div>
                   <span className="text-[13px] font-medium text-[#C25E4A] block">Restablecer datos</span>
-                  <span className="text-[11px] text-[#6B7280]">Borrar movimientos y volver a empezar desde $0.00</span>
                 </div>
               </div>
               <span className="material-symbols-outlined text-[18px] text-[#9CA3AF] group-hover:text-[#C25E4A] transition-colors">
@@ -316,14 +310,6 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
             <span>Cerrar Sesión</span>
           </button>
         </section>
-
-        {/* Pie de versión */}
-        <footer className="pt-4 text-center space-y-1">
-          <div className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#9CA3AF]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D56]"></span>
-            <span>SERENE FINANCE • V1.0.0</span>
-          </div>
-        </footer>
       </main>
 
       {/* Modal de Confirmación para Restablecer (Estética Serene Finance) */}
@@ -339,7 +325,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
                 Restablecer datos
               </h3>
               <p className="text-[12px] text-[#6B7280] leading-relaxed">
-                Se eliminarán tus transacciones, transferencias y deudas. Los saldos de tus cuentas volverán a <strong>$0.00</strong>.
+                Se eliminarán tus transacciones, transferencias y deudas. Tus cuentas quedarán en <strong>$0.00</strong>.
               </p>
             </div>
 
@@ -356,7 +342,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
                 <div className="text-[11px] leading-tight">
                   <span className="font-semibold text-[#111827] block">Eliminar también mis cuentas</span>
                   <span className="text-[#6B7280] mt-0.5 block">
-                    Si lo dejas desmarcado, conservarás tus cuentas listas para usar con balance en $0.00.
+                    Conserva tus cuentas con saldo en $0.00.
                   </span>
                 </div>
               </label>
@@ -364,7 +350,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
 
             {/* Input de confirmación */}
             <div className="space-y-1.5">
-              <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider text-center">
+              <label className="block text-xs font-medium text-[#6B7280] text-center">
                 Escribe <span className="text-[#C25E4A] font-bold">{CONFIRM_WORD}</span>
               </label>
               <input

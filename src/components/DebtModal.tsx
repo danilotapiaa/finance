@@ -83,7 +83,7 @@ export const DebtModal: React.FC<DebtModalProps> = ({ isOpen, onClose, onSuccess
             <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
           <h2 className="text-[15px] font-semibold text-[#111827]">
-            {type === 'lend' ? 'Nuevo Préstamo (Me deben)' : 'Nueva Deuda (Debo)'}
+            {type === 'lend' ? 'Nuevo préstamo' : 'Nueva deuda'}
           </h2>
           <div className="w-8"></div>
         </div>
@@ -104,7 +104,7 @@ export const DebtModal: React.FC<DebtModalProps> = ({ isOpen, onClose, onSuccess
                 type === 'lend' ? 'bg-[#2E7D56] text-white shadow-sm' : 'text-[#6B7280]'
               }`}
             >
-              Me deben dinero (Presté)
+              Me deben
             </button>
             <button
               type="button"
@@ -113,14 +113,14 @@ export const DebtModal: React.FC<DebtModalProps> = ({ isOpen, onClose, onSuccess
                 type === 'borrow' ? 'bg-[#C25E4A] text-white shadow-sm' : 'text-[#6B7280]'
               }`}
             >
-              Debo dinero (Me prestaron)
+              Debo
             </button>
           </div>
 
           {/* Nombre de la Persona */}
           <div>
-            <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">
-              {type === 'lend' ? 'Nombre del Deudor' : 'Nombre del Acreedor'}
+            <label className="block text-xs font-medium text-[#6B7280] mb-1">
+              {type === 'lend' ? 'Nombre del deudor' : 'Nombre del acreedor'}
             </label>
             <input
               type="text"
@@ -134,8 +134,8 @@ export const DebtModal: React.FC<DebtModalProps> = ({ isOpen, onClose, onSuccess
 
           {/* Monto Total */}
           <div>
-            <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">
-              Monto Prestado / Deuda ($)
+            <label className="block text-xs font-medium text-[#6B7280] mb-1">
+              Monto ($)
             </label>
             <input
               type="number"
@@ -150,8 +150,8 @@ export const DebtModal: React.FC<DebtModalProps> = ({ isOpen, onClose, onSuccess
 
           {/* Fecha Límite de Pago */}
           <div>
-            <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">
-              Fecha de Compromiso o Vencimiento (opcional)
+            <label className="block text-xs font-medium text-[#6B7280] mb-1">
+              Fecha límite (opcional)
             </label>
             <input
               type="date"
@@ -163,8 +163,8 @@ export const DebtModal: React.FC<DebtModalProps> = ({ isOpen, onClose, onSuccess
 
           {/* Nota / Motivo */}
           <div>
-            <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">
-              Motivo o Nota (opcional)
+            <label className="block text-xs font-medium text-[#6B7280] mb-1">
+              Nota (opcional)
             </label>
             <input
               type="text"
@@ -183,7 +183,7 @@ export const DebtModal: React.FC<DebtModalProps> = ({ isOpen, onClose, onSuccess
             {isSubmitting ? (
               <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
             ) : (
-              'Guardar Registro'
+              'Guardar deuda'
             )}
           </button>
         </form>

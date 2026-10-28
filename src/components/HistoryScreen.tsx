@@ -133,8 +133,8 @@ export const HistoryScreen: React.FC = () => {
         <section className="bg-white rounded-2xl p-4 border border-black/[0.05] shadow-sm space-y-3">
           <div className="flex items-baseline justify-between">
             <div>
-              <span className="text-[11px] font-semibold tracking-wider text-[#6B7280] uppercase">
-                Balance Neto del Mes
+              <span className="text-xs font-medium tracking-wider text-[#6B7280]">
+                Balance del mes
               </span>
               <div
                 className={`text-2xl font-bold tracking-tight tabular-nums ${
@@ -144,17 +144,6 @@ export const HistoryScreen: React.FC = () => {
                 {netBalance >= 0 ? `+$${netBalance.toFixed(2)}` : `-$${Math.abs(netBalance).toFixed(2)}`}
               </div>
             </div>
-
-            <span
-              className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full ${
-                netBalance >= 0 ? 'bg-[#E8F5EE] text-[#2E7D56]' : 'bg-[#FDF2F0] text-[#C25E4A]'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[12px]">
-                {netBalance >= 0 ? 'trending_up' : 'trending_down'}
-              </span>
-              <span>{netBalance >= 0 ? 'Superávit' : 'Déficit'}</span>
-            </span>
           </div>
 
           <div className="grid grid-cols-2 gap-3 pt-2 border-t border-neutral-100">
@@ -177,9 +166,8 @@ export const HistoryScreen: React.FC = () => {
 
           {/* Barra de Ritmo de Gasto */}
           <div className="space-y-1 pt-1">
-            <div className="flex justify-between items-center text-[10px] text-[#6B7280] font-medium">
-              <span>Ritmo de Gasto</span>
-              <span>{spentPercent}% gastado</span>
+            <div className="flex justify-end items-center text-[11px] text-[#6B7280] font-medium">
+              <span>{spentPercent}% del ingreso gastado</span>
             </div>
             <div className="h-1.5 w-full rounded-full bg-[#F3F4F6] overflow-hidden">
               <div
@@ -197,7 +185,7 @@ export const HistoryScreen: React.FC = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Buscar por nota, categoría o cuenta..."
+            placeholder="Buscar movimiento..."
             className="w-full bg-transparent text-xs text-[#111827] placeholder-[#9CA3AF] outline-none"
           />
           {searchQuery && (
@@ -264,7 +252,7 @@ export const HistoryScreen: React.FC = () => {
                 <div key={dateKey} className="space-y-1.5">
                   {/* Encabezado del Día con Subtotal */}
                   <div className="flex items-baseline justify-between px-1">
-                    <span className="text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider capitalize">
+                    <span className="text-[11px] font-semibold text-[#6B7280] capitalize">
                       {group.label}
                     </span>
                     <span
@@ -303,7 +291,7 @@ export const HistoryScreen: React.FC = () => {
                                 {tx.note || tx.category?.name || 'Movimiento'}
                               </div>
                               <div className="text-[11px] text-[#6B7280] truncate">
-                                {tx.category?.name} • {tx.account?.name}
+                                {tx.category?.name}{tx.account?.name ? ` en ${tx.account.name}` : ''}
                               </div>
                             </div>
                           </div>

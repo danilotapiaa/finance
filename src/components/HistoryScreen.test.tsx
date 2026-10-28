@@ -65,10 +65,9 @@ describe('HistoryScreen', () => {
     render(<HistoryScreen />)
 
     expect(await screen.findAllByText('+$250.00')).toHaveLength(2)
-    expect(screen.getByText('Superávit')).toBeInTheDocument()
     expect(screen.getByText('$300.00')).toBeInTheDocument()
     expect(screen.getByText('$50.00')).toBeInTheDocument()
-    expect(screen.getByText('17% gastado')).toBeInTheDocument()
+    expect(screen.getByText('17% del ingreso gastado')).toBeInTheDocument()
   })
 
   it('lista las transacciones agrupadas por día', async () => {
@@ -104,7 +103,7 @@ describe('HistoryScreen', () => {
     render(<HistoryScreen />)
     await screen.findByText('Salario')
 
-    const search = screen.getByPlaceholderText('Buscar por nota, categoría o cuenta...')
+    const search = screen.getByPlaceholderText('Buscar movimiento...')
 
     await user.type(search, 'super')
     expect(screen.getByText('Supermercado')).toBeInTheDocument()
