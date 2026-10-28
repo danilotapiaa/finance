@@ -7,18 +7,25 @@ export default {
   theme: {
     extend: {
       colors: {
-        canvas: '#F8F9FA',
-        charcoal: '#111827',
-        muted: '#6B7280',
-        subtle: '#9CA3AF',
-        income: {
-          DEFAULT: '#2E7D56',
-          subtle: '#E8F5EE'
+        canvas: 'rgb(var(--canvas) / <alpha-value>)',
+        surface: 'rgb(var(--surface) / <alpha-value>)',
+        'surface-muted': 'rgb(var(--surface-muted) / <alpha-value>)',
+        ink: 'rgb(var(--ink) / <alpha-value>)',
+        muted: 'rgb(var(--muted) / <alpha-value>)',
+        subtle: 'rgb(var(--subtle) / <alpha-value>)',
+        accent: {
+          DEFAULT: 'rgb(var(--accent) / <alpha-value>)',
+          soft: 'rgb(var(--accent-soft) / <alpha-value>)',
+          solid: 'rgb(var(--accent-solid) / <alpha-value>)',
         },
         expense: {
-          DEFAULT: '#C25E4A',
-          subtle: '#FDF2F0'
-        }
+          DEFAULT: 'rgb(var(--expense) / <alpha-value>)',
+          soft: 'rgb(var(--expense-soft) / <alpha-value>)',
+          'soft-strong': 'rgb(var(--expense-soft-strong) / <alpha-value>)',
+          solid: 'rgb(var(--expense-solid) / <alpha-value>)',
+          strong: 'rgb(var(--expense-strong) / <alpha-value>)',
+        },
+        credit: 'rgb(var(--credit) / <alpha-value>)',
       },
       fontFamily: {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],

@@ -79,30 +79,30 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/35 backdrop-blur-sm pointer-events-auto">
-      <div className="bg-white rounded-t-[32px] shadow-2xl border-t border-white/60 overflow-hidden px-5 pt-3 pb-8 flex flex-col gap-3 max-w-md mx-auto w-full max-h-[92vh] overflow-y-auto">
-        <div className="w-9 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
+      <div className="bg-surface rounded-t-[32px] shadow-2xl border-t border-ink/5 overflow-hidden px-5 pt-3 pb-8 flex flex-col gap-3 max-w-md mx-auto w-full max-h-[92vh] overflow-y-auto">
+        <div className="w-9 h-1 bg-ink/20 rounded-full mx-auto mb-1"></div>
 
-        <div className="flex items-center justify-between border-b border-black/[0.04] pb-2">
+        <div className="flex items-center justify-between border-b border-ink/[0.04] pb-2">
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition active:scale-95 cursor-pointer"
+            className="w-8 h-8 rounded-full bg-surface-muted flex items-center justify-center text-muted hover:bg-ink/10 transition active:scale-95 cursor-pointer"
             type="button"
           >
             <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
-          <h2 className="text-[15px] font-semibold text-[#111827]">Registrar abono</h2>
+          <h2 className="text-[15px] font-semibold text-ink">Registrar abono</h2>
           <div className="w-8"></div>
         </div>
 
         {/* Resumen de la Deuda */}
-        <div className="bg-[#F8F9FA] rounded-2xl p-4 border border-black/[0.05] text-center space-y-1">
-          <span className="text-xs text-[#6B7280] font-medium block">
+        <div className="bg-canvas rounded-2xl p-4 border border-ink/[0.05] text-center space-y-1">
+          <span className="text-xs text-muted font-medium block">
             {isLend ? 'Abono recibido de:' : 'Pago realizado a:'}
           </span>
-          <span className="text-base font-bold text-[#111827] block">{debt.person_name}</span>
-          <div className="flex justify-between items-center text-xs pt-2 border-t border-black/5 mt-2">
-            <span className="text-[#6B7280]">Saldo pendiente:</span>
-            <span className={`font-bold tabular-nums text-sm ${isLend ? 'text-[#2E7D56]' : 'text-[#C25E4A]'}`}>
+          <span className="text-base font-bold text-ink block">{debt.person_name}</span>
+          <div className="flex justify-between items-center text-xs pt-2 border-t border-ink/5 mt-2">
+            <span className="text-muted">Saldo pendiente:</span>
+            <span className={`font-bold tabular-nums text-sm ${isLend ? 'text-accent' : 'text-expense'}`}>
               ${remaining.toFixed(2)}
             </span>
           </div>
@@ -118,13 +118,13 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
           {/* Monto del Abono */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-medium text-[#6B7280]">
+              <label className="text-xs font-medium text-muted">
                 Monto ($)
               </label>
               <button
                 type="button"
                 onClick={() => setAmountStr(remaining.toFixed(2))}
-                className="text-[11px] font-semibold text-[#2E7D56] bg-[#E8F5EE] px-2 py-0.5 rounded-full cursor-pointer"
+                className="text-[11px] font-semibold text-accent bg-accent-soft px-2 py-0.5 rounded-full cursor-pointer"
               >
                 Pagar todo ($ {remaining.toFixed(2)})
               </button>
@@ -136,19 +136,19 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
               value={amountStr}
               onChange={(e) => setAmountStr(e.target.value)}
               placeholder="0.00"
-              className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-lg font-bold text-[#111827] focus:outline-none focus:border-[#111827] tabular-nums"
+              className="w-full h-11 px-3.5 bg-canvas border border-ink/[0.06] rounded-xl text-lg font-bold text-ink focus:outline-none focus:border-ink tabular-nums"
             />
           </div>
 
           {/* Cuenta donde entra o sale el dinero (opcional) */}
           <div>
-            <label className="block text-xs font-medium text-[#6B7280] mb-1">
+            <label className="block text-xs font-medium text-muted mb-1">
               Cuenta (opcional)
             </label>
             <select
               value={selectedAccountId}
               onChange={(e) => setSelectedAccountId(e.target.value)}
-              className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-sm font-semibold text-[#111827] outline-none cursor-pointer"
+              className="w-full h-11 px-3.5 bg-canvas border border-ink/[0.06] rounded-xl text-sm font-semibold text-ink outline-none cursor-pointer"
             >
               <option value="">No vincular con saldo de cuentas</option>
               {accounts.map((acc) => (
@@ -161,7 +161,7 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
 
           {/* Nota */}
           <div>
-            <label className="block text-xs font-medium text-[#6B7280] mb-1">
+            <label className="block text-xs font-medium text-muted mb-1">
               Nota (opcional)
             </label>
             <input
@@ -169,17 +169,17 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Ej. Transferencia bancaria parte 1..."
-              className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#111827]"
+              className="w-full h-11 px-3.5 bg-canvas border border-ink/[0.06] rounded-xl text-sm text-ink focus:outline-none focus:border-ink"
             />
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full h-12 bg-[#111827] text-white rounded-2xl font-semibold text-sm hover:bg-black active:scale-[0.98] transition-all shadow-md shadow-black/5 flex items-center justify-center mt-3 cursor-pointer disabled:opacity-50"
+            className="w-full h-12 bg-ink text-canvas rounded-2xl font-semibold text-sm hover:bg-ink/90 active:scale-[0.98] transition-all shadow-md shadow-black/5 flex items-center justify-center mt-3 cursor-pointer disabled:opacity-50"
           >
             {isSubmitting ? (
-              <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+              <span className="inline-block w-4 h-4 border-2 border-canvas/30 border-t-canvas rounded-full animate-spin"></span>
             ) : (
               'Confirmar abono'
             )}

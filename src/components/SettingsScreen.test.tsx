@@ -2,6 +2,8 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { SettingsScreen } from './SettingsScreen'
+import { ThemeProvider } from '../context/ThemeContext'
+import { THEME_STORAGE_KEY } from '../theme/themes'
 import { authState } from '../test/mocks/authContext'
 import { financeServiceMock } from '../test/mocks/financeService'
 import { makeProfile, makeTransaction, makeUser } from '../test/fixtures'
@@ -16,8 +18,17 @@ vi.mock('../services/financeService', async () => {
   return { financeService: mock }
 })
 
+const renderSettings = (onClose = vi.fn()) =>
+  render(
+    <ThemeProvider>
+      <SettingsScreen onClose={onClose} />
+    </ThemeProvider>
+  )
+
 describe('SettingsScreen', () => {
   beforeEach(() => {
+    window.localStorage.clear()
+    delete document.documentElement.dataset.theme
     authState.user = makeUser()
     authState.signOut.mockReset()
     Object.values(financeServiceMock).forEach((mock) => mock.mockReset())
@@ -35,13 +46,13 @@ describe('SettingsScreen', () => {
   it('muestra el spinner mientras carga el perfil', () => {
     financeServiceMock.getProfile.mockReturnValue(new Promise(() => {}))
 
-    const { container } = render(<SettingsScreen onClose={vi.fn()} />)
+    const { container } = renderSettings()
 
     expect(container.querySelector('.animate-spin')).toBeInTheDocument()
   })
 
   it('muestra los datos del perfil y las preferencias guardadas', async () => {
-    render(<SettingsScreen onClose={vi.fn()} />)
+    renderSettings()
 
     expect(await screen.findByText('Danilo Tapia')).toBeInTheDocument()
     expect(screen.getByText('danilo@test.com')).toBeInTheDocument()
@@ -53,7 +64,7 @@ describe('SettingsScreen', () => {
 
   it('guarda la preferencia de moneda', async () => {
     financeServiceMock.updateProfile.mockResolvedValue(undefined)
-    render(<SettingsScreen onClose={vi.fn()} />)
+    renderSettings()
     await screen.findByText('Danilo Tapia')
 
     fireEvent.change(screen.getAllByRole('combobox')[0], {
@@ -70,7 +81,7 @@ describe('SettingsScreen', () => {
 
   it('guarda el formato de decimales y el inicio de semana', async () => {
     financeServiceMock.updateProfile.mockResolvedValue(undefined)
-    render(<SettingsScreen onClose={vi.fn()} />)
+    renderSettings()
     await screen.findByText('Danilo Tapia')
 
     fireEvent.change(screen.getAllByRole('combobox')[1], {
@@ -93,7 +104,7 @@ describe('SettingsScreen', () => {
   it('registra el error si no puede guardar la preferencia', async () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => {})
     financeServiceMock.updateProfile.mockRejectedValue(new Error('boom'))
-    render(<SettingsScreen onClose={vi.fn()} />)
+    renderSettings()
     await screen.findByText('Danilo Tapia')
 
     fireEvent.change(screen.getAllByRole('combobox')[0], {
@@ -119,7 +130,7 @@ describe('SettingsScreen', () => {
         amount: 12.5,
       }),
     ])
-    render(<SettingsScreen onClose={vi.fn()} />)
+    renderSettings()
     await screen.findByText('Danilo Tapia')
 
     await user.click(screen.getByText('Exportar movimientos (CSV)'))
@@ -142,7 +153,7 @@ describe('SettingsScreen', () => {
     const user = userEvent.setup()
     vi.spyOn(window, 'alert').mockImplementation(() => {})
     financeServiceMock.getTransactions.mockResolvedValue([])
-    render(<SettingsScreen onClose={vi.fn()} />)
+    renderSettings()
     await screen.findByText('Danilo Tapia')
 
     await user.click(screen.getByText('Exportar movimientos (CSV)'))
@@ -159,7 +170,7 @@ describe('SettingsScreen', () => {
     vi.spyOn(window, 'alert').mockImplementation(() => {})
     vi.spyOn(console, 'error').mockImplementation(() => {})
     financeServiceMock.getTransactions.mockRejectedValue(new Error('boom'))
-    render(<SettingsScreen onClose={vi.fn()} />)
+    renderSettings()
     await screen.findByText('Danilo Tapia')
 
     await user.click(screen.getByText('Exportar movimientos (CSV)'))
@@ -173,7 +184,7 @@ describe('SettingsScreen', () => {
 
   it('abre y cierra el modal de restablecer', async () => {
     const user = userEvent.setup()
-    render(<SettingsScreen onClose={vi.fn()} />)
+    renderSettings()
     await screen.findByText('Danilo Tapia')
 
     await user.click(screen.getByText('Restablecer datos'))
@@ -185,7 +196,7 @@ describe('SettingsScreen', () => {
 
   it('mantiene deshabilitado el botón hasta escribir la palabra exacta', async () => {
     const user = userEvent.setup()
-    render(<SettingsScreen onClose={vi.fn()} />)
+    renderSettings()
     await screen.findByText('Danilo Tapia')
 
     await user.click(screen.getByText('Restablecer datos'))
@@ -199,7 +210,7 @@ describe('SettingsScreen', () => {
   it('restablece los datos sin eliminar las cuentas', async () => {
     const user = userEvent.setup()
     financeServiceMock.resetUserData.mockResolvedValue(undefined)
-    render(<SettingsScreen onClose={vi.fn()} />)
+    renderSettings()
     await screen.findByText('Danilo Tapia')
 
     await user.click(screen.getByText('Restablecer datos'))
@@ -219,7 +230,7 @@ describe('SettingsScreen', () => {
   it('restablece eliminando también las cuentas', async () => {
     const user = userEvent.setup()
     financeServiceMock.resetUserData.mockResolvedValue(undefined)
-    render(<SettingsScreen onClose={vi.fn()} />)
+    renderSettings()
     await screen.findByText('Danilo Tapia')
 
     await user.click(screen.getByText('Restablecer datos'))
@@ -240,7 +251,7 @@ describe('SettingsScreen', () => {
     financeServiceMock.resetUserData.mockRejectedValue(
       new Error('No se pudo restablecer')
     )
-    render(<SettingsScreen onClose={vi.fn()} />)
+    renderSettings()
     await screen.findByText('Danilo Tapia')
 
     await user.click(screen.getByText('Restablecer datos'))
@@ -253,7 +264,7 @@ describe('SettingsScreen', () => {
   it('cierra sesión y cierra la pantalla', async () => {
     const user = userEvent.setup()
     const onClose = vi.fn()
-    render(<SettingsScreen onClose={onClose} />)
+    renderSettings(onClose)
     await screen.findByText('Danilo Tapia')
 
     await user.click(screen.getByRole('button', { name: /Cerrar Sesión/ }))
@@ -267,9 +278,35 @@ describe('SettingsScreen', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
     financeServiceMock.getProfile.mockRejectedValue(new Error('boom'))
 
-    render(<SettingsScreen onClose={vi.fn()} />)
+    renderSettings()
 
     expect(await screen.findByText('Ajustes')).toBeInTheDocument()
     expect(screen.getByText('danilo@test.com')).toBeInTheDocument()
+  })
+
+  it('cambia el tema y lo guarda en el almacenamiento local', async () => {
+    const user = userEvent.setup()
+    renderSettings()
+    await screen.findByText('Danilo Tapia')
+
+    await user.click(screen.getByRole('button', { name: 'Tema Azul pastel' }))
+
+    expect(document.documentElement.dataset.theme).toBe('blue')
+    expect(window.localStorage.getItem(THEME_STORAGE_KEY)).toBe('blue')
+    expect(
+      screen.getByRole('button', { name: 'Tema Azul pastel' })
+    ).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('carga el tema guardado al iniciar', async () => {
+    window.localStorage.setItem(THEME_STORAGE_KEY, 'night')
+
+    renderSettings()
+    await screen.findByText('Danilo Tapia')
+
+    expect(document.documentElement.dataset.theme).toBe('night')
+    expect(
+      screen.getByRole('button', { name: 'Tema Noche' })
+    ).toHaveAttribute('aria-pressed', 'true')
   })
 })

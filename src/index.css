@@ -5,14 +5,70 @@
 @tailwind components;
 @tailwind utilities;
 
+:root,
+[data-theme='forest'] {
+  --canvas: 248 249 250;
+  --surface: 255 255 255;
+  --surface-muted: 243 244 246;
+  --ink: 17 24 39;
+  --muted: 107 114 128;
+  --subtle: 156 163 175;
+  --accent: 46 125 86;
+  --accent-soft: 232 245 238;
+  --accent-solid: 46 125 86;
+  --expense: 194 94 74;
+  --expense-soft: 253 242 240;
+  --expense-soft-strong: 251 232 229;
+  --expense-solid: 194 94 74;
+  --expense-strong: 169 78 60;
+  --credit: 79 70 229;
+}
+
+[data-theme='blue'] {
+  --canvas: 244 248 252;
+  --surface: 255 255 255;
+  --surface-muted: 234 242 250;
+  --ink: 24 52 76;
+  --muted: 92 114 134;
+  --subtle: 143 163 181;
+  --accent: 47 111 152;
+  --accent-soft: 227 240 250;
+  --accent-solid: 47 111 152;
+  --expense: 190 95 80;
+  --expense-soft: 252 239 236;
+  --expense-soft-strong: 248 226 221;
+  --expense-solid: 190 95 80;
+  --expense-strong: 160 74 61;
+  --credit: 91 125 177;
+}
+
+[data-theme='night'] {
+  --canvas: 13 19 26;
+  --surface: 21 30 39;
+  --surface-muted: 30 42 54;
+  --ink: 242 246 250;
+  --muted: 166 180 194;
+  --subtle: 111 128 146;
+  --accent: 143 195 232;
+  --accent-soft: 26 44 58;
+  --accent-solid: 143 195 232;
+  --expense: 240 161 143;
+  --expense-soft: 45 29 29;
+  --expense-soft-strong: 59 38 37;
+  --expense-solid: 240 161 143;
+  --expense-strong: 250 190 178;
+  --credit: 150 160 240;
+}
+
 @layer base {
   body {
-    background-color: #F8F9FA;
-    color: #111827;
+    background-color: rgb(var(--canvas));
+    color: rgb(var(--ink));
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     overscroll-behavior-y: none;
     -webkit-font-smoothing: antialiased;
     -webkit-tap-highlight-color: transparent;
+    transition: background-color 200ms ease, color 200ms ease;
   }
 }
 
@@ -26,4 +82,4 @@
 
 .pt-safe {
   padding-top: env(safe-area-inset-top, 0px);
-} 
+}

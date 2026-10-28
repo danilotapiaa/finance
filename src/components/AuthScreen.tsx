@@ -36,23 +36,23 @@ export const AuthScreen: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#F8F9FA] text-[#111827] flex flex-col justify-center gap-10 px-6 py-12 selection:bg-neutral-200">
+    <div className="min-h-screen w-full bg-canvas text-ink flex flex-col justify-center gap-10 px-6 py-12 selection:bg-ink/15">
       {/* Cabecera / Identidad */}
       <div className="text-center space-y-2">
-        <div className="w-12 h-12 rounded-2xl bg-[#111827] text-white flex items-center justify-center mx-auto shadow-md">
+        <div className="w-12 h-12 rounded-2xl bg-ink text-canvas flex items-center justify-center mx-auto shadow-md">
           <span className="material-symbols-outlined text-[24px]">account_balance_wallet</span>
         </div>
         <h1 className="text-2xl font-bold tracking-tight mt-4">Serene Finance</h1>
       </div>
 
       {/* Formulario Principal */}
-      <div className="w-full max-w-sm mx-auto bg-white p-6 rounded-3xl border border-black/[0.04] shadow-sm space-y-4">
-        <div className="flex bg-[#F8F9FA] p-1 rounded-full text-xs font-medium mb-4">
+      <div className="w-full max-w-sm mx-auto bg-surface p-6 rounded-3xl border border-ink/[0.04] shadow-sm space-y-4">
+        <div className="flex bg-canvas p-1 rounded-full text-xs font-medium mb-4">
           <button
             type="button"
             onClick={() => { setIsRegistering(false); setErrorMessage(null); }}
             className={`flex-1 py-1.5 rounded-full transition-all ${
-              !isRegistering ? 'bg-white text-[#111827] shadow-sm' : 'text-[#6B7280] hover:text-[#111827]'
+              !isRegistering ? 'bg-surface text-ink shadow-sm' : 'text-muted hover:text-ink'
             }`}
           >
             Iniciar sesión
@@ -61,7 +61,7 @@ export const AuthScreen: React.FC = () => {
             type="button"
             onClick={() => { setIsRegistering(true); setErrorMessage(null); }}
             className={`flex-1 py-1.5 rounded-full transition-all ${
-              isRegistering ? 'bg-white text-[#111827] shadow-sm' : 'text-[#6B7280] hover:text-[#111827]'
+              isRegistering ? 'bg-surface text-ink shadow-sm' : 'text-muted hover:text-ink'
             }`}
           >
             Registrarme
@@ -69,7 +69,7 @@ export const AuthScreen: React.FC = () => {
         </div>
 
         {errorMessage && (
-          <div className="p-3 bg-[#FDF2F0] border border-[#C25E4A]/10 rounded-xl text-xs text-[#C25E4A] leading-relaxed">
+          <div className="p-3 bg-expense-soft border border-expense/10 rounded-xl text-xs text-expense leading-relaxed">
             {errorMessage}
           </div>
         )}
@@ -77,7 +77,7 @@ export const AuthScreen: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-3">
           {isRegistering && (
             <div>
-              <label className="block text-xs font-medium text-[#6B7280] mb-1">
+              <label className="block text-xs font-medium text-muted mb-1">
                 Nombre completo
               </label>
               <input
@@ -86,13 +86,13 @@ export const AuthScreen: React.FC = () => {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="Ej. Juan Pérez"
-                className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#111827] transition"
+                className="w-full h-11 px-3.5 bg-canvas border border-ink/[0.06] rounded-xl text-sm text-ink focus:outline-none focus:border-ink transition"
               />
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-medium text-[#6B7280] mb-1">
+            <label className="block text-xs font-medium text-muted mb-1">
               Correo electrónico
             </label>
             <input
@@ -101,12 +101,12 @@ export const AuthScreen: React.FC = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="tu@correo.com"
-              className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#111827] transition"
+              className="w-full h-11 px-3.5 bg-canvas border border-ink/[0.06] rounded-xl text-sm text-ink focus:outline-none focus:border-ink transition"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[#6B7280] mb-1">
+            <label className="block text-xs font-medium text-muted mb-1">
               Contraseña
             </label>
             <input
@@ -116,17 +116,17 @@ export const AuthScreen: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#111827] transition"
+              className="w-full h-11 px-3.5 bg-canvas border border-ink/[0.06] rounded-xl text-sm text-ink focus:outline-none focus:border-ink transition"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-12 bg-[#111827] text-white rounded-2xl font-semibold text-sm hover:bg-black active:scale-[0.98] transition-all shadow-md shadow-black/5 flex items-center justify-center mt-2 disabled:opacity-50"
+            className="w-full h-12 bg-ink text-canvas rounded-2xl font-semibold text-sm hover:bg-ink/90 active:scale-[0.98] transition-all shadow-md shadow-black/5 flex items-center justify-center mt-2 disabled:opacity-50"
           >
             {loading ? (
-              <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+              <span className="inline-block w-4 h-4 border-2 border-canvas/30 border-t-canvas rounded-full animate-spin"></span>
             ) : isRegistering ? (
               'Crear cuenta'
             ) : (

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { AuthScreen } from './components/AuthScreen';
 import { Dashboard } from './components/Dashboard';
 import { AccountsScreen } from './components/AccountsScreen';
@@ -15,8 +16,8 @@ const MainApp: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen w-full bg-[#F8F9FA] flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-[#111827]/20 border-t-[#111827] rounded-full animate-spin"></div>
+      <div className="min-h-screen w-full bg-canvas flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-ink/20 border-t-ink rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -26,7 +27,7 @@ const MainApp: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] flex flex-col justify-between max-w-md mx-auto w-full relative shadow-sm">
+    <div className="min-h-screen bg-canvas flex flex-col justify-between max-w-md mx-auto w-full relative shadow-sm">
       {isSettingsOpen ? (
         <SettingsScreen onClose={() => setIsSettingsOpen(false)} />
       ) : (
@@ -56,8 +57,10 @@ const MainApp: React.FC = () => {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <MainApp />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <MainApp />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

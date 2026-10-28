@@ -71,18 +71,18 @@ export const DebtModal: React.FC<DebtModalProps> = ({ isOpen, onClose, onSuccess
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/35 backdrop-blur-sm pointer-events-auto">
-      <div className="bg-white rounded-t-[32px] shadow-2xl border-t border-white/60 overflow-hidden px-5 pt-3 pb-8 flex flex-col gap-3 max-w-md mx-auto w-full max-h-[92vh] overflow-y-auto">
-        <div className="w-9 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
+      <div className="bg-surface rounded-t-[32px] shadow-2xl border-t border-ink/5 overflow-hidden px-5 pt-3 pb-8 flex flex-col gap-3 max-w-md mx-auto w-full max-h-[92vh] overflow-y-auto">
+        <div className="w-9 h-1 bg-ink/20 rounded-full mx-auto mb-1"></div>
 
-        <div className="flex items-center justify-between border-b border-black/[0.04] pb-2">
+        <div className="flex items-center justify-between border-b border-ink/[0.04] pb-2">
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition active:scale-95 cursor-pointer"
+            className="w-8 h-8 rounded-full bg-surface-muted flex items-center justify-center text-muted hover:bg-ink/10 transition active:scale-95 cursor-pointer"
             type="button"
           >
             <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
-          <h2 className="text-[15px] font-semibold text-[#111827]">
+          <h2 className="text-[15px] font-semibold text-ink">
             {type === 'lend' ? 'Nuevo préstamo' : 'Nueva deuda'}
           </h2>
           <div className="w-8"></div>
@@ -96,12 +96,12 @@ export const DebtModal: React.FC<DebtModalProps> = ({ isOpen, onClose, onSuccess
 
         <form onSubmit={handleSubmit} className="space-y-3.5 pt-1 text-xs">
           {/* Selector de Tipo */}
-          <div className="flex bg-[#F8F9FA] p-1 rounded-full text-xs font-medium">
+          <div className="flex bg-canvas p-1 rounded-full text-xs font-medium">
             <button
               type="button"
               onClick={() => setType('lend')}
               className={`flex-1 py-2 rounded-full transition-all cursor-pointer ${
-                type === 'lend' ? 'bg-[#2E7D56] text-white shadow-sm' : 'text-[#6B7280]'
+                type === 'lend' ? 'bg-accent text-canvas shadow-sm' : 'text-muted'
               }`}
             >
               Me deben
@@ -110,7 +110,7 @@ export const DebtModal: React.FC<DebtModalProps> = ({ isOpen, onClose, onSuccess
               type="button"
               onClick={() => setType('borrow')}
               className={`flex-1 py-2 rounded-full transition-all cursor-pointer ${
-                type === 'borrow' ? 'bg-[#C25E4A] text-white shadow-sm' : 'text-[#6B7280]'
+                type === 'borrow' ? 'bg-expense text-canvas shadow-sm' : 'text-muted'
               }`}
             >
               Debo
@@ -119,7 +119,7 @@ export const DebtModal: React.FC<DebtModalProps> = ({ isOpen, onClose, onSuccess
 
           {/* Nombre de la Persona */}
           <div>
-            <label className="block text-xs font-medium text-[#6B7280] mb-1">
+            <label className="block text-xs font-medium text-muted mb-1">
               {type === 'lend' ? 'Nombre del deudor' : 'Nombre del acreedor'}
             </label>
             <input
@@ -128,13 +128,13 @@ export const DebtModal: React.FC<DebtModalProps> = ({ isOpen, onClose, onSuccess
               value={personName}
               onChange={(e) => setPersonName(e.target.value)}
               placeholder="Ej. Carlos Martínez"
-              className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#111827]"
+              className="w-full h-11 px-3.5 bg-canvas border border-ink/[0.06] rounded-xl text-sm text-ink focus:outline-none focus:border-ink"
             />
           </div>
 
           {/* Monto Total */}
           <div>
-            <label className="block text-xs font-medium text-[#6B7280] mb-1">
+            <label className="block text-xs font-medium text-muted mb-1">
               Monto ($)
             </label>
             <input
@@ -144,26 +144,26 @@ export const DebtModal: React.FC<DebtModalProps> = ({ isOpen, onClose, onSuccess
               value={amountStr}
               onChange={(e) => setAmountStr(e.target.value)}
               placeholder="0.00"
-              className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-lg font-bold text-[#111827] focus:outline-none focus:border-[#111827] tabular-nums"
+              className="w-full h-11 px-3.5 bg-canvas border border-ink/[0.06] rounded-xl text-lg font-bold text-ink focus:outline-none focus:border-ink tabular-nums"
             />
           </div>
 
           {/* Fecha Límite de Pago */}
           <div>
-            <label className="block text-xs font-medium text-[#6B7280] mb-1">
+            <label className="block text-xs font-medium text-muted mb-1">
               Fecha límite (opcional)
             </label>
             <input
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#111827]"
+              className="w-full h-11 px-3.5 bg-canvas border border-ink/[0.06] rounded-xl text-sm text-ink focus:outline-none focus:border-ink"
             />
           </div>
 
           {/* Nota / Motivo */}
           <div>
-            <label className="block text-xs font-medium text-[#6B7280] mb-1">
+            <label className="block text-xs font-medium text-muted mb-1">
               Nota (opcional)
             </label>
             <input
@@ -171,17 +171,17 @@ export const DebtModal: React.FC<DebtModalProps> = ({ isOpen, onClose, onSuccess
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Ej. Préstamo para repuesto de auto..."
-              className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#111827]"
+              className="w-full h-11 px-3.5 bg-canvas border border-ink/[0.06] rounded-xl text-sm text-ink focus:outline-none focus:border-ink"
             />
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full h-12 bg-[#111827] text-white rounded-2xl font-semibold text-sm hover:bg-black active:scale-[0.98] transition-all shadow-md shadow-black/5 flex items-center justify-center mt-3 cursor-pointer disabled:opacity-50"
+            className="w-full h-12 bg-ink text-canvas rounded-2xl font-semibold text-sm hover:bg-ink/90 active:scale-[0.98] transition-all shadow-md shadow-black/5 flex items-center justify-center mt-3 cursor-pointer disabled:opacity-50"
           >
             {isSubmitting ? (
-              <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+              <span className="inline-block w-4 h-4 border-2 border-canvas/30 border-t-canvas rounded-full animate-spin"></span>
             ) : (
               'Guardar deuda'
             )}

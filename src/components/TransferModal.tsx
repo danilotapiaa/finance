@@ -138,30 +138,30 @@ export const TransferModal: React.FC<TransferModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/35 backdrop-blur-sm pointer-events-auto">
-      <div className="bg-white rounded-t-[32px] shadow-2xl border-t border-white/60 overflow-hidden px-5 pt-3 pb-6 flex flex-col gap-3 max-w-md mx-auto w-full max-h-[92vh] overflow-y-auto">
-        <div className="w-9 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
+      <div className="bg-surface rounded-t-[32px] shadow-2xl border-t border-ink/5 overflow-hidden px-5 pt-3 pb-6 flex flex-col gap-3 max-w-md mx-auto w-full max-h-[92vh] overflow-y-auto">
+        <div className="w-9 h-1 bg-ink/20 rounded-full mx-auto mb-1"></div>
 
-        <div className="flex items-center justify-between border-b border-black/[0.04] pb-2">
+        <div className="flex items-center justify-between border-b border-ink/[0.04] pb-2">
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition active:scale-95 cursor-pointer"
+            className="w-8 h-8 rounded-full bg-surface-muted flex items-center justify-center text-muted hover:bg-ink/10 transition active:scale-95 cursor-pointer"
             type="button"
           >
             <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
-          <h2 className="text-[16px] font-semibold text-[#111827]">Transferencia</h2>
+          <h2 className="text-[16px] font-semibold text-ink">Transferencia</h2>
           <div className="w-8"></div>
         </div>
 
         {/* Selector de Cuentas */}
-        <div className="relative bg-[#F8F9FA] rounded-2xl border border-black/[0.05] p-3 space-y-2">
+        <div className="relative bg-canvas rounded-2xl border border-ink/[0.05] p-3 space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-[#6B7280]">Desde</span>
+              <span className="text-xs font-medium text-muted">Desde</span>
               <select
                 value={fromAccountId}
                 onChange={(e) => setFromAccountId(e.target.value)}
-                className="bg-transparent text-xs font-semibold text-[#111827] outline-none cursor-pointer"
+                className="bg-transparent text-xs font-semibold text-ink outline-none cursor-pointer"
               >
                 {accounts.map((acc) => (
                   <option key={acc.id} value={acc.id}>
@@ -173,11 +173,11 @@ export const TransferModal: React.FC<TransferModalProps> = ({
           </div>
 
           <div className="relative flex items-center justify-center py-1">
-            <div className="w-full border-t border-black/[0.06]"></div>
+            <div className="w-full border-t border-ink/[0.06]"></div>
             <button
               type="button"
               onClick={handleSwapAccounts}
-              className="absolute w-7 h-7 rounded-full bg-white border border-black/[0.08] shadow-sm flex items-center justify-center text-[#111827] hover:rotate-180 transition-transform active:scale-90 cursor-pointer"
+              className="absolute w-7 h-7 rounded-full bg-surface border border-ink/[0.08] shadow-sm flex items-center justify-center text-ink hover:rotate-180 transition-transform active:scale-90 cursor-pointer"
               title="Intercambiar origen y destino"
             >
               <span className="material-symbols-outlined text-[16px]">swap_vert</span>
@@ -186,11 +186,11 @@ export const TransferModal: React.FC<TransferModalProps> = ({
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-[#2E7D56]">Hacia</span>
+              <span className="text-xs font-medium text-accent">Hacia</span>
               <select
                 value={toAccountId}
                 onChange={(e) => setToAccountId(e.target.value)}
-                className="bg-transparent text-xs font-semibold text-[#111827] outline-none cursor-pointer"
+                className="bg-transparent text-xs font-semibold text-ink outline-none cursor-pointer"
               >
                 {accounts.map((acc) => (
                   <option key={acc.id} value={acc.id}>
@@ -205,8 +205,8 @@ export const TransferModal: React.FC<TransferModalProps> = ({
         {/* Display del Importe */}
         <div className="text-center py-1">
           <div className="flex items-baseline justify-center tracking-tight">
-            <span className="text-2xl text-gray-400 font-normal mr-1">$</span>
-            <span className="text-4xl font-bold tracking-tight text-gray-900 tabular-nums">{amountStr}</span>
+            <span className="text-2xl text-subtle font-normal mr-1">$</span>
+            <span className="text-4xl font-bold tracking-tight text-ink tabular-nums">{amountStr}</span>
           </div>
 
           <div className="flex items-center justify-center gap-2 mt-2">
@@ -215,7 +215,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
                 key={val}
                 type="button"
                 onClick={() => handleQuickPreset(val)}
-                className="px-3 py-1 bg-white border border-black/5 rounded-full text-xs font-medium text-[#6B7280] hover:text-[#111827] shadow-sm active:scale-95 cursor-pointer"
+                className="px-3 py-1 bg-surface border border-ink/5 rounded-full text-xs font-medium text-muted hover:text-ink shadow-sm active:scale-95 cursor-pointer"
               >
                 +${val}
               </button>
@@ -224,14 +224,14 @@ export const TransferModal: React.FC<TransferModalProps> = ({
         </div>
 
         {/* Vista previa de saldos */}
-        <div className="bg-[#F8F9FA] rounded-xl p-3 text-xs space-y-1 border border-black/[0.04]">
-          <div className="flex justify-between text-[#6B7280]">
+        <div className="bg-canvas rounded-xl p-3 text-xs space-y-1 border border-ink/[0.04]">
+          <div className="flex justify-between text-muted">
             <span>Nuevo saldo {fromAccount?.name || 'Origen'}:</span>
-            <span className="font-semibold text-[#111827] tabular-nums">${fromNewBalance.toFixed(2)}</span>
+            <span className="font-semibold text-ink tabular-nums">${fromNewBalance.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between text-[#6B7280]">
+          <div className="flex justify-between text-muted">
             <span>Nuevo saldo {toAccount?.name || 'Destino'}:</span>
-            <span className="font-semibold text-[#2E7D56] tabular-nums">${toNewBalance.toFixed(2)}</span>
+            <span className="font-semibold text-accent tabular-nums">${toNewBalance.toFixed(2)}</span>
           </div>
         </div>
 
@@ -241,7 +241,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
           value={concept}
           onChange={(e) => setConcept(e.target.value)}
           placeholder="Ej. Aporte mensual"
-          className="w-full h-10 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-xs text-[#111827] focus:outline-none focus:border-[#111827]"
+          className="w-full h-10 px-3.5 bg-canvas border border-ink/[0.06] rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
         />
 
         {errorMessage && (
@@ -255,7 +255,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
               key={key}
               type="button"
               onClick={() => handleKeypadPress(key)}
-              className="h-[42px] text-lg font-medium text-gray-800 rounded-xl hover:bg-gray-100 active:scale-95 transition flex items-center justify-center bg-gray-50 border border-gray-100 cursor-pointer"
+              className="h-[42px] text-lg font-medium text-ink rounded-xl hover:bg-ink/10 active:scale-95 transition flex items-center justify-center bg-canvas border border-ink/10 cursor-pointer"
             >
               {key === 'backspace' ? (
                 <span className="material-symbols-outlined text-[20px]">backspace</span>
@@ -270,10 +270,10 @@ export const TransferModal: React.FC<TransferModalProps> = ({
           type="button"
           onClick={handleSubmit}
           disabled={isSubmitting}
-          className="w-full h-[50px] rounded-2xl bg-[#111827] text-white font-medium text-sm flex items-center justify-center shadow-lg shadow-gray-900/10 active:scale-[0.99] transition cursor-pointer disabled:opacity-50 mt-1"
+          className="w-full h-[50px] rounded-2xl bg-ink text-canvas font-medium text-sm flex items-center justify-center shadow-lg shadow-ink/10 active:scale-[0.99] transition cursor-pointer disabled:opacity-50 mt-1"
         >
           {isSubmitting ? (
-            <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+            <span className="inline-block w-4 h-4 border-2 border-canvas/30 border-t-canvas rounded-full animate-spin"></span>
           ) : (
             'Transferir'
           )}

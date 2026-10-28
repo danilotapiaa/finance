@@ -178,20 +178,20 @@ export const AccountModal: React.FC<AccountModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/35 backdrop-blur-sm pointer-events-auto">
-      <div className="bg-white rounded-t-[32px] shadow-2xl border-t border-white/60 overflow-hidden px-5 pt-3 pb-8 flex flex-col gap-3 max-w-md mx-auto w-full max-h-[92vh] overflow-y-auto">
+      <div className="bg-surface rounded-t-[32px] shadow-2xl border-t border-ink/5 overflow-hidden px-5 pt-3 pb-8 flex flex-col gap-3 max-w-md mx-auto w-full max-h-[92vh] overflow-y-auto">
         {/* Píldora de arrastre */}
-        <div className="w-9 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
+        <div className="w-9 h-1 bg-ink/20 rounded-full mx-auto mb-1"></div>
 
         {/* Encabezado */}
-        <div className="flex items-center justify-between border-b border-black/[0.04] pb-2">
+        <div className="flex items-center justify-between border-b border-ink/[0.04] pb-2">
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition active:scale-95 cursor-pointer"
+            className="w-8 h-8 rounded-full bg-surface-muted flex items-center justify-center text-muted hover:bg-ink/10 transition active:scale-95 cursor-pointer"
             type="button"
           >
             <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
-          <h2 className="text-[15px] font-semibold text-[#111827]">
+          <h2 className="text-[15px] font-semibold text-ink">
             {accountToEdit ? 'Editar cuenta' : 'Nueva cuenta'}
           </h2>
           <div className="w-8"></div>
@@ -205,7 +205,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
         <form onSubmit={handleSubmit} className="space-y-3.5 pt-1 text-xs">
           {/* Nombre de la Cuenta */}
           <div>
-            <label className="block text-xs font-medium text-[#6B7280] mb-1">
+            <label className="block text-xs font-medium text-muted mb-1">
               Nombre de la cuenta
             </label>
             <input
@@ -214,16 +214,16 @@ export const AccountModal: React.FC<AccountModalProps> = ({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={config.namePlaceholder}
-              className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#111827]"
+              className="w-full h-11 px-3.5 bg-canvas border border-ink/[0.06] rounded-xl text-sm text-ink focus:outline-none focus:border-ink"
             />
           </div>
 
           {/* Tipo de Cuenta */}
           <div>
-            <label className="block text-xs font-medium text-[#6B7280] mb-1">
+            <label className="block text-xs font-medium text-muted mb-1">
               Tipo de cuenta
             </label>
-            <div className="grid grid-cols-4 gap-1.5 bg-[#F8F9FA] p-1 rounded-2xl border border-black/[0.05]">
+            <div className="grid grid-cols-4 gap-1.5 bg-canvas p-1 rounded-2xl border border-ink/[0.05]">
               {(['bank', 'savings', 'cash', 'credit'] as AccountType[]).map((t) => {
                 const labels: Record<AccountType, string> = {
                   bank: 'Banco',
@@ -237,7 +237,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
                     type="button"
                     onClick={() => handleTypeChange(t)}
                     className={`py-2 rounded-xl font-medium transition cursor-pointer ${
-                      type === t ? 'bg-white text-[#111827] shadow-sm font-semibold' : 'text-[#6B7280]'
+                      type === t ? 'bg-surface text-ink shadow-sm font-semibold' : 'text-muted'
                     }`}
                   >
                     {labels[t]}
@@ -250,7 +250,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
           {/* Saldo de la Cuenta */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-medium text-[#6B7280]">
+              <label className="text-xs font-medium text-muted">
                 {config.balanceLabel}
               </label>
             </div>
@@ -261,7 +261,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
               value={balanceStr}
               onChange={(e) => setBalanceStr(e.target.value)}
               placeholder="0.00"
-              className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-sm text-[#111827] font-semibold focus:outline-none focus:border-[#111827] tabular-nums"
+              className="w-full h-11 px-3.5 bg-canvas border border-ink/[0.06] rounded-xl text-sm text-ink font-semibold focus:outline-none focus:border-ink tabular-nums"
             />
           </div>
 
@@ -269,7 +269,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
           {config.showTarget && (
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-medium text-[#2E7D56]">
+                <label className="text-xs font-medium text-accent">
                   Meta de ahorro (opcional)
                 </label>
               </div>
@@ -279,7 +279,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
                 value={targetAmountStr}
                 onChange={(e) => setTargetAmountStr(e.target.value)}
                 placeholder="Ej. 6000.00"
-                className="w-full h-11 px-3.5 bg-[#E8F5EE] border border-[#2E7D56]/20 rounded-xl text-sm text-[#2E7D56] font-semibold focus:outline-none focus:border-[#2E7D56] tabular-nums"
+                className="w-full h-11 px-3.5 bg-accent-soft border border-accent/20 rounded-xl text-sm text-accent font-semibold focus:outline-none focus:border-accent tabular-nums"
               />
             </div>
           )}
@@ -287,7 +287,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
           {/* Número de Cuenta / Dígitos (Oculto para Efectivo) */}
           {config.showDigits && (
             <div>
-              <label className="block text-xs font-medium text-[#6B7280] mb-1">
+              <label className="block text-xs font-medium text-muted mb-1">
                 {config.digitsLabel}
               </label>
               <input
@@ -295,14 +295,14 @@ export const AccountModal: React.FC<AccountModalProps> = ({
                 value={accountNumber}
                 onChange={(e) => setAccountNumber(e.target.value)}
                 placeholder={config.digitsPlaceholder}
-                className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#111827]"
+                className="w-full h-11 px-3.5 bg-canvas border border-ink/[0.06] rounded-xl text-sm text-ink focus:outline-none focus:border-ink"
               />
             </div>
           )}
 
           {/* Selector de Icono */}
           <div>
-            <label className="block text-xs font-medium text-[#6B7280] mb-1">
+            <label className="block text-xs font-medium text-muted mb-1">
               Icono
             </label>
             <div className="flex gap-2">
@@ -313,8 +313,8 @@ export const AccountModal: React.FC<AccountModalProps> = ({
                   onClick={() => setIcon(ic.name)}
                   className={`w-10 h-10 rounded-xl flex items-center justify-center transition border cursor-pointer ${
                     icon === ic.name
-                      ? 'bg-[#111827] text-white border-[#111827] shadow-sm'
-                      : 'bg-[#F8F9FA] text-[#6B7280] border-black/5 hover:bg-neutral-200'
+                      ? 'bg-ink text-canvas border-ink shadow-sm'
+                      : 'bg-canvas text-muted border-ink/5 hover:bg-ink/10'
                   }`}
                   title={ic.label}
                 >
@@ -328,10 +328,10 @@ export const AccountModal: React.FC<AccountModalProps> = ({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full h-12 bg-[#111827] text-white rounded-2xl font-semibold text-sm hover:bg-black active:scale-[0.98] transition-all shadow-md shadow-black/5 flex items-center justify-center mt-3 cursor-pointer disabled:opacity-50"
+            className="w-full h-12 bg-ink text-canvas rounded-2xl font-semibold text-sm hover:bg-ink/90 active:scale-[0.98] transition-all shadow-md shadow-black/5 flex items-center justify-center mt-3 cursor-pointer disabled:opacity-50"
           >
             {isSubmitting ? (
-              <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+              <span className="inline-block w-4 h-4 border-2 border-canvas/30 border-t-canvas rounded-full animate-spin"></span>
             ) : accountToEdit ? (
               'Guardar cambios'
             ) : (

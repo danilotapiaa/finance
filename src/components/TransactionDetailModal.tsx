@@ -139,26 +139,26 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/35 backdrop-blur-sm pointer-events-auto">
-      <div className="bg-white rounded-t-[32px] shadow-2xl border-t border-white/60 overflow-hidden px-5 pt-3 pb-8 flex flex-col gap-3 max-w-md mx-auto w-full max-h-[92vh] overflow-y-auto">
+      <div className="bg-surface rounded-t-[32px] shadow-2xl border-t border-ink/5 overflow-hidden px-5 pt-3 pb-8 flex flex-col gap-3 max-w-md mx-auto w-full max-h-[92vh] overflow-y-auto">
         {/* Píldora de arrastre */}
-        <div className="w-9 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
+        <div className="w-9 h-1 bg-ink/20 rounded-full mx-auto mb-1"></div>
 
         {/* Encabezado */}
-        <div className="flex items-center justify-between border-b border-black/[0.04] pb-2">
+        <div className="flex items-center justify-between border-b border-ink/[0.04] pb-2">
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition active:scale-95 cursor-pointer"
+            className="w-8 h-8 rounded-full bg-surface-muted flex items-center justify-center text-muted hover:bg-ink/10 transition active:scale-95 cursor-pointer"
             type="button"
           >
             <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
-          <h2 className="text-[15px] font-semibold text-[#111827]">
+          <h2 className="text-[15px] font-semibold text-ink">
             {isEditing ? 'Editar movimiento' : 'Detalle'}
           </h2>
           <button
             type="button"
             onClick={() => setIsEditing(!isEditing)}
-            className="text-xs font-semibold text-[#111827] bg-[#F8F9FA] hover:bg-neutral-200 px-3 py-1 rounded-full border border-black/5 transition cursor-pointer"
+            className="text-xs font-semibold text-ink bg-canvas hover:bg-ink/10 px-3 py-1 rounded-full border border-ink/5 transition cursor-pointer"
           >
             {isEditing ? 'Cancelar' : 'Editar'}
           </button>
@@ -172,12 +172,12 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
         {isEditing ? (
           <form onSubmit={handleSaveEdit} className="space-y-3.5 pt-1 text-xs">
             {/* Selector de Tipo: Gasto / Ingreso */}
-            <div className="flex bg-[#F8F9FA] p-1 rounded-full text-xs font-medium">
+            <div className="flex bg-canvas p-1 rounded-full text-xs font-medium">
               <button
                 type="button"
                 onClick={() => setEditType('expense')}
                 className={`flex-1 py-1.5 rounded-full transition-all cursor-pointer ${
-                  editType === 'expense' ? 'bg-[#111827] text-white shadow-sm' : 'text-[#6B7280]'
+                  editType === 'expense' ? 'bg-ink text-canvas shadow-sm' : 'text-muted'
                 }`}
               >
                 Gasto
@@ -186,7 +186,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 type="button"
                 onClick={() => setEditType('income')}
                 className={`flex-1 py-1.5 rounded-full transition-all cursor-pointer ${
-                  editType === 'income' ? 'bg-[#2E7D56] text-white shadow-sm' : 'text-[#6B7280]'
+                  editType === 'income' ? 'bg-accent text-canvas shadow-sm' : 'text-muted'
                 }`}
               >
                 Ingreso
@@ -195,7 +195,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
             {/* Monto */}
             <div>
-              <label className="block text-xs font-medium text-[#6B7280] mb-1">
+              <label className="block text-xs font-medium text-muted mb-1">
                 Monto ($)
               </label>
               <input
@@ -205,19 +205,19 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 value={editAmountStr}
                 onChange={(e) => setEditAmountStr(e.target.value)}
                 placeholder="0.00"
-                className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-lg font-bold text-[#111827] focus:outline-none focus:border-[#111827] tabular-nums"
+                className="w-full h-11 px-3.5 bg-canvas border border-ink/[0.06] rounded-xl text-lg font-bold text-ink focus:outline-none focus:border-ink tabular-nums"
               />
             </div>
 
             {/* Cuenta */}
             <div>
-              <label className="block text-xs font-medium text-[#6B7280] mb-1">
+              <label className="block text-xs font-medium text-muted mb-1">
                 Cuenta
               </label>
               <select
                 value={editAccountId}
                 onChange={(e) => setEditAccountId(e.target.value)}
-                className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-sm font-semibold text-[#111827] outline-none cursor-pointer"
+                className="w-full h-11 px-3.5 bg-canvas border border-ink/[0.06] rounded-xl text-sm font-semibold text-ink outline-none cursor-pointer"
               >
                 {accounts.map((acc) => (
                   <option key={acc.id} value={acc.id}>
@@ -229,13 +229,13 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
             {/* Categoría */}
             <div>
-              <label className="block text-xs font-medium text-[#6B7280] mb-1">
+              <label className="block text-xs font-medium text-muted mb-1">
                 Categoría
               </label>
               <select
                 value={editCategoryId || ''}
                 onChange={(e) => setEditCategoryId(e.target.value || null)}
-                className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-sm font-semibold text-[#111827] outline-none cursor-pointer"
+                className="w-full h-11 px-3.5 bg-canvas border border-ink/[0.06] rounded-xl text-sm font-semibold text-ink outline-none cursor-pointer"
               >
                 <option value="">Sin categoría</option>
                 {filteredCategories.map((cat) => (
@@ -248,7 +248,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
             {/* Fecha y Hora */}
             <div>
-              <label className="block text-xs font-medium text-[#6B7280] mb-1">
+              <label className="block text-xs font-medium text-muted mb-1">
                 Fecha y hora
               </label>
               <input
@@ -256,13 +256,13 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 required
                 value={editDate}
                 onChange={(e) => setEditDate(e.target.value)}
-                className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#111827]"
+                className="w-full h-11 px-3.5 bg-canvas border border-ink/[0.06] rounded-xl text-sm text-ink focus:outline-none focus:border-ink"
               />
             </div>
 
             {/* Nota */}
             <div>
-              <label className="block text-xs font-medium text-[#6B7280] mb-1">
+              <label className="block text-xs font-medium text-muted mb-1">
                 Nota
               </label>
               <input
@@ -270,7 +270,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 value={editNote}
                 onChange={(e) => setEditNote(e.target.value)}
                 placeholder="Ej. Café con el equipo..."
-                className="w-full h-11 px-3.5 bg-[#F8F9FA] border border-black/[0.06] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#111827]"
+                className="w-full h-11 px-3.5 bg-canvas border border-ink/[0.06] rounded-xl text-sm text-ink focus:outline-none focus:border-ink"
               />
             </div>
 
@@ -278,10 +278,10 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
             <button
               type="submit"
               disabled={isSaving}
-              className="w-full h-12 bg-[#111827] text-white rounded-2xl font-semibold text-sm hover:bg-black active:scale-[0.98] transition-all shadow-md shadow-black/5 flex items-center justify-center mt-2 cursor-pointer disabled:opacity-50"
+              className="w-full h-12 bg-ink text-canvas rounded-2xl font-semibold text-sm hover:bg-ink/90 active:scale-[0.98] transition-all shadow-md shadow-black/5 flex items-center justify-center mt-2 cursor-pointer disabled:opacity-50"
             >
               {isSaving ? (
-                <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                <span className="inline-block w-4 h-4 border-2 border-canvas/30 border-t-canvas rounded-full animate-spin"></span>
               ) : (
                 'Guardar cambios'
               )}
@@ -292,8 +292,8 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
           <>
             <div className="flex flex-col items-center text-center pt-2 pb-2">
               <div
-                className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner border border-black/5 mb-2 ${
-                  isIncome ? 'bg-[#E8F5EE] text-[#2E7D56]' : 'bg-[#F3F4F6] text-[#111827]'
+                className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner border border-ink/5 mb-2 ${
+                  isIncome ? 'bg-accent-soft text-accent' : 'bg-surface-muted text-ink'
                 }`}
               >
                 <span className="material-symbols-outlined text-2xl">
@@ -301,13 +301,13 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 </span>
               </div>
 
-              <h3 className="text-lg font-bold text-[#111827]">
+              <h3 className="text-lg font-bold text-ink">
                 {transaction.note || transaction.category?.name || 'Movimiento'}
               </h3>
 
               <div
                 className={`text-3xl font-bold tracking-tight tabular-nums mt-0.5 ${
-                  isIncome ? 'text-[#2E7D56]' : 'text-[#111827]'
+                  isIncome ? 'text-accent' : 'text-ink'
                 }`}
               >
                 {isIncome ? `+$${amountNumber.toFixed(2)}` : `-$${amountNumber.toFixed(2)}`}
@@ -315,38 +315,38 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
             </div>
 
             {/* Metadatos Agrupados */}
-            <div className="bg-[#F8F9FA] rounded-2xl border border-black/[0.04] divide-y divide-black/[0.05] overflow-hidden text-xs my-1">
+            <div className="bg-canvas rounded-2xl border border-ink/[0.04] divide-y divide-ink/[0.05] overflow-hidden text-xs my-1">
               <div className="p-3.5 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-[#6B7280]">
+                <div className="flex items-center gap-2 text-muted">
                   <span className="material-symbols-outlined text-sm">calendar_today</span>
                   <span className="font-medium">Fecha</span>
                 </div>
-                <span className="font-medium text-[#111827] text-right capitalize">{formattedDate}</span>
+                <span className="font-medium text-ink text-right capitalize">{formattedDate}</span>
               </div>
 
               <div className="p-3.5 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-[#6B7280]">
+                <div className="flex items-center gap-2 text-muted">
                   <span className="material-symbols-outlined text-sm">account_balance</span>
                   <span className="font-medium">Cuenta</span>
                 </div>
-                <span className="font-semibold text-[#111827]">{transaction.account?.name || 'Sin cuenta'}</span>
+                <span className="font-semibold text-ink">{transaction.account?.name || 'Sin cuenta'}</span>
               </div>
 
               <div className="p-3.5 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-[#6B7280]">
+                <div className="flex items-center gap-2 text-muted">
                   <span className="material-symbols-outlined text-sm">category</span>
                   <span className="font-medium">Categoría</span>
                 </div>
-                <span className="font-semibold text-[#111827]">{transaction.category?.name || 'Sin categoría'}</span>
+                <span className="font-semibold text-ink">{transaction.category?.name || 'Sin categoría'}</span>
               </div>
 
               {transaction.note && (
                 <div className="p-3.5 flex items-start justify-between gap-4">
-                  <div className="flex items-center gap-2 text-[#6B7280] shrink-0 pt-0.5">
+                  <div className="flex items-center gap-2 text-muted shrink-0 pt-0.5">
                     <span className="material-symbols-outlined text-sm">notes</span>
                     <span className="font-medium">Nota</span>
                   </div>
-                  <span className="font-normal text-[#111827] text-right leading-relaxed max-w-[200px]">
+                  <span className="font-normal text-ink text-right leading-relaxed max-w-[200px]">
                     {transaction.note}
                   </span>
                 </div>
@@ -358,7 +358,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
               <button
                 type="button"
                 onClick={() => setIsEditing(true)}
-                className="w-full h-11 bg-white hover:bg-neutral-50 border border-black/10 rounded-xl text-xs font-semibold text-[#111827] flex items-center justify-center gap-1.5 transition active:scale-[0.98] cursor-pointer shadow-sm"
+                className="w-full h-11 bg-surface hover:bg-surface-muted border border-ink/10 rounded-xl text-xs font-semibold text-ink flex items-center justify-center gap-1.5 transition active:scale-[0.98] cursor-pointer shadow-sm"
               >
                 <span className="material-symbols-outlined text-sm">edit</span>
                 <span>Editar movimiento</span>
@@ -368,7 +368,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 type="button"
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="w-full h-11 bg-[#FDF2F0] hover:bg-[#FBE8E5] border border-[#C25E4A]/15 rounded-xl text-xs font-semibold text-[#C25E4A] flex items-center justify-center gap-1.5 transition active:scale-[0.98] cursor-pointer disabled:opacity-50"
+                className="w-full h-11 bg-expense-soft hover:bg-expense-soft-strong border border-expense/15 rounded-xl text-xs font-semibold text-expense flex items-center justify-center gap-1.5 transition active:scale-[0.98] cursor-pointer disabled:opacity-50"
               >
                 <span className="material-symbols-outlined text-sm">delete</span>
                 <span>{isDeleting ? 'Eliminando...' : 'Eliminar'}</span>

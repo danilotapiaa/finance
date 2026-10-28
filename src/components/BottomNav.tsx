@@ -11,13 +11,13 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
   return (
     <div className="fixed bottom-0 w-full z-40 pointer-events-none pb-safe">
       <div className="px-4 pb-4 w-full flex justify-center">
-        <nav className="pointer-events-auto grid grid-cols-4 items-center w-full max-w-[370px] h-14 px-1 bg-white/85 backdrop-blur-xl rounded-full shadow-sm border border-black/[0.04]">
+        <nav className="pointer-events-auto grid grid-cols-4 items-center w-full max-w-[370px] h-14 px-1 bg-surface/85 backdrop-blur-xl rounded-full shadow-sm border border-ink/[0.04]">
           {/* Tab 1: Hoy */}
           <button
             type="button"
             onClick={() => onTabChange('hoy')}
             className={`flex flex-col items-center justify-center h-full transition-colors cursor-pointer ${
-              activeTab === 'hoy' ? 'text-[#111827] font-semibold' : 'text-[#6B7280] hover:text-[#111827]'
+              activeTab === 'hoy' ? 'text-ink font-semibold' : 'text-muted hover:text-ink'
             }`}
           >
             <span
@@ -34,7 +34,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
             type="button"
             onClick={() => onTabChange('cuentas')}
             className={`flex flex-col items-center justify-center h-full transition-colors cursor-pointer ${
-              activeTab === 'cuentas' ? 'text-[#111827] font-semibold' : 'text-[#6B7280] hover:text-[#111827]'
+              activeTab === 'cuentas' ? 'text-ink font-semibold' : 'text-muted hover:text-ink'
             }`}
           >
             <span
@@ -51,7 +51,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
             type="button"
             onClick={() => onTabChange('deudas')}
             className={`flex flex-col items-center justify-center h-full transition-colors cursor-pointer ${
-              activeTab === 'deudas' ? 'text-[#111827] font-semibold' : 'text-[#6B7280] hover:text-[#111827]'
+              activeTab === 'deudas' ? 'text-ink font-semibold' : 'text-muted hover:text-ink'
             }`}
           >
             <span
@@ -68,7 +68,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
             type="button"
             onClick={() => onTabChange('historial')}
             className={`flex flex-col items-center justify-center h-full transition-colors cursor-pointer ${
-              activeTab === 'historial' ? 'text-[#111827] font-semibold' : 'text-[#6B7280] hover:text-[#111827]'
+              activeTab === 'historial' ? 'text-ink font-semibold' : 'text-muted hover:text-ink'
             }`}
           >
             <span

@@ -39,9 +39,9 @@ describe('BottomNav', () => {
     const active = screen.getByRole('button', { name: /Deudas/ })
     const inactive = screen.getByRole('button', { name: /Hoy/ })
 
-    expect(active.className).toContain('text-[#111827]')
+    expect(active.className).toContain('text-ink')
     expect(active.className).toContain('font-semibold')
-    expect(inactive.className).toContain('text-[#6B7280]')
+    expect(inactive.className).toContain('text-muted')
 
     const activeIcon = active.querySelector('.material-symbols-outlined')
     const inactiveIcon = inactive.querySelector('.material-symbols-outlined')

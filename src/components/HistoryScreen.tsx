@@ -98,27 +98,27 @@ export const HistoryScreen: React.FC = () => {
   const dateKeys = Object.keys(groupedTransactions).sort((a, b) => b.localeCompare(a));
 
   return (
-    <div className="flex-1 flex flex-col w-full bg-[#F8F9FA] text-[#111827] relative">
+    <div className="flex-1 flex flex-col w-full bg-canvas text-ink relative">
       {/* Header Fijo */}
-      <header className="sticky top-0 w-full z-30 bg-[#F8F9FA]/90 backdrop-blur-xl border-b border-black/[0.04]">
+      <header className="sticky top-0 w-full z-30 bg-canvas/90 backdrop-blur-xl border-b border-ink/[0.04]">
         <div className="h-16 px-5 flex items-center justify-between w-full">
-          <h1 className="text-[24px] font-bold tracking-tight text-[#111827]">Historial</h1>
+          <h1 className="text-[24px] font-bold tracking-tight text-ink">Historial</h1>
 
           {/* Selector de Mes Interactivo */}
-          <div className="flex items-center gap-1.5 bg-white border border-black/5 rounded-full px-2 py-1 shadow-sm text-xs font-medium">
+          <div className="flex items-center gap-1.5 bg-surface border border-ink/5 rounded-full px-2 py-1 shadow-sm text-xs font-medium">
             <button
               type="button"
               onClick={handlePrevMonth}
-              className="p-1 text-[#6B7280] hover:text-[#111827] active:scale-90 transition cursor-pointer"
+              className="p-1 text-muted hover:text-ink active:scale-90 transition cursor-pointer"
               title="Mes anterior"
             >
               <span className="material-symbols-outlined text-[16px]">chevron_left</span>
             </button>
-            <span className="capitalize px-1 text-[#111827]">{monthNameFormatted}</span>
+            <span className="capitalize px-1 text-ink">{monthNameFormatted}</span>
             <button
               type="button"
               onClick={handleNextMonth}
-              className="p-1 text-[#6B7280] hover:text-[#111827] active:scale-90 transition cursor-pointer"
+              className="p-1 text-muted hover:text-ink active:scale-90 transition cursor-pointer"
               title="Mes siguiente"
             >
               <span className="material-symbols-outlined text-[16px]">chevron_right</span>
@@ -130,15 +130,15 @@ export const HistoryScreen: React.FC = () => {
       {/* Contenido Principal */}
       <main className="flex-1 flex flex-col w-full px-5 pb-32 pt-4 space-y-4">
         {/* Resumen Mensual (Pulse Card) */}
-        <section className="bg-white rounded-2xl p-4 border border-black/[0.05] shadow-sm space-y-3">
+        <section className="bg-surface rounded-2xl p-4 border border-ink/[0.05] shadow-sm space-y-3">
           <div className="flex items-baseline justify-between">
             <div>
-              <span className="text-xs font-medium tracking-wider text-[#6B7280]">
+              <span className="text-xs font-medium tracking-wider text-muted">
                 Balance del mes
               </span>
               <div
                 className={`text-2xl font-bold tracking-tight tabular-nums ${
-                  netBalance >= 0 ? 'text-[#2E7D56]' : 'text-[#C25E4A]'
+                  netBalance >= 0 ? 'text-accent' : 'text-expense'
                 }`}
               >
                 {netBalance >= 0 ? `+$${netBalance.toFixed(2)}` : `-$${Math.abs(netBalance).toFixed(2)}`}
@@ -146,32 +146,32 @@ export const HistoryScreen: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 pt-2 border-t border-neutral-100">
+          <div className="grid grid-cols-2 gap-3 pt-2 border-t border-ink/10">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-[#2E7D56]"></div>
+              <div className="w-2 h-2 rounded-full bg-accent"></div>
               <div>
-                <div className="text-[11px] text-[#6B7280]">Ingresos</div>
-                <div className="text-sm font-semibold text-[#111827] tabular-nums">${totalIncome.toFixed(2)}</div>
+                <div className="text-[11px] text-muted">Ingresos</div>
+                <div className="text-sm font-semibold text-ink tabular-nums">${totalIncome.toFixed(2)}</div>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-[#C25E4A]"></div>
+              <div className="w-2 h-2 rounded-full bg-expense"></div>
               <div>
-                <div className="text-[11px] text-[#6B7280]">Gastos</div>
-                <div className="text-sm font-semibold text-[#111827] tabular-nums">${totalExpense.toFixed(2)}</div>
+                <div className="text-[11px] text-muted">Gastos</div>
+                <div className="text-sm font-semibold text-ink tabular-nums">${totalExpense.toFixed(2)}</div>
               </div>
             </div>
           </div>
 
           {/* Barra de Ritmo de Gasto */}
           <div className="space-y-1 pt-1">
-            <div className="flex justify-end items-center text-[11px] text-[#6B7280] font-medium">
+            <div className="flex justify-end items-center text-[11px] text-muted font-medium">
               <span>{spentPercent}% del ingreso gastado</span>
             </div>
-            <div className="h-1.5 w-full rounded-full bg-[#F3F4F6] overflow-hidden">
+            <div className="h-1.5 w-full rounded-full bg-surface-muted overflow-hidden">
               <div
-                className="h-full bg-[#111827] transition-all duration-500"
+                className="h-full bg-ink transition-all duration-500"
                 style={{ width: `${spentPercent}%` }}
               ></div>
             </div>
@@ -179,19 +179,19 @@ export const HistoryScreen: React.FC = () => {
         </section>
 
         {/* Buscador de Movimientos */}
-        <div className="relative flex items-center bg-white rounded-xl border border-black/[0.06] px-3.5 py-2 shadow-sm">
-          <span className="material-symbols-outlined text-[#9CA3AF] text-[18px] mr-2">search</span>
+        <div className="relative flex items-center bg-surface rounded-xl border border-ink/[0.06] px-3.5 py-2 shadow-sm">
+          <span className="material-symbols-outlined text-subtle text-[18px] mr-2">search</span>
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Buscar movimiento..."
-            className="w-full bg-transparent text-xs text-[#111827] placeholder-[#9CA3AF] outline-none"
+            className="w-full bg-transparent text-xs text-ink placeholder-subtle outline-none"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="text-[#9CA3AF] hover:text-[#111827] text-xs cursor-pointer"
+              className="text-subtle hover:text-ink text-xs cursor-pointer"
             >
               <span className="material-symbols-outlined text-[16px]">cancel</span>
             </button>
@@ -205,8 +205,8 @@ export const HistoryScreen: React.FC = () => {
             onClick={() => setFilterType('all')}
             className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition cursor-pointer ${
               filterType === 'all'
-                ? 'bg-[#111827] text-white shadow-sm'
-                : 'bg-white border border-black/5 text-[#6B7280] hover:text-[#111827]'
+                ? 'bg-ink text-canvas shadow-sm'
+                : 'bg-surface border border-ink/5 text-muted hover:text-ink'
             }`}
           >
             Todos
@@ -216,8 +216,8 @@ export const HistoryScreen: React.FC = () => {
             onClick={() => setFilterType('expense')}
             className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition cursor-pointer ${
               filterType === 'expense'
-                ? 'bg-[#111827] text-white shadow-sm'
-                : 'bg-white border border-black/5 text-[#6B7280] hover:text-[#111827]'
+                ? 'bg-ink text-canvas shadow-sm'
+                : 'bg-surface border border-ink/5 text-muted hover:text-ink'
             }`}
           >
             Gastos
@@ -227,8 +227,8 @@ export const HistoryScreen: React.FC = () => {
             onClick={() => setFilterType('income')}
             className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition cursor-pointer ${
               filterType === 'income'
-                ? 'bg-[#2E7D56] text-white shadow-sm'
-                : 'bg-white border border-black/5 text-[#6B7280] hover:text-[#111827]'
+                ? 'bg-accent text-canvas shadow-sm'
+                : 'bg-surface border border-ink/5 text-muted hover:text-ink'
             }`}
           >
             Ingresos
@@ -238,10 +238,10 @@ export const HistoryScreen: React.FC = () => {
         {/* Feed Cronológico de Transacciones */}
         {loading ? (
           <div className="text-center py-12">
-            <div className="w-6 h-6 border-2 border-[#111827]/20 border-t-[#111827] rounded-full animate-spin mx-auto"></div>
+            <div className="w-6 h-6 border-2 border-ink/20 border-t-ink rounded-full animate-spin mx-auto"></div>
           </div>
         ) : dateKeys.length === 0 ? (
-          <div className="bg-white rounded-2xl p-8 text-center text-xs text-[#9CA3AF] border border-black/[0.04]">
+          <div className="bg-surface rounded-2xl p-8 text-center text-xs text-subtle border border-ink/[0.04]">
             No hay movimientos en este periodo con los filtros seleccionados.
           </div>
         ) : (
@@ -252,12 +252,12 @@ export const HistoryScreen: React.FC = () => {
                 <div key={dateKey} className="space-y-1.5">
                   {/* Encabezado del Día con Subtotal */}
                   <div className="flex items-baseline justify-between px-1">
-                    <span className="text-[11px] font-semibold text-[#6B7280] capitalize">
+                    <span className="text-[11px] font-semibold text-muted capitalize">
                       {group.label}
                     </span>
                     <span
                       className={`text-xs font-semibold tabular-nums ${
-                        group.subtotal >= 0 ? 'text-[#2E7D56]' : 'text-[#111827]'
+                        group.subtotal >= 0 ? 'text-accent' : 'text-ink'
                       }`}
                     >
                       {group.subtotal >= 0 ? `+$${group.subtotal.toFixed(2)}` : `-$${Math.abs(group.subtotal).toFixed(2)}`}
@@ -265,7 +265,7 @@ export const HistoryScreen: React.FC = () => {
                   </div>
 
                   {/* Tarjetas del Día */}
-                  <div className="bg-white rounded-2xl border border-black/[0.04] shadow-sm divide-y divide-black/[0.04] overflow-hidden">
+                  <div className="bg-surface rounded-2xl border border-ink/[0.04] shadow-sm divide-y divide-ink/[0.04] overflow-hidden">
                     {group.items.map((tx) => {
                       const isInc = tx.type === 'income';
                       const amt = Number(tx.amount);
@@ -274,12 +274,12 @@ export const HistoryScreen: React.FC = () => {
                         <div
                           key={tx.id}
                           onClick={() => setSelectedTransaction(tx)}
-                          className="p-3.5 flex items-center justify-between hover:bg-[#F8F9FA] transition-colors cursor-pointer active:scale-[0.99]"
+                          className="p-3.5 flex items-center justify-between hover:bg-surface-muted transition-colors cursor-pointer active:scale-[0.99]"
                         >
                           <div className="flex items-center gap-3 min-w-0">
                             <div
                               className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                                isInc ? 'bg-[#E8F5EE] text-[#2E7D56]' : 'bg-[#F3F4F6] text-[#111827]'
+                                isInc ? 'bg-accent-soft text-accent' : 'bg-surface-muted text-ink'
                               }`}
                             >
                               <span className="material-symbols-outlined text-[20px]">
@@ -287,10 +287,10 @@ export const HistoryScreen: React.FC = () => {
                               </span>
                             </div>
                             <div className="min-w-0">
-                              <div className="text-xs font-semibold text-[#111827] truncate">
+                              <div className="text-xs font-semibold text-ink truncate">
                                 {tx.note || tx.category?.name || 'Movimiento'}
                               </div>
-                              <div className="text-[11px] text-[#6B7280] truncate">
+                              <div className="text-[11px] text-muted truncate">
                                 {tx.category?.name}{tx.account?.name ? ` en ${tx.account.name}` : ''}
                               </div>
                             </div>
@@ -298,7 +298,7 @@ export const HistoryScreen: React.FC = () => {
 
                           <span
                             className={`text-xs font-semibold tabular-nums ml-3 flex-shrink-0 ${
-                              isInc ? 'text-[#2E7D56]' : 'text-[#111827]'
+                              isInc ? 'text-accent' : 'text-ink'
                             }`}
                           >
                             {isInc ? `+$${amt.toFixed(2)}` : `-$${amt.toFixed(2)}`}

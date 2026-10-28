@@ -125,26 +125,26 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/35 backdrop-blur-sm pointer-events-auto">
-      <div className="bg-white rounded-t-[32px] shadow-2xl border-t border-white/60 overflow-hidden px-5 pt-3 pb-6 flex flex-col gap-3 max-w-md mx-auto w-full max-h-[92vh] overflow-y-auto">
+      <div className="bg-surface rounded-t-[32px] shadow-2xl border-t border-ink/5 overflow-hidden px-5 pt-3 pb-6 flex flex-col gap-3 max-w-md mx-auto w-full max-h-[92vh] overflow-y-auto">
         {/* Píldora de arrastre */}
-        <div className="w-9 h-1 bg-gray-300 rounded-full mx-auto mb-1"></div>
+        <div className="w-9 h-1 bg-ink/20 rounded-full mx-auto mb-1"></div>
 
         {/* Barra superior */}
         <div className="flex items-center justify-between">
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition active:scale-95 cursor-pointer"
+            className="w-8 h-8 rounded-full bg-surface-muted flex items-center justify-center text-muted hover:bg-ink/10 transition active:scale-95 cursor-pointer"
             type="button"
           >
             <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
 
-          <div className="bg-gray-100 p-1 rounded-full flex gap-1 items-center text-xs font-medium">
+          <div className="bg-surface-muted p-1 rounded-full flex gap-1 items-center text-xs font-medium">
             <button
               type="button"
               onClick={() => setType('expense')}
               className={`px-3.5 py-1 rounded-full transition-all cursor-pointer ${
-                type === 'expense' ? 'bg-[#111827] text-white shadow-sm' : 'text-gray-500 hover:text-gray-900'
+                type === 'expense' ? 'bg-ink text-canvas shadow-sm' : 'text-muted hover:text-ink'
               }`}
             >
               Gasto
@@ -153,14 +153,14 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               type="button"
               onClick={() => setType('income')}
               className={`px-3.5 py-1 rounded-full transition-all cursor-pointer ${
-                type === 'income' ? 'bg-[#2E7D56] text-white shadow-sm' : 'text-gray-500 hover:text-gray-900'
+                type === 'income' ? 'bg-accent text-canvas shadow-sm' : 'text-muted hover:text-ink'
               }`}
             >
               Ingreso
             </button>
           </div>
 
-          <div className="text-xs text-gray-500 bg-gray-100/80 px-2.5 py-1.5 rounded-full flex items-center gap-1 font-medium">
+          <div className="text-xs text-muted bg-surface-muted/80 px-2.5 py-1.5 rounded-full flex items-center gap-1 font-medium">
             <span className="material-symbols-outlined text-[14px]">calendar_today</span>
             <span>Hoy</span>
           </div>
@@ -169,8 +169,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
         {/* Display del Importe */}
         <div className="flex flex-col items-center justify-center py-2 space-y-1">
           <div className="flex items-baseline justify-center tracking-tight">
-            <span className="text-2xl text-gray-400 font-normal mr-1">$</span>
-            <span className="text-4xl font-bold tracking-tight text-gray-900 tabular-nums">
+            <span className="text-2xl text-subtle font-normal mr-1">$</span>
+            <span className="text-4xl font-bold tracking-tight text-ink tabular-nums">
               {amountStr}
             </span>
           </div>
@@ -183,12 +183,12 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               onChange={(e) => setNote(e.target.value)}
               onBlur={() => setIsEditingNote(false)}
               placeholder="Nota"
-              className="text-xs text-center border-b border-gray-300 focus:outline-none focus:border-gray-900 py-1 w-48 text-gray-800"
+              className="text-xs text-center border-b border-ink/20 focus:outline-none focus:border-ink py-1 w-48 text-ink"
             />
           ) : (
             <div
               onClick={() => setIsEditingNote(true)}
-              className="text-xs text-gray-400 flex items-center justify-center gap-1.5 cursor-pointer hover:text-gray-600 transition-colors"
+              className="text-xs text-subtle flex items-center justify-center gap-1.5 cursor-pointer hover:text-muted transition-colors"
             >
               <span className="material-symbols-outlined text-[14px]">edit_note</span>
               <span>{note ? note : 'Añadir nota'}</span>
@@ -208,12 +208,12 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
           <div
             className={`flex items-center justify-between border rounded-xl px-3 py-2.5 text-xs transition ${
               !selectedAccountId
-                ? 'bg-[#FDF2F0] border-[#C25E4A]/30'
-                : 'bg-gray-50/80 border-gray-100'
+                ? 'bg-expense-soft border-expense/30'
+                : 'bg-canvas/80 border-ink/10'
             }`}
           >
-            <span className="text-gray-500 font-medium">
-              Cuenta <span className="text-[#C25E4A]">*</span>
+            <span className="text-muted font-medium">
+              Cuenta <span className="text-expense">*</span>
             </span>
             <select
               required
@@ -223,7 +223,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                 setErrorMessage(null);
               }}
               className={`bg-transparent font-semibold cursor-pointer outline-none text-right text-xs max-w-[220px] truncate ${
-                !selectedAccountId ? 'text-[#C25E4A] font-bold' : 'text-gray-800'
+                !selectedAccountId ? 'text-expense font-bold' : 'text-ink'
               }`}
             >
               <option value="" disabled>
@@ -239,7 +239,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
           {/* Categorías */}
           <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none text-xs">
-            <span className="text-gray-400 font-medium flex-shrink-0 mr-1">Categoría</span>
+            <span className="text-subtle font-medium flex-shrink-0 mr-1">Categoría</span>
             {filteredCategories.map((cat) => {
               const isSelected = selectedCategoryId === cat.id;
               return (
@@ -249,8 +249,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   onClick={() => setSelectedCategoryId(cat.id)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-medium flex-shrink-0 transition-all cursor-pointer ${
                     isSelected
-                      ? 'bg-[#111827] text-white shadow-sm'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-ink text-canvas shadow-sm'
+                      : 'bg-surface-muted text-muted hover:bg-ink/10'
                   }`}
                 >
                   <span className="material-symbols-outlined text-[15px]">{cat.icon}</span>
@@ -268,7 +268,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               key={key}
               type="button"
               onClick={() => handleKeypadPress(key)}
-              className="h-[44px] text-lg font-medium text-gray-800 rounded-xl hover:bg-gray-100 active:scale-95 transition flex items-center justify-center bg-gray-50/50 border border-gray-100/50 cursor-pointer"
+              className="h-[44px] text-lg font-medium text-ink rounded-xl hover:bg-ink/10 active:scale-95 transition flex items-center justify-center bg-canvas/50 border border-ink/5 cursor-pointer"
             >
               {key === 'backspace' ? (
                 <span className="material-symbols-outlined text-[20px]">backspace</span>
@@ -284,10 +284,10 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
           type="button"
           onClick={handleSubmit}
           disabled={isSubmitting}
-          className="w-full h-[50px] rounded-2xl bg-[#111827] text-white font-medium text-sm flex items-center justify-center shadow-lg shadow-gray-900/10 active:scale-[0.99] transition cursor-pointer disabled:opacity-50 mt-1"
+          className="w-full h-[50px] rounded-2xl bg-ink text-canvas font-medium text-sm flex items-center justify-center shadow-lg shadow-ink/10 active:scale-[0.99] transition cursor-pointer disabled:opacity-50 mt-1"
         >
           {isSubmitting ? (
-            <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+            <span className="inline-block w-4 h-4 border-2 border-canvas/30 border-t-canvas rounded-full animate-spin"></span>
           ) : (
             `Guardar ${type === 'expense' ? 'gasto' : 'ingreso'}`
           )}

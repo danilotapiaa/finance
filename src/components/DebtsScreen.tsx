@@ -69,21 +69,21 @@ export const DebtsScreen: React.FC = () => {
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[60vh]">
-        <div className="w-6 h-6 border-2 border-[#111827]/20 border-t-[#111827] rounded-full animate-spin"></div>
+        <div className="w-6 h-6 border-2 border-ink/20 border-t-ink rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col w-full bg-[#F8F9FA] text-[#111827] relative min-h-screen">
+    <div className="flex-1 flex flex-col w-full bg-canvas text-ink relative min-h-screen">
       {/* Header Fijo */}
-      <header className="sticky top-0 w-full z-30 bg-[#F8F9FA]/90 backdrop-blur-xl border-b border-black/[0.04]">
+      <header className="sticky top-0 w-full z-30 bg-canvas/90 backdrop-blur-xl border-b border-ink/[0.04]">
         <div className="h-16 px-5 flex items-center justify-between w-full">
-          <h1 className="text-[24px] font-bold text-[#111827] tracking-tight">Deudas</h1>
+          <h1 className="text-[24px] font-bold text-ink tracking-tight">Deudas</h1>
           <button
             type="button"
             onClick={() => setIsNewDebtOpen(true)}
-            className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-full bg-[#111827] text-white transition active:scale-95 text-xs font-semibold shadow-sm cursor-pointer"
+            className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-full bg-ink text-canvas transition active:scale-95 text-xs font-semibold shadow-sm cursor-pointer"
           >
             <span className="material-symbols-outlined text-[16px]">add</span>
               <span>Nueva deuda</span>
@@ -94,17 +94,17 @@ export const DebtsScreen: React.FC = () => {
       {/* Contenido Principal */}
       <main className="flex-1 px-5 pt-4 pb-32 space-y-4">
         {/* Tarjeta Hero Resumen */}
-        <section className="bg-white rounded-2xl p-5 shadow-sm border border-black/[0.04] space-y-3">
+        <section className="bg-surface rounded-2xl p-5 shadow-sm border border-ink/[0.04] space-y-3">
           <div className="grid grid-cols-2 gap-3">
             {/* Me Deben */}
             <div className="flex flex-col space-y-0.5">
               <div className="flex items-center space-x-1.5">
-                <div className="w-2 h-2 rounded-full bg-[#2E7D56]"></div>
-                <span className="text-xs font-medium text-[#6B7280]">
+                <div className="w-2 h-2 rounded-full bg-accent"></div>
+                <span className="text-xs font-medium text-muted">
                   Me deben
                 </span>
               </div>
-              <span className="text-xl font-bold text-[#2E7D56] tabular-nums">
+              <span className="text-xl font-bold text-accent tabular-nums">
                 ${totalLendPending.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </span>
             </div>
@@ -112,49 +112,49 @@ export const DebtsScreen: React.FC = () => {
             {/* Debo */}
             <div className="flex flex-col space-y-0.5">
               <div className="flex items-center space-x-1.5">
-                <div className="w-2 h-2 rounded-full bg-[#C25E4A]"></div>
-                <span className="text-xs font-medium text-[#6B7280]">
+                <div className="w-2 h-2 rounded-full bg-expense"></div>
+                <span className="text-xs font-medium text-muted">
                   Debo
                 </span>
               </div>
-              <span className="text-xl font-bold text-[#C25E4A] tabular-nums">
+              <span className="text-xl font-bold text-expense tabular-nums">
                 ${totalBorrowPending.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </span>
             </div>
           </div>
 
-          <div className="pt-2 border-t border-neutral-100 flex items-center justify-between text-xs text-[#6B7280]">
+          <div className="pt-2 border-t border-ink/10 flex items-center justify-between text-xs text-muted">
             <span>Balance neto</span>
-            <span className={`font-bold tabular-nums ${netDebtDifference >= 0 ? 'text-[#2E7D56]' : 'text-[#C25E4A]'}`}>
+            <span className={`font-bold tabular-nums ${netDebtDifference >= 0 ? 'text-accent' : 'text-expense'}`}>
               {netDebtDifference >= 0 ? `+$${netDebtDifference.toFixed(2)}` : `-$${Math.abs(netDebtDifference).toFixed(2)}`}
             </span>
           </div>
         </section>
 
         {/* Buscador */}
-        <div className="relative flex items-center bg-white rounded-xl border border-black/[0.06] px-3.5 py-2 shadow-sm">
-          <span className="material-symbols-outlined text-[#9CA3AF] text-[18px] mr-2">search</span>
+        <div className="relative flex items-center bg-surface rounded-xl border border-ink/[0.06] px-3.5 py-2 shadow-sm">
+          <span className="material-symbols-outlined text-subtle text-[18px] mr-2">search</span>
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Buscar persona..."
-            className="w-full bg-transparent text-xs text-[#111827] placeholder-[#9CA3AF] outline-none"
+            className="w-full bg-transparent text-xs text-ink placeholder-subtle outline-none"
           />
           {searchQuery && (
-            <button onClick={() => setSearchQuery('')} className="text-[#9CA3AF] hover:text-[#111827] text-xs cursor-pointer">
+            <button onClick={() => setSearchQuery('')} className="text-subtle hover:text-ink text-xs cursor-pointer">
               <span className="material-symbols-outlined text-[16px]">cancel</span>
             </button>
           )}
         </div>
 
         {/* Segmented Control */}
-        <div className="flex bg-[#E5E7EB] p-1 rounded-full text-xs font-medium">
+        <div className="flex bg-surface-muted p-1 rounded-full text-xs font-medium">
           <button
             type="button"
             onClick={() => setActiveSegment('lend')}
             className={`flex-1 py-1.5 rounded-full transition-all cursor-pointer ${
-              activeSegment === 'lend' ? 'bg-white text-[#111827] shadow-sm font-semibold' : 'text-[#6B7280]'
+              activeSegment === 'lend' ? 'bg-surface text-ink shadow-sm font-semibold' : 'text-muted'
             }`}
           >
             Me deben
@@ -163,7 +163,7 @@ export const DebtsScreen: React.FC = () => {
             type="button"
             onClick={() => setActiveSegment('borrow')}
             className={`flex-1 py-1.5 rounded-full transition-all cursor-pointer ${
-              activeSegment === 'borrow' ? 'bg-white text-[#111827] shadow-sm font-semibold' : 'text-[#6B7280]'
+              activeSegment === 'borrow' ? 'bg-surface text-ink shadow-sm font-semibold' : 'text-muted'
             }`}
           >
             Debo
@@ -172,7 +172,7 @@ export const DebtsScreen: React.FC = () => {
             type="button"
             onClick={() => setActiveSegment('paid')}
             className={`flex-1 py-1.5 rounded-full transition-all cursor-pointer ${
-              activeSegment === 'paid' ? 'bg-white text-[#111827] shadow-sm font-semibold' : 'text-[#6B7280]'
+              activeSegment === 'paid' ? 'bg-surface text-ink shadow-sm font-semibold' : 'text-muted'
             }`}
           >
             Saldadas
@@ -182,7 +182,7 @@ export const DebtsScreen: React.FC = () => {
         {/* Lista de Deudas */}
         <div className="space-y-3">
           {filteredDebts.length === 0 ? (
-            <div className="bg-white rounded-2xl p-8 text-center text-xs text-[#9CA3AF] border border-black/[0.04]">
+            <div className="bg-surface rounded-2xl p-8 text-center text-xs text-subtle border border-ink/[0.04]">
               No hay deudas en esta sección.
             </div>
           ) : (
@@ -204,26 +204,26 @@ export const DebtsScreen: React.FC = () => {
               return (
                 <div
                   key={debt.id}
-                  className="bg-white rounded-2xl p-4 shadow-sm border border-black/[0.04] space-y-3"
+                  className="bg-surface rounded-2xl p-4 shadow-sm border border-ink/[0.04] space-y-3"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-full bg-[#F3F4F6] text-[#111827] font-semibold flex items-center justify-center text-xs flex-shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-surface-muted text-ink font-semibold flex items-center justify-center text-xs flex-shrink-0">
                         {personInitials}
                       </div>
                       <div>
-                        <h4 className="text-sm font-semibold text-[#111827]">{debt.person_name}</h4>
-                        <span className="text-[11px] text-[#6B7280] block">
+                        <h4 className="text-sm font-semibold text-ink">{debt.person_name}</h4>
+                        <span className="text-[11px] text-muted block">
                           Total ${total.toFixed(2)}
                         </span>
                       </div>
                     </div>
 
                     <div className="text-right">
-                      <span className="text-[11px] font-medium text-[#6B7280] block">Pendiente</span>
+                      <span className="text-[11px] font-medium text-muted block">Pendiente</span>
                       <span
                         className={`text-base font-bold tabular-nums ${
-                          isLend ? 'text-[#2E7D56]' : 'text-[#C25E4A]'
+                          isLend ? 'text-accent' : 'text-expense'
                         }`}
                       >
                         ${remaining.toFixed(2)}
@@ -233,16 +233,16 @@ export const DebtsScreen: React.FC = () => {
 
                   {/* Barra de Progreso de Amortización */}
                   <div className="space-y-1 pt-0.5">
-                    <div className="flex justify-between text-[11px] text-[#6B7280]">
+                    <div className="flex justify-between text-[11px] text-muted">
                       <span>Pagado ${paid.toFixed(2)}</span>
                       {debt.due_date && (
                         <span>Límite: {new Date(debt.due_date).toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })}</span>
                       )}
                     </div>
-                    <div className="h-1.5 w-full bg-[#F3F4F6] rounded-full overflow-hidden">
+                    <div className="h-1.5 w-full bg-surface-muted rounded-full overflow-hidden">
                       <div
                         className={`h-full transition-all duration-300 ${
-                          debt.status === 'paid' ? 'bg-[#2E7D56]' : isLend ? 'bg-[#2E7D56]' : 'bg-[#C25E4A]'
+                          debt.status === 'paid' ? 'bg-accent' : isLend ? 'bg-accent' : 'bg-expense'
                         }`}
                         style={{ width: `${progressPct}%` }}
                       ></div>
@@ -250,11 +250,11 @@ export const DebtsScreen: React.FC = () => {
                   </div>
 
                   {/* Acciones */}
-                  <div className="flex items-center justify-between pt-1 border-t border-black/5 text-xs">
+                  <div className="flex items-center justify-between pt-1 border-t border-ink/5 text-xs">
                     <button
                       type="button"
                       onClick={() => handleDeleteDebt(debt.id, debt.person_name)}
-                      className="text-[#9CA3AF] hover:text-[#C25E4A] transition text-[11px] cursor-pointer"
+                      className="text-subtle hover:text-expense transition text-[11px] cursor-pointer"
                     >
                       Eliminar
                     </button>
@@ -263,7 +263,7 @@ export const DebtsScreen: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setSelectedDebtForPayment(debt)}
-                        className="px-3.5 py-1.5 rounded-full bg-[#111827] text-white text-[11px] font-semibold transition active:scale-95 shadow-sm cursor-pointer"
+                        className="px-3.5 py-1.5 rounded-full bg-ink text-canvas text-[11px] font-semibold transition active:scale-95 shadow-sm cursor-pointer"
                       >
                         Registrar abono
                       </button>
