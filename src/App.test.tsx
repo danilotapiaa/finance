@@ -72,12 +72,12 @@ describe('App', () => {
     expect(screen.queryByText('Dashboard')).not.toBeInTheDocument()
   })
 
-  it('muestra el dashboard al iniciar sesión', () => {
+  it('muestra el dashboard al iniciar sesión', async () => {
     authState.user = makeUser()
 
     render(<App />)
 
-    expect(screen.getByText('Dashboard')).toBeInTheDocument()
+    expect(await screen.findByText('Dashboard')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Hoy/ })).toBeInTheDocument()
   })
 
@@ -88,16 +88,16 @@ describe('App', () => {
     render(<App />)
 
     await user.click(screen.getByRole('button', { name: /Cuentas/ }))
-    expect(screen.getByText('Pantalla de cuentas')).toBeInTheDocument()
+    expect(await screen.findByText('Pantalla de cuentas')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: /Deudas/ }))
-    expect(screen.getByText('Pantalla de deudas')).toBeInTheDocument()
+    expect(await screen.findByText('Pantalla de deudas')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: /Historial/ }))
-    expect(screen.getByText('Pantalla de historial')).toBeInTheDocument()
+    expect(await screen.findByText('Pantalla de historial')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: /Hoy/ }))
-    expect(screen.getByText('Dashboard')).toBeInTheDocument()
+    expect(await screen.findByText('Dashboard')).toBeInTheDocument()
   })
 
   it('abre y cierra los ajustes desde el dashboard', async () => {
@@ -106,11 +106,11 @@ describe('App', () => {
 
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: 'Abrir ajustes' }))
-    expect(screen.getByText('Ajustes')).toBeInTheDocument()
+    await user.click(await screen.findByRole('button', { name: 'Abrir ajustes' }))
+    expect(await screen.findByText('Ajustes')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Hoy/ })).not.toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Cerrar ajustes' }))
-    expect(screen.getByText('Dashboard')).toBeInTheDocument()
+    expect(await screen.findByText('Dashboard')).toBeInTheDocument()
   })
 })

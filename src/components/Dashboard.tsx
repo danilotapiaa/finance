@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { financeService } from '../services/financeService';
+import { useFormat } from '../hooks/useFormat';
 import type { Account, Category, Transaction, Profile } from '../types/database';
 import { TransactionModal } from './TransactionModal';
 
@@ -10,6 +11,7 @@ interface DashboardProps {
 
 export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
   const { user } = useAuth();
+  const { formatAmount, formatMoney, formatSignedMoney, formatDate } = useFormat();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -93,11 +95,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
   const spentPercent = totalIncome > 0 ? Math.min(100, Math.round((totalExpense / totalIncome) * 100)) : 0;
   const availableBalance = Math.max(0, totalIncome - totalExpense);
 
-  const todayFormatted = new Intl.DateTimeFormat('es-ES', {
+  const todayFormatted = formatDate(new Date(), {
     weekday: 'long',
     day: 'numeric',
     month: 'short',
-  }).format(new Date());
+  });
 
   const userName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuario';
   const userInitials = (userName || 'U')
@@ -172,7 +174,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
           <div className="flex items-baseline justify-center tracking-tight">
             <span className="text-2xl text-muted font-normal mr-1">$</span>
             <span className="text-4xl font-bold tracking-tight text-ink tabular-nums">
-              {isBalanceVisible ? spendableBalance.toLocaleString('en-US', { minimumFractionDigits: 2 }) : '••••••'}
+              {isBalanceVisible ? formatAmount(spendableBalance) : '••••••'}
             </span>
           </div>
 
@@ -182,7 +184,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
                 {netMonth >= 0 ? 'arrow_upward' : 'arrow_downward'}
               </span>
               <span className="text-xs font-semibold tabular-nums">
-                {netMonth >= 0 ? `+$${netMonth.toFixed(2)}` : `-$${Math.abs(netMonth).toFixed(2)}`} este mes
+                {formatSignedMoney(netMonth)} este mes
               </span>
             </div>
 
@@ -190,7 +192,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
               <div className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-surface-muted text-muted">
                 <span className="material-symbols-outlined text-[14px] text-accent">savings</span>
                 <span className="text-xs font-semibold tabular-nums">
-                  {isBalanceVisible ? `$${savingsBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '••••••'} en ahorros
+                  {isBalanceVisible ? formatMoney(savingsBalance) : '••••••'} en ahorros
                 </span>
               </div>
             )}
@@ -218,7 +220,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
                 <div>
                   <span className="text-xs text-muted block truncate">{acc.name}</span>
                   <span className="text-lg font-bold text-ink mt-0.5 block tabular-nums">
-                    {isBalanceVisible ? `$${Number(acc.current_balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '••••••'}
+                    {isBalanceVisible ? formatMoney(Number(acc.current_balance)) : '••••••'}
                   </span>
                 </div>
               </div>
@@ -231,7 +233,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold text-ink">Flujo Mensual</h2>
             <span className="text-xs text-muted capitalize">
-              {new Intl.DateTimeFormat('es-ES', { month: 'long' }).format(new Date())}
+              {formatDate(new Date(), { month: 'long' })}
             </span>
           </div>
 
@@ -243,7 +245,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
                   <span className="text-xs text-muted">Ingresos</span>
                 </div>
                 <span className="text-base font-semibold text-ink tabular-nums">
-                  ${totalIncome.toFixed(2)}
+                  {formatMoney(totalIncome)}
                 </span>
               </div>
 
@@ -253,7 +255,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
                   <span className="text-xs text-muted">Gastos</span>
                 </div>
                 <span className="text-base font-semibold text-ink tabular-nums">
-                  ${totalExpense.toFixed(2)}
+                  {formatMoney(totalExpense)}
                 </span>
               </div>
             </div>
@@ -264,7 +266,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
               </div>
               <div className="flex items-center justify-between text-muted text-[11px] font-medium">
                 <span>{spentPercent}% del ingreso utilizado</span>
-                <span className="tabular-nums">${availableBalance.toFixed(2)} disponible</span>
+                <span className="tabular-nums">{formatMoney(availableBalance)} disponible</span>
               </div>
             </div>
           </div>
@@ -314,7 +316,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
                         isIncome ? 'text-accent' : 'text-ink'
                       }`}
                     >
-                      {isIncome ? `+$${Number(tx.amount).toFixed(2)}` : `-$${Number(tx.amount).toFixed(2)}`}
+                      {formatSignedMoney(isIncome ? Number(tx.amount) : -Number(tx.amount))}
                     </span>
                   </div>
                 );

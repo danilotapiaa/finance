@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { Transaction, Account, Category, TransactionType } from '../types/database';
 import { financeService } from '../services/financeService';
+import { useFormat } from '../hooks/useFormat';
 
 interface TransactionDetailModalProps {
   transaction: Transaction | null;
@@ -15,6 +16,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
   onDeleted,
   onUpdated,
 }) => {
+  const { formatMoney, formatSignedMoney, formatDate } = useFormat();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -72,14 +74,14 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
   const isIncome = transaction.type === 'income';
   const amountNumber = Number(transaction.amount);
 
-  const formattedDate = new Intl.DateTimeFormat('es-ES', {
+  const formattedDate = formatDate(transaction.date, {
     weekday: 'long',
     day: 'numeric',
     month: 'short',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  }).format(new Date(transaction.date));
+  });
 
   const filteredCategories = categories.filter((c) => c.type === editType);
 
@@ -230,7 +232,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
               >
                 {accounts.map((acc) => (
                   <option key={acc.id} value={acc.id}>
-                    {acc.name} (${Number(acc.current_balance).toFixed(2)})
+                    {acc.name} ({formatMoney(Number(acc.current_balance))})
                   </option>
                 ))}
               </select>
@@ -319,7 +321,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                   isIncome ? 'text-accent' : 'text-ink'
                 }`}
               >
-                {isIncome ? `+$${amountNumber.toFixed(2)}` : `-$${amountNumber.toFixed(2)}`}
+                {formatSignedMoney(isIncome ? amountNumber : -amountNumber)}
               </div>
             </div>
 

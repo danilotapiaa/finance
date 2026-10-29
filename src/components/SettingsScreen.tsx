@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { usePreferences } from '../context/PreferencesContext';
 import { useTheme } from '../context/ThemeContext';
 import { financeService } from '../services/financeService';
 import { THEMES } from '../theme/themes';
@@ -11,6 +12,7 @@ interface SettingsScreenProps {
 
 export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
   const { user, signOut } = useAuth();
+  const { setPreferences } = usePreferences();
   const { theme, setTheme } = useTheme();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -53,6 +55,20 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
   const handleSavePreference = async (updates: Partial<Profile>) => {
     try {
       await financeService.updateProfile(updates);
+
+      // Mantiene sincronizados los formateadores globales sin recargar la app.
+      if (updates.currency) {
+        setPreferences({ currency: updates.currency });
+      }
+      if (updates.number_format) {
+        setPreferences({ numberFormat: updates.number_format });
+      }
+      if (updates.first_day_of_week) {
+        setPreferences({
+          firstDayOfWeek: updates.first_day_of_week === 'sunday' ? 'sunday' : 'monday',
+        });
+      }
+
       setStatusMessage('Preferencia guardada');
       setTimeout(() => setStatusMessage(null), 2000);
     } catch (err) {

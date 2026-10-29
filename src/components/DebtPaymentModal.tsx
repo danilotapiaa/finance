@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { Debt, Account } from '../types/database';
 import { financeService } from '../services/financeService';
+import { useFormat } from '../hooks/useFormat';
 
 interface DebtPaymentModalProps {
   debt: Debt | null;
@@ -15,6 +16,7 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const { formatMoney } = useFormat();
   const [amountStr, setAmountStr] = useState('');
   const [selectedAccountId, setSelectedAccountId] = useState('');
   const [note, setNote] = useState('');
@@ -52,7 +54,7 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
     }
 
     if (numericAmount > remaining + 0.001) {
-      setErrorMessage(`El abono no puede superar el saldo pendiente de $${remaining.toFixed(2)}`);
+      setErrorMessage(`El abono no puede superar el saldo pendiente de ${formatMoney(remaining)}`);
       return;
     }
 
@@ -107,7 +109,7 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
           <div className="flex justify-between items-center text-xs pt-2 border-t border-ink/5 mt-2">
             <span className="text-muted">Saldo pendiente:</span>
             <span className={`font-bold tabular-nums text-sm ${isLend ? 'text-accent' : 'text-expense'}`}>
-              ${remaining.toFixed(2)}
+              {formatMoney(remaining)}
             </span>
           </div>
         </div>
@@ -130,7 +132,7 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
                 onClick={() => setAmountStr(remaining.toFixed(2))}
                 className="text-[11px] font-semibold text-accent bg-accent-soft px-2 py-0.5 rounded-full cursor-pointer"
               >
-                Pagar todo ($ {remaining.toFixed(2)})
+                Pagar todo ({formatMoney(remaining)})
               </button>
             </div>
             <input
@@ -157,7 +159,7 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
               <option value="">No vincular con saldo de cuentas</option>
               {accounts.map((acc) => (
                 <option key={acc.id} value={acc.id}>
-                  {acc.name} (${Number(acc.current_balance).toFixed(2)})
+                  {acc.name} ({formatMoney(Number(acc.current_balance))})
                 </option>
               ))}
             </select>

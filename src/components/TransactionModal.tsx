@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { Account, Category, TransactionType } from '../types/database';
 import { financeService } from '../services/financeService';
+import { useFormat } from '../hooks/useFormat';
 
 interface TransactionModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   categories,
   onSuccess,
 }) => {
+  const { formatMoney } = useFormat();
   const [type, setType] = useState<TransactionType>('expense');
   const [amountStr, setAmountStr] = useState('0');
   // Sin cuenta seleccionada por defecto: selección estrictamente obligatoria
@@ -236,7 +238,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               </option>
               {accounts.map((acc) => (
                 <option key={acc.id} value={acc.id}>
-                  {acc.name} (${Number(acc.current_balance).toFixed(2)})
+                  {acc.name} ({formatMoney(Number(acc.current_balance))})
                 </option>
               ))}
             </select>

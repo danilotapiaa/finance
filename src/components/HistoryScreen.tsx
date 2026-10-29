@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { financeService } from '../services/financeService';
+import { useFormat } from '../hooks/useFormat';
 import type { Transaction } from '../types/database';
 import { TransactionDetailModal } from './TransactionDetailModal';
 
 export const HistoryScreen: React.FC = () => {
+  const { formatMoney, formatSignedMoney, formatDate } = useFormat();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<'all' | 'expense' | 'income'>('all');
@@ -44,10 +46,10 @@ export const HistoryScreen: React.FC = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
   };
 
-  const monthNameFormatted = new Intl.DateTimeFormat('es-ES', {
+  const monthNameFormatted = formatDate(currentDate, {
     month: 'long',
     year: 'numeric',
-  }).format(currentDate);
+  });
 
   // Cálculos del resumen mensual
   const totalIncome = transactions
@@ -86,7 +88,7 @@ export const HistoryScreen: React.FC = () => {
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = yesterday.toISOString().split('T')[0];
 
-    let label = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'short' }).format(d);
+    let label = formatDate(d, { weekday: 'long', day: 'numeric', month: 'short' });
     if (dateKey === todayStr) label = `Hoy — ${label}`;
     else if (dateKey === yesterdayStr) label = `Ayer — ${label}`;
 
@@ -145,7 +147,7 @@ export const HistoryScreen: React.FC = () => {
                   netBalance >= 0 ? 'text-accent' : 'text-expense'
                 }`}
               >
-                {netBalance >= 0 ? `+$${netBalance.toFixed(2)}` : `-$${Math.abs(netBalance).toFixed(2)}`}
+                {formatSignedMoney(netBalance)}
               </div>
             </div>
           </div>
@@ -155,7 +157,7 @@ export const HistoryScreen: React.FC = () => {
               <div className="w-2 h-2 rounded-full bg-accent"></div>
               <div>
                 <div className="text-[11px] text-muted">Ingresos</div>
-                <div className="text-sm font-semibold text-ink tabular-nums">${totalIncome.toFixed(2)}</div>
+                <div className="text-sm font-semibold text-ink tabular-nums">{formatMoney(totalIncome)}</div>
               </div>
             </div>
 
@@ -163,7 +165,7 @@ export const HistoryScreen: React.FC = () => {
               <div className="w-2 h-2 rounded-full bg-expense"></div>
               <div>
                 <div className="text-[11px] text-muted">Gastos</div>
-                <div className="text-sm font-semibold text-ink tabular-nums">${totalExpense.toFixed(2)}</div>
+                <div className="text-sm font-semibold text-ink tabular-nums">{formatMoney(totalExpense)}</div>
               </div>
             </div>
           </div>
@@ -264,7 +266,7 @@ export const HistoryScreen: React.FC = () => {
                         group.subtotal >= 0 ? 'text-accent' : 'text-ink'
                       }`}
                     >
-                      {group.subtotal >= 0 ? `+$${group.subtotal.toFixed(2)}` : `-$${Math.abs(group.subtotal).toFixed(2)}`}
+                      {formatSignedMoney(group.subtotal)}
                     </span>
                   </div>
 
@@ -305,7 +307,7 @@ export const HistoryScreen: React.FC = () => {
                               isInc ? 'text-accent' : 'text-ink'
                             }`}
                           >
-                            {isInc ? `+$${amt.toFixed(2)}` : `-$${amt.toFixed(2)}`}
+                            {formatSignedMoney(isInc ? amt : -amt)}
                           </span>
                         </div>
                       );

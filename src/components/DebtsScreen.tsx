@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { financeService } from '../services/financeService';
+import { useFormat } from '../hooks/useFormat';
 import type { Debt, Account } from '../types/database';
 import { DebtModal } from './DebtModal';
 import { DebtPaymentModal } from './DebtPaymentModal';
 
 export const DebtsScreen: React.FC = () => {
+  const { formatMoney, formatSignedMoney, formatDate } = useFormat();
   const [debts, setDebts] = useState<Debt[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
@@ -109,7 +111,7 @@ export const DebtsScreen: React.FC = () => {
                 </span>
               </div>
               <span className="text-xl font-bold text-accent tabular-nums">
-                ${totalLendPending.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                {formatMoney(totalLendPending)}
               </span>
             </div>
 
@@ -122,7 +124,7 @@ export const DebtsScreen: React.FC = () => {
                 </span>
               </div>
               <span className="text-xl font-bold text-expense tabular-nums">
-                ${totalBorrowPending.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                {formatMoney(totalBorrowPending)}
               </span>
             </div>
           </div>
@@ -130,7 +132,7 @@ export const DebtsScreen: React.FC = () => {
           <div className="pt-2 border-t border-ink/10 flex items-center justify-between text-xs text-muted">
             <span>Balance neto</span>
             <span className={`font-bold tabular-nums ${netDebtDifference >= 0 ? 'text-accent' : 'text-expense'}`}>
-              {netDebtDifference >= 0 ? `+$${netDebtDifference.toFixed(2)}` : `-$${Math.abs(netDebtDifference).toFixed(2)}`}
+              {formatSignedMoney(netDebtDifference)}
             </span>
           </div>
         </section>
@@ -218,7 +220,7 @@ export const DebtsScreen: React.FC = () => {
                       <div>
                         <h4 className="text-sm font-semibold text-ink">{debt.person_name}</h4>
                         <span className="text-[11px] text-muted block">
-                          Total ${total.toFixed(2)}
+                          Total {formatMoney(total)}
                         </span>
                       </div>
                     </div>
@@ -230,7 +232,7 @@ export const DebtsScreen: React.FC = () => {
                           isLend ? 'text-accent' : 'text-expense'
                         }`}
                       >
-                        ${remaining.toFixed(2)}
+                        {formatMoney(remaining)}
                       </span>
                     </div>
                   </div>
@@ -238,9 +240,9 @@ export const DebtsScreen: React.FC = () => {
                   {/* Barra de Progreso de Amortización */}
                   <div className="space-y-1 pt-0.5">
                     <div className="flex justify-between text-[11px] text-muted">
-                      <span>Pagado ${paid.toFixed(2)}</span>
+                      <span>Pagado {formatMoney(paid)}</span>
                       {debt.due_date && (
-                        <span>Límite: {new Date(debt.due_date).toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })}</span>
+                        <span>Límite: {formatDate(debt.due_date, { month: 'short', day: 'numeric' })}</span>
                       )}
                     </div>
                     <div className="h-1.5 w-full bg-surface-muted rounded-full overflow-hidden">

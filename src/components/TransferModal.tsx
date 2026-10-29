@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { Account } from '../types/database';
 import { financeService } from '../services/financeService';
+import { useFormat } from '../hooks/useFormat';
 
 interface TransferModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
   accounts,
   onSuccess,
 }) => {
+  const { formatMoney } = useFormat();
   const [fromAccountId, setFromAccountId] = useState<string>('');
   const [toAccountId, setToAccountId] = useState<string>('');
   const [amountStr, setAmountStr] = useState('0');
@@ -172,7 +174,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
               >
                 {accounts.map((acc) => (
                   <option key={acc.id} value={acc.id}>
-                    {acc.name} (${Number(acc.current_balance).toFixed(2)})
+                    {acc.name} ({formatMoney(Number(acc.current_balance))})
                   </option>
                 ))}
               </select>
@@ -201,7 +203,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
               >
                 {accounts.map((acc) => (
                   <option key={acc.id} value={acc.id}>
-                    {acc.name} (${Number(acc.current_balance).toFixed(2)})
+                    {acc.name} ({formatMoney(Number(acc.current_balance))})
                   </option>
                 ))}
               </select>
@@ -234,11 +236,11 @@ export const TransferModal: React.FC<TransferModalProps> = ({
         <div className="bg-canvas rounded-xl p-3 text-xs space-y-1 border border-ink/[0.04]">
           <div className="flex justify-between text-muted">
             <span>Nuevo saldo {fromAccount?.name || 'Origen'}:</span>
-            <span className="font-semibold text-ink tabular-nums">${fromNewBalance.toFixed(2)}</span>
+            <span className="font-semibold text-ink tabular-nums">{formatMoney(fromNewBalance)}</span>
           </div>
           <div className="flex justify-between text-muted">
             <span>Nuevo saldo {toAccount?.name || 'Destino'}:</span>
-            <span className="font-semibold text-accent tabular-nums">${toNewBalance.toFixed(2)}</span>
+            <span className="font-semibold text-accent tabular-nums">{formatMoney(toNewBalance)}</span>
           </div>
         </div>
 

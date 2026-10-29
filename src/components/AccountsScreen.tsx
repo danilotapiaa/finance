@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { financeService } from '../services/financeService';
+import { useFormat } from '../hooks/useFormat';
 import type { Account } from '../types/database';
 import { TransferModal } from './TransferModal';
 import { AccountModal } from './AccountModal';
 
 export const AccountsScreen: React.FC = () => {
+  const { formatMoney } = useFormat();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
@@ -102,7 +104,7 @@ export const AccountsScreen: React.FC = () => {
           </div>
 
           <div className="text-3xl font-bold tracking-tight text-ink tabular-nums">
-            ${spendableBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            {formatMoney(spendableBalance)}
           </div>
 
           {/* Barra de Distribución Proporcional (Bancos, Tarjetas, Efectivo) */}
@@ -141,7 +143,7 @@ export const AccountsScreen: React.FC = () => {
                   Balance en ahorros
                 </span>
                 <div className="text-xl font-bold text-ink tabular-nums mt-0.5">
-                  ${savingsBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  {formatMoney(savingsBalance)}
                 </div>
               </div>
             </div>
@@ -202,7 +204,7 @@ export const AccountsScreen: React.FC = () => {
 
                     <div className="text-right">
                       <span className="text-base font-bold text-ink tabular-nums block">
-                        ${balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        {formatMoney(balance)}
                       </span>
                     </div>
                   </div>
@@ -214,8 +216,8 @@ export const AccountsScreen: React.FC = () => {
                         <div className="h-full bg-accent rounded-full" style={{ width: `${progressPct}%` }}></div>
                       </div>
                       <div className="flex justify-between text-[11px] text-muted">
-                        <span>Objetivo: ${target.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
-                        <span>Faltan: ${Math.max(0, target - balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                        <span>Objetivo: {formatMoney(target)}</span>
+                        <span>Faltan: {formatMoney(Math.max(0, target - balance))}</span>
                       </div>
                     </div>
                   )}
