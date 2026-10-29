@@ -28,7 +28,11 @@ export const HistoryScreen: React.FC = () => {
   }, [currentDate]);
 
   useEffect(() => {
-    loadMonthTransactions();
+    // Carga del mes: los cambios de estado ocurren después del await.
+    const fetchMonth = async () => {
+      await loadMonthTransactions();
+    };
+    void fetchMonth();
   }, [loadMonthTransactions]);
 
   // Navegación de mes

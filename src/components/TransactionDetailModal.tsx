@@ -42,7 +42,16 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
         setAccounts(accs);
         setCategories(cats);
       }).catch((err) => console.error('Error cargando catálogos:', err));
+    }
+  }, [transaction]);
 
+  const [prevTransaction, setPrevTransaction] = useState<Transaction | null>(null);
+
+  // Al cambiar de transacción se reinicia el formulario durante el render.
+  if (transaction !== prevTransaction) {
+    setPrevTransaction(transaction);
+
+    if (transaction) {
       setIsEditing(false);
       setErrorMessage(null);
       setEditType(transaction.type);
@@ -56,7 +65,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
       const isoLocal = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
       setEditDate(isoLocal);
     }
-  }, [transaction]);
+  }
 
   if (!transaction) return null;
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import type { Account } from '../types/database';
 import { financeService } from '../services/financeService';
 
@@ -24,7 +24,14 @@ export const TransferModal: React.FC<TransferModalProps> = ({
 
   const quickPresets: number[] = [50, 100, 250];
 
-  useEffect(() => {
+  const [prevIsOpen, setPrevIsOpen] = useState<boolean | null>(null);
+  const [prevAccounts, setPrevAccounts] = useState<Account[] | null>(null);
+
+  // Al abrir el modal o recargar las cuentas se reinicia el formulario durante el render.
+  if (isOpen !== prevIsOpen || accounts !== prevAccounts) {
+    setPrevIsOpen(isOpen);
+    setPrevAccounts(accounts);
+
     if (isOpen) {
       const firstAccount = accounts[0];
       const secondAccount = accounts[1];
@@ -35,7 +42,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
       setConcept('');
       setErrorMessage(null);
     }
-  }, [isOpen, accounts]);
+  }
 
   if (!isOpen) return null;
 

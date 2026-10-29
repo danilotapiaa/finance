@@ -23,7 +23,11 @@ export const AccountsScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    loadAccounts();
+    // Carga inicial: los cambios de estado ocurren después del await.
+    const fetchAccounts = async () => {
+      await loadAccounts();
+    };
+    void fetchAccounts();
   }, []);
 
   const spendableAccounts = accounts.filter((a) => a.type !== 'savings');

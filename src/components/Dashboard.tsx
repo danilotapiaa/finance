@@ -53,9 +53,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
 
   // Se ejecuta de inmediato cuando el usuario se autentica
   useEffect(() => {
-    if (user?.id) {
-      loadData();
-    }
+    // Carga inicial: los cambios de estado ocurren después del await.
+    const fetchDashboard = async () => {
+      if (user?.id) {
+        await loadData();
+      }
+    };
+    void fetchDashboard();
   }, [user?.id, loadData]);
 
   // Balance Disponible Consolidado (Banco, Tarjeta, Efectivo)

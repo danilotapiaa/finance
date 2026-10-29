@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { ThemeProvider } from './context/ThemeContext';
+import { useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthProvider';
+import { ThemeProvider } from './context/ThemeProvider';
 import { AuthScreen } from './components/AuthScreen';
 import { Dashboard } from './components/Dashboard';
 import { AccountsScreen } from './components/AccountsScreen';

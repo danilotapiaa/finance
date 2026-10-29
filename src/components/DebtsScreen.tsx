@@ -31,7 +31,11 @@ export const DebtsScreen: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    loadData();
+    // Carga inicial: los cambios de estado ocurren después del await.
+    const fetchDebts = async () => {
+      await loadData();
+    };
+    void fetchDebts();
   }, [loadData]);
 
   // Cálculos consolidados

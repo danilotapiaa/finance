@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import type { Account, AccountType } from '../types/database';
 import { financeService } from '../services/financeService';
 
@@ -32,7 +32,15 @@ export const AccountModal: React.FC<AccountModalProps> = ({
     { name: 'payments', label: 'Efectivo' },
   ];
 
-  useEffect(() => {
+  const [prevIsOpen, setPrevIsOpen] = useState<boolean | null>(null);
+  const [prevAccountId, setPrevAccountId] = useState<string | null | undefined>(undefined);
+  const accountId = accountToEdit?.id ?? null;
+
+  // Al abrir el modal o cambiar de cuenta se reinicia el formulario durante el render.
+  if (isOpen !== prevIsOpen || accountId !== prevAccountId) {
+    setPrevIsOpen(isOpen);
+    setPrevAccountId(accountId);
+
     if (isOpen) {
       if (accountToEdit) {
         setName(accountToEdit.name);
@@ -55,7 +63,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({
       }
       setErrorMessage(null);
     }
-  }, [isOpen, accountToEdit]);
+  }
 
   if (!isOpen) return null;
 

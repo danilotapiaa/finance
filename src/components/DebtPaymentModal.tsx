@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import type { Debt, Account } from '../types/database';
 import { financeService } from '../services/financeService';
 
@@ -21,8 +21,12 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const debtId = debt?.id;
+  const [prevDebtId, setPrevDebtId] = useState<string | null | undefined>(undefined);
 
-  useEffect(() => {
+  // Al cambiar de deuda se limpia el formulario durante el render.
+  if (debtId !== prevDebtId) {
+    setPrevDebtId(debtId);
+
     if (debtId) {
       setAmountStr('');
       setSelectedAccountId('');
@@ -30,7 +34,7 @@ export const DebtPaymentModal: React.FC<DebtPaymentModalProps> = ({
       setErrorMessage(null);
       setIsSubmitting(false);
     }
-  }, [debtId]);
+  }
 
   if (!debt) return null;
 

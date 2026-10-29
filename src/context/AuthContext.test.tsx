@@ -1,6 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { AuthProvider, useAuth } from './AuthContext'
+import { useAuth } from './AuthContext'
+import { AuthProvider } from './AuthProvider'
 import { makeUser } from '../test/fixtures'
 
 const { mockSupabase } = vi.hoisted(() => ({

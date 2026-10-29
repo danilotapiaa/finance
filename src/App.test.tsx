@@ -8,10 +8,13 @@ import { makeUser } from './test/fixtures'
 vi.mock('./context/AuthContext', async () => {
   const { authState: state } = await import('./test/mocks/authContext')
   return {
-    AuthProvider: ({ children }: { children: React.ReactNode }) => children,
     useAuth: () => state,
   }
 })
+
+vi.mock('./context/AuthProvider', () => ({
+  AuthProvider: ({ children }: { children: React.ReactNode }) => children,
+}))
 
 vi.mock('./components/AuthScreen', () => ({
   AuthScreen: () => <div>Pantalla de autenticación</div>,

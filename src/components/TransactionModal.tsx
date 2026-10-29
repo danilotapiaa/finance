@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import type { Account, Category, TransactionType } from '../types/database';
 import { financeService } from '../services/financeService';
 
@@ -27,7 +27,14 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  useEffect(() => {
+  const [prevIsOpen, setPrevIsOpen] = useState<boolean | null>(null);
+  const [prevType, setPrevType] = useState<TransactionType | null>(null);
+  const [prevCategories, setPrevCategories] = useState<Category[] | null>(null);
+
+  // Al abrirse el modal se reinicia el formulario durante el render.
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
+
     if (isOpen) {
       setType('expense');
       setAmountStr('0');
@@ -36,18 +43,16 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       setErrorMessage(null);
       setSelectedAccountId(''); // Siempre inicia vacío para obligar al usuario a elegir
     }
-  }, [isOpen]);
+  }
 
   const filteredCategories = categories.filter((c) => c.type === type);
 
-  useEffect(() => {
-    const matching = categories.filter((c) => c.type === type);
-    if (matching.length > 0) {
-      setSelectedCategoryId(matching[0].id);
-    } else {
-      setSelectedCategoryId(null);
-    }
-  }, [type, categories]);
+  // La categoría seleccionada se ajusta durante el render según el tipo y el catálogo.
+  if (type !== prevType || categories !== prevCategories) {
+    setPrevType(type);
+    setPrevCategories(categories);
+    setSelectedCategoryId(filteredCategories[0]?.id ?? null);
+  }
 
   if (!isOpen) return null;
 

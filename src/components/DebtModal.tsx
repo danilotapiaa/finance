@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import type { DebtType } from '../types/database';
 import { financeService } from '../services/financeService';
 
@@ -16,8 +16,12 @@ export const DebtModal: React.FC<DebtModalProps> = ({ isOpen, onClose, onSuccess
   const [note, setNote] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [prevIsOpen, setPrevIsOpen] = useState<boolean | null>(null);
 
-  useEffect(() => {
+  // Al abrirse el modal se limpia el formulario durante el render.
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
+
     if (isOpen) {
       setPersonName('');
       setType('lend');
@@ -27,7 +31,7 @@ export const DebtModal: React.FC<DebtModalProps> = ({ isOpen, onClose, onSuccess
       setErrorMessage(null);
       setIsSubmitting(false);
     }
-  }, [isOpen]);
+  }
 
   if (!isOpen) return null;
 
