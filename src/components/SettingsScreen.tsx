@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { usePreferences } from '../context/PreferencesContext';
 import { useTheme } from '../context/ThemeContext';
@@ -12,17 +12,11 @@ interface SettingsScreenProps {
 
 export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
   const { user, signOut } = useAuth();
-  const { setPreferences } = usePreferences();
+  const { profile, loading, currency, numberFormat, firstDayOfWeek, setPreferences } =
+    usePreferences();
   const { theme, setTheme } = useTheme();
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
-
-  // Estados locales de preferencias
-  const [currency, setCurrency] = useState('USD');
-  const [numberFormat, setNumberFormat] = useState('14,850.00');
-  const [firstDayOfWeek, setFirstDayOfWeek] = useState('Lunes');
 
   // Estados para restablecer datos
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
@@ -32,43 +26,24 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
   const [resetError, setResetError] = useState<string | null>(null);
 
   const CONFIRM_WORD = 'RESTABLECER';
-
-  useEffect(() => {
-    const loadProfile = async () => {
-      try {
-        const data = await financeService.getProfile();
-        if (data) {
-          setProfile(data);
-          setCurrency(data.currency || 'USD');
-          setNumberFormat(data.number_format || '14,850.00');
-          setFirstDayOfWeek(data.first_day_of_week === 'sunday' ? 'Domingo' : 'Lunes');
-        }
-      } catch (err) {
-        console.error('Error cargando perfil:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadProfile();
-  }, []);
+  const firstDayLabel = firstDayOfWeek === 'sunday' ? 'Domingo' : 'Lunes';
 
   const handleSavePreference = async (updates: Partial<Profile>) => {
+    // Actualización optimista: los formateadores globales cambian al instante.
+    if (updates.currency) {
+      setPreferences({ currency: updates.currency });
+    }
+    if (updates.number_format) {
+      setPreferences({ numberFormat: updates.number_format });
+    }
+    if (updates.first_day_of_week) {
+      setPreferences({
+        firstDayOfWeek: updates.first_day_of_week === 'sunday' ? 'sunday' : 'monday',
+      });
+    }
+
     try {
       await financeService.updateProfile(updates);
-
-      // Mantiene sincronizados los formateadores globales sin recargar la app.
-      if (updates.currency) {
-        setPreferences({ currency: updates.currency });
-      }
-      if (updates.number_format) {
-        setPreferences({ numberFormat: updates.number_format });
-      }
-      if (updates.first_day_of_week) {
-        setPreferences({
-          firstDayOfWeek: updates.first_day_of_week === 'sunday' ? 'sunday' : 'monday',
-        });
-      }
-
       setStatusMessage('Preferencia guardada');
       setTimeout(() => setStatusMessage(null), 2000);
     } catch (err) {
@@ -270,8 +245,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
               <select
                 value={currency}
                 onChange={(e) => {
-                  setCurrency(e.target.value);
-                  handleSavePreference({ currency: e.target.value });
+                  void handleSavePreference({ currency: e.target.value });
                 }}
                 className="bg-transparent text-[13px] font-medium text-muted outline-none cursor-pointer text-right"
               >
@@ -294,8 +268,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
               <select
                 value={numberFormat}
                 onChange={(e) => {
-                  setNumberFormat(e.target.value);
-                  handleSavePreference({ number_format: e.target.value });
+                  void handleSavePreference({ number_format: e.target.value });
                 }}
                 className="bg-transparent text-[13px] font-medium text-muted outline-none cursor-pointer text-right"
               >
@@ -313,10 +286,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
                 <span className="text-[13px] font-medium text-ink">Inicio de semana</span>
               </div>
               <select
-                value={firstDayOfWeek}
+                value={firstDayLabel}
                 onChange={(e) => {
-                  setFirstDayOfWeek(e.target.value);
-                  handleSavePreference({ first_day_of_week: e.target.value === 'Domingo' ? 'sunday' : 'monday' });
+                  void handleSavePreference({
+                    first_day_of_week: e.target.value === 'Domingo' ? 'sunday' : 'monday',
+                  });
                 }}
                 className="bg-transparent text-[13px] font-medium text-muted outline-none cursor-pointer text-right"
               >

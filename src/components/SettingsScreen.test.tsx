@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { SettingsScreen } from './SettingsScreen'
+import { PreferencesProvider } from '../context/PreferencesProvider'
 import { ThemeProvider } from '../context/ThemeProvider'
 import { THEME_STORAGE_KEY } from '../theme/themes'
 import { authState } from '../test/mocks/authContext'
@@ -21,7 +22,9 @@ vi.mock('../services/financeService', async () => {
 const renderSettings = (onClose = vi.fn()) =>
   render(
     <ThemeProvider>
-      <SettingsScreen onClose={onClose} />
+      <PreferencesProvider>
+        <SettingsScreen onClose={onClose} />
+      </PreferencesProvider>
     </ThemeProvider>
   )
 

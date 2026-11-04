@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { usePreferences } from '../context/PreferencesContext';
 import { financeService } from '../services/financeService';
 import { useFormat } from '../hooks/useFormat';
-import type { Account, Category, Transaction, Profile } from '../types/database';
+import type { Account, Category, Transaction } from '../types/database';
 import { TransactionModal } from './TransactionModal';
 
 interface DashboardProps {
@@ -11,8 +12,8 @@ interface DashboardProps {
 
 export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
   const { user } = useAuth();
+  const { profile } = usePreferences();
   const { formatAmount, formatMoney, formatSignedMoney, formatDate } = useFormat();
-  const [profile, setProfile] = useState<Profile | null>(null);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -24,17 +25,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
   const loadData = useCallback(async () => {
     try {
       const results = await Promise.allSettled([
-        financeService.getProfile(),
         financeService.getAccounts(),
         financeService.getCategories(),
         financeService.getTransactions(100),
       ]);
 
-      const [profRes, accRes, catRes, txRes] = results;
+      const [accRes, catRes, txRes] = results;
 
-      if (profRes.status === 'fulfilled' && profRes.value) {
-        setProfile(profRes.value);
-      }
       if (accRes.status === 'fulfilled') {
         setAccounts(accRes.value);
       }

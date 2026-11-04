@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react';
 import { resolveLocale } from '../lib/format';
+import type { Profile } from '../types/database';
 
 export type FirstDayOfWeek = 'monday' | 'sunday';
 
@@ -11,6 +12,8 @@ export interface Preferences {
 }
 
 export interface PreferencesContextValue extends Preferences {
+  profile: Profile | null;
+  loading: boolean;
   setPreferences: (updates: Partial<Preferences>) => void;
 }
 
@@ -23,6 +26,8 @@ export const DEFAULT_PREFERENCES: Preferences = {
 
 export const PreferencesContext = createContext<PreferencesContextValue>({
   ...DEFAULT_PREFERENCES,
+  profile: null,
+  loading: false,
   setPreferences: () => {},
 });
 
