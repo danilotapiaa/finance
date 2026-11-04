@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useFeedback } from '../context/FeedbackContext';
 import { financeService } from '../services/financeService';
 import { useFormat } from '../hooks/useFormat';
 import type { Debt, Account } from '../types/database';
@@ -6,6 +7,7 @@ import { DebtModal } from './DebtModal';
 import { DebtPaymentModal } from './DebtPaymentModal';
 
 export const DebtsScreen: React.FC = () => {
+  const { confirm, toast } = useFeedback();
   const { formatMoney, formatSignedMoney, formatDate } = useFormat();
   const [debts, setDebts] = useState<Debt[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -60,15 +62,20 @@ export const DebtsScreen: React.FC = () => {
   });
 
   const handleDeleteDebt = async (id: string, name: string) => {
-    const confirmDelete = window.confirm(`¿Estás seguro de que deseas eliminar el registro de deuda de ${name}?`);
-    if (!confirmDelete) return;
+    const confirmed = await confirm({
+      title: 'Eliminar deuda',
+      message: `¿Estás seguro de que deseas eliminar el registro de deuda de ${name}?`,
+      confirmLabel: 'Eliminar',
+      danger: true,
+    });
+    if (!confirmed) return;
 
     try {
       await financeService.deleteDebt(id);
       loadData();
     } catch (err) {
       console.error('Error eliminando deuda:', err);
-      alert('Error al eliminar la deuda.');
+      toast({ message: 'Error al eliminar la deuda.', variant: 'error' });
     }
   };
 

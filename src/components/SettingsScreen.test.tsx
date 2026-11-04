@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { SettingsScreen } from './SettingsScreen'
+import { FeedbackProvider } from '../context/FeedbackProvider'
 import { PreferencesProvider } from '../context/PreferencesProvider'
 import { ThemeProvider } from '../context/ThemeProvider'
 import { THEME_STORAGE_KEY } from '../theme/themes'
@@ -22,9 +23,11 @@ vi.mock('../services/financeService', async () => {
 const renderSettings = (onClose = vi.fn()) =>
   render(
     <ThemeProvider>
-      <PreferencesProvider>
-        <SettingsScreen onClose={onClose} />
-      </PreferencesProvider>
+      <FeedbackProvider>
+        <PreferencesProvider>
+          <SettingsScreen onClose={onClose} />
+        </PreferencesProvider>
+      </FeedbackProvider>
     </ThemeProvider>
   )
 
@@ -154,23 +157,19 @@ describe('SettingsScreen', () => {
 
   it('avisa cuando no hay transacciones para exportar', async () => {
     const user = userEvent.setup()
-    vi.spyOn(window, 'alert').mockImplementation(() => {})
     financeServiceMock.getTransactions.mockResolvedValue([])
     renderSettings()
     await screen.findByText('Danilo Tapia')
 
     await user.click(screen.getByText('Exportar movimientos (CSV)'))
 
-    await waitFor(() =>
-      expect(window.alert).toHaveBeenCalledWith(
-        'No tienes transacciones registradas para exportar.'
-      )
-    )
+    expect(
+      await screen.findByText('No tienes transacciones registradas para exportar.')
+    ).toBeInTheDocument()
   })
 
   it('avisa si falla la exportación', async () => {
     const user = userEvent.setup()
-    vi.spyOn(window, 'alert').mockImplementation(() => {})
     vi.spyOn(console, 'error').mockImplementation(() => {})
     financeServiceMock.getTransactions.mockRejectedValue(new Error('boom'))
     renderSettings()
@@ -178,11 +177,9 @@ describe('SettingsScreen', () => {
 
     await user.click(screen.getByText('Exportar movimientos (CSV)'))
 
-    await waitFor(() =>
-      expect(window.alert).toHaveBeenCalledWith(
-        'Ocurrió un error al exportar los datos.'
-      )
-    )
+    expect(
+      await screen.findByText('Ocurrió un error al exportar los datos.')
+    ).toBeInTheDocument()
   })
 
   it('abre y cierra el modal de restablecer', async () => {

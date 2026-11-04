@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useFeedback } from '../context/FeedbackContext';
 import { usePreferences } from '../context/PreferencesContext';
 import { useTheme } from '../context/ThemeContext';
 import { financeService } from '../services/financeService';
@@ -12,6 +13,7 @@ interface SettingsScreenProps {
 
 export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
   const { user, signOut } = useAuth();
+  const { toast } = useFeedback();
   const { profile, loading, currency, numberFormat, firstDayOfWeek, setPreferences } =
     usePreferences();
   const { theme, setTheme } = useTheme();
@@ -57,7 +59,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
     try {
       const transactions = await financeService.getTransactions(1000);
       if (transactions.length === 0) {
-        alert('No tienes transacciones registradas para exportar.');
+        toast({
+          message: 'No tienes transacciones registradas para exportar.',
+          variant: 'info',
+        });
         setIsExporting(false);
         return;
       }
@@ -85,7 +90,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Error al exportar CSV:', err);
-      alert('Ocurrió un error al exportar los datos.');
+      toast({ message: 'Ocurrió un error al exportar los datos.', variant: 'error' });
     } finally {
       setIsExporting(false);
     }

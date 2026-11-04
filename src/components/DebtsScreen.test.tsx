@@ -1,7 +1,8 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { DebtsScreen } from './DebtsScreen'
+import { FeedbackProvider } from '../context/FeedbackProvider'
 import { financeServiceMock } from '../test/mocks/financeService'
 import { makeAccount, makeDebt } from '../test/fixtures'
 import type { Debt } from '../types/database'
@@ -20,6 +21,13 @@ vi.mock('./DebtPaymentModal', () => ({
   DebtPaymentModal: ({ debt }: { debt: Debt | null }) =>
     debt ? <div>Modal abono {debt.person_name}</div> : null,
 }))
+
+const renderDebts = () =>
+  render(
+    <FeedbackProvider>
+      <DebtsScreen />
+    </FeedbackProvider>
+  )
 
 const debts = [
   makeDebt({
@@ -58,13 +66,13 @@ describe('DebtsScreen', () => {
   it('muestra el spinner mientras carga', () => {
     financeServiceMock.getDebts.mockReturnValue(new Promise(() => {}))
 
-    const { container } = render(<DebtsScreen />)
+    const { container } = renderDebts()
 
     expect(container.querySelector('.animate-spin')).toBeInTheDocument()
   })
 
   it('resume los saldos pendientes y el balance neto', async () => {
-    render(<DebtsScreen />)
+    renderDebts()
 
     expect(await screen.findAllByText('$80.00')).toHaveLength(2)
     expect(screen.getByText('$20.00')).toBeInTheDocument()
@@ -72,7 +80,7 @@ describe('DebtsScreen', () => {
   })
 
   it('muestra por defecto las deudas por cobrar pendientes', async () => {
-    render(<DebtsScreen />)
+    renderDebts()
 
     expect(await screen.findByText('Carlos Martínez')).toBeInTheDocument()
     expect(screen.queryByText('Luis Pérez')).not.toBeInTheDocument()
@@ -84,7 +92,7 @@ describe('DebtsScreen', () => {
 
   it('cambia entre los segmentos de deudas', async () => {
     const user = userEvent.setup()
-    render(<DebtsScreen />)
+    renderDebts()
     await screen.findByText('Carlos Martínez')
 
     await user.click(screen.getByRole('button', { name: 'Debo' }))
@@ -99,7 +107,7 @@ describe('DebtsScreen', () => {
 
   it('filtra por nombre y limpia la búsqueda', async () => {
     const user = userEvent.setup()
-    render(<DebtsScreen />)
+    renderDebts()
     await screen.findByText('Carlos Martínez')
 
     await user.type(
@@ -118,7 +126,7 @@ describe('DebtsScreen', () => {
 
   it('abre el modal de nueva deuda', async () => {
     const user = userEvent.setup()
-    render(<DebtsScreen />)
+    renderDebts()
     await screen.findByText('Carlos Martínez')
 
     await user.click(screen.getByRole('button', { name: /Nueva deuda/ }))
@@ -128,7 +136,7 @@ describe('DebtsScreen', () => {
 
   it('abre el modal de abono con la deuda seleccionada', async () => {
     const user = userEvent.setup()
-    render(<DebtsScreen />)
+    renderDebts()
     await screen.findByText('Carlos Martínez')
 
     await user.click(screen.getByRole('button', { name: 'Registrar abono' }))
@@ -138,48 +146,50 @@ describe('DebtsScreen', () => {
 
   it('elimina una deuda tras confirmar', async () => {
     const user = userEvent.setup()
-    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true)
     financeServiceMock.deleteDebt.mockResolvedValue(undefined)
-    render(<DebtsScreen />)
+    renderDebts()
     await screen.findByText('Carlos Martínez')
 
     await user.click(screen.getByRole('button', { name: 'Eliminar' }))
 
-    expect(confirm).toHaveBeenCalled()
+    const dialog = screen.getByRole('alertdialog')
+    expect(dialog).toHaveTextContent('Eliminar deuda')
+    await user.click(within(dialog).getByRole('button', { name: 'Eliminar' }))
+
     expect(financeServiceMock.deleteDebt).toHaveBeenCalledWith('debt-1')
     await waitFor(() => expect(financeServiceMock.getDebts).toHaveBeenCalledTimes(2))
   })
 
   it('no elimina si se cancela la confirmación', async () => {
     const user = userEvent.setup()
-    vi.spyOn(window, 'confirm').mockReturnValue(false)
-    render(<DebtsScreen />)
+    renderDebts()
     await screen.findByText('Carlos Martínez')
 
     await user.click(screen.getByRole('button', { name: 'Eliminar' }))
+    await user.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Cancelar' }))
 
     expect(financeServiceMock.deleteDebt).not.toHaveBeenCalled()
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   })
 
   it('avisa si falla la eliminación', async () => {
     const user = userEvent.setup()
-    vi.spyOn(window, 'confirm').mockReturnValue(true)
-    vi.spyOn(window, 'alert').mockImplementation(() => {})
     const error = vi.spyOn(console, 'error').mockImplementation(() => {})
     financeServiceMock.deleteDebt.mockRejectedValue(new Error('boom'))
-    render(<DebtsScreen />)
+    renderDebts()
     await screen.findByText('Carlos Martínez')
 
     await user.click(screen.getByRole('button', { name: 'Eliminar' }))
+    await user.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Eliminar' }))
 
-    await waitFor(() => expect(window.alert).toHaveBeenCalledWith('Error al eliminar la deuda.'))
+    expect(await screen.findByText('Error al eliminar la deuda.')).toBeInTheDocument()
     expect(error).toHaveBeenCalled()
   })
 
   it('muestra el estado vacío del segmento', async () => {
     financeServiceMock.getDebts.mockResolvedValue([])
 
-    render(<DebtsScreen />)
+    renderDebts()
 
     expect(
       await screen.findByText('No hay deudas en esta sección.')

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { Transaction, Account, Category, TransactionType } from '../types/database';
+import { useFeedback } from '../context/FeedbackContext';
 import { financeService } from '../services/financeService';
 import { useFormat } from '../hooks/useFormat';
 
@@ -16,6 +17,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
   onDeleted,
   onUpdated,
 }) => {
+  const { confirm } = useFeedback();
   const { formatMoney, formatSignedMoney, formatDate } = useFormat();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -127,8 +129,13 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
   // Eliminar transacción
   const handleDelete = async () => {
-    const confirmDelete = window.confirm('¿Estás seguro de que deseas eliminar este movimiento?');
-    if (!confirmDelete) return;
+    const confirmed = await confirm({
+      title: 'Eliminar movimiento',
+      message: '¿Estás seguro de que deseas eliminar este movimiento?',
+      confirmLabel: 'Eliminar',
+      danger: true,
+    });
+    if (!confirmed) return;
 
     setIsDeleting(true);
     setErrorMessage(null);

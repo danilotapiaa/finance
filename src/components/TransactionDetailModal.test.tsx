@@ -1,7 +1,8 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { TransactionDetailModal } from './TransactionDetailModal'
+import { FeedbackProvider } from '../context/FeedbackProvider'
 import { financeServiceMock } from '../test/mocks/financeService'
 import { makeAccount, makeCategory, makeTransaction } from '../test/fixtures'
 
@@ -26,13 +27,15 @@ const renderModal = (
   const onDeleted = vi.fn()
   const onUpdated = vi.fn()
   render(
-    <TransactionDetailModal
-      transaction={transaction}
-      onClose={onClose}
-      onDeleted={onDeleted}
-      onUpdated={onUpdated}
-      {...props}
-    />
+    <FeedbackProvider>
+      <TransactionDetailModal
+        transaction={transaction}
+        onClose={onClose}
+        onDeleted={onDeleted}
+        onUpdated={onUpdated}
+        {...props}
+      />
+    </FeedbackProvider>
   )
   return { onClose, onDeleted, onUpdated }
 }
@@ -154,14 +157,13 @@ describe('TransactionDetailModal', () => {
 
   it('elimina el movimiento tras confirmar', async () => {
     const user = userEvent.setup()
-    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true)
     const { onClose, onDeleted } = renderModal()
 
+    await user.click(screen.getByRole('button', { name: /Eliminar$/ }))
     await user.click(
-      screen.getByRole('button', { name: /Eliminar$/ })
+      within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Eliminar' })
     )
 
-    expect(confirm).toHaveBeenCalled()
     await waitFor(() =>
       expect(financeServiceMock.deleteTransaction).toHaveBeenCalledWith('tx-1')
     )
@@ -171,11 +173,11 @@ describe('TransactionDetailModal', () => {
 
   it('no elimina si se cancela la confirmación', async () => {
     const user = userEvent.setup()
-    vi.spyOn(window, 'confirm').mockReturnValue(false)
     renderModal()
 
+    await user.click(screen.getByRole('button', { name: /Eliminar$/ }))
     await user.click(
-      screen.getByRole('button', { name: /Eliminar$/ })
+      within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Cancelar' })
     )
 
     expect(financeServiceMock.deleteTransaction).not.toHaveBeenCalled()
@@ -183,14 +185,14 @@ describe('TransactionDetailModal', () => {
 
   it('muestra el error al eliminar', async () => {
     const user = userEvent.setup()
-    vi.spyOn(window, 'confirm').mockReturnValue(true)
     financeServiceMock.deleteTransaction.mockRejectedValue(
       new Error('No se pudo eliminar')
     )
     renderModal()
 
+    await user.click(screen.getByRole('button', { name: /Eliminar$/ }))
     await user.click(
-      screen.getByRole('button', { name: /Eliminar$/ })
+      within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Eliminar' })
     )
 
     expect(await screen.findByText('No se pudo eliminar')).toBeInTheDocument()

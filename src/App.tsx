@@ -1,6 +1,7 @@
 import React, { lazy, Suspense, useState } from 'react';
 import { useAuth } from './context/AuthContext';
 import { AuthProvider } from './context/AuthProvider';
+import { FeedbackProvider } from './context/FeedbackProvider';
 import { PreferencesProvider } from './context/PreferencesProvider';
 import { ThemeProvider } from './context/ThemeProvider';
 import { AuthScreen } from './components/AuthScreen';
@@ -83,11 +84,13 @@ export default function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider>
-        <AuthProvider>
-          <PreferencesProvider>
-            <MainApp />
-          </PreferencesProvider>
-        </AuthProvider>
+        <FeedbackProvider>
+          <AuthProvider>
+            <PreferencesProvider>
+              <MainApp />
+            </PreferencesProvider>
+          </AuthProvider>
+        </FeedbackProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );

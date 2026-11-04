@@ -1,32 +1,34 @@
-# React + TypeScript + Vite
+# Serene Finance
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Aplicación de finanzas personales construida con React 19, TypeScript, Vite y Supabase. Se instala como PWA y funciona en móvil y escritorio.
 
-Currently, two official plugins are available:
+## Requisitos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node 22 o superior
+- Una instancia de Supabase con el esquema de `supabase_schema.sql`
 
-## React Compiler
+## Configuración
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Copia `.env.example` a `.env` y completa las credenciales del proyecto:
 
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key-here
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Scripts
+
+- `npm run dev`: servidor de desarrollo
+- `npm run build`: comprobación de tipos y build de producción
+- `npm test`: suite de Vitest
+- `npm run test:coverage`: cobertura
+- `npm run lint`: oxlint
+- `npm run types`: regenera los tipos de la base de datos desde el esquema real
+
+## Tipos de base de datos
+
+`src/types/database.ts` se mantiene a mano. `npm run types` genera `src/types/supabase.ts` a partir del proyecto de Supabase y requiere `SUPABASE_ACCESS_TOKEN` en `.env` o haber ejecutado `npx supabase login`. La migración de imports al archivo generado puede hacerse de forma incremental.
+
+## Integración continua
+
+`.github/workflows/ci.yml` ejecuta lint, comprobación de tipos, tests y build en cada push y pull request.
