@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { nextOccurrence, occurrenceTimestamp, parseDateOnly, toDateOnly } from '../lib/recurrence';
-import type { Account, Category, Transaction, Transfer, Profile, Debt, DebtPayment, Budget, RecurringTransaction } from '../types/database';
+import type { Account, Category, Transaction, Transfer, Profile, Debt, DebtPayment, Budget, RecurringTransaction, SavingsGoal } from '../types/database';
 
 export interface ResetOptions {
   /**
@@ -561,6 +561,95 @@ export const financeService = {
     }
 
     return created;
+  },
+
+  // ==========================================
+  // METAS DE AHORRO
+  // ==========================================
+  async getSavingsGoals(): Promise<SavingsGoal[]> {
+    const { data, error } = await supabase
+      .from('savings_goals')
+      .select(`
+        *,
+        contributions:goal_contributions(*)
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return (data || []).map((goal) => ({
+      ...goal,
+      contributions: [...(goal.contributions ?? [])].sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      ),
+    }));
+  },
+
+  async createSavingsGoal(goal: {
+    name: string;
+    target_amount: number;
+    target_date?: string | null;
+    icon?: string;
+  }): Promise<SavingsGoal> {
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
+    if (!user) throw new Error('No autenticado');
+
+    const { data, error } = await supabase
+      .from('savings_goals')
+      .insert([{
+        user_id: user.id,
+        name: goal.name,
+        target_amount: goal.target_amount,
+        target_date: goal.target_date ?? null,
+        icon: goal.icon ?? 'savings',
+      }])
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteSavingsGoal(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('savings_goals')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  },
+
+  async addGoalContribution(contribution: {
+    goal_id: string;
+    amount: number;
+    date: string;
+    note?: string | null;
+  }): Promise<void> {
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
+    if (!user) throw new Error('No autenticado');
+
+    const { error } = await supabase
+      .from('goal_contributions')
+      .insert([{
+        user_id: user.id,
+        goal_id: contribution.goal_id,
+        amount: contribution.amount,
+        date: contribution.date,
+        note: contribution.note ?? null,
+      }]);
+
+    if (error) throw error;
+  },
+
+  async deleteGoalContribution(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('goal_contributions')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
   },
 
   // ==========================================

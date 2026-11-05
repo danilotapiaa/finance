@@ -4,8 +4,10 @@ import type {
   Category,
   Debt,
   DebtPayment,
+  GoalContribution,
   Profile,
   RecurringTransaction,
+  SavingsGoal,
   Transaction,
 } from '../types/database'
 
@@ -115,6 +117,34 @@ export const makeRecurringTransaction = (
   updated_at: '2026-01-01T00:00:00.000Z',
   account: makeAccount(),
   category: makeCategory(),
+  ...overrides,
+})
+
+export const makeGoalContribution = (
+  overrides: Partial<GoalContribution> = {}
+): GoalContribution => ({
+  id: 'contribution-1',
+  goal_id: 'goal-1',
+  user_id: 'user-1',
+  amount: 250,
+  date: '2026-01-10T12:00:00.000Z',
+  note: null,
+  created_at: '2026-01-10T12:00:00.000Z',
+  ...overrides,
+})
+
+export const makeSavingsGoal = (
+  overrides: Partial<SavingsGoal> = {}
+): SavingsGoal => ({
+  id: 'goal-1',
+  user_id: 'user-1',
+  name: 'Viaje a la playa',
+  target_amount: 1000,
+  target_date: null,
+  icon: 'flight',
+  created_at: '2026-01-01T00:00:00.000Z',
+  updated_at: '2026-01-01T00:00:00.000Z',
+  contributions: [],
   ...overrides,
 })
 

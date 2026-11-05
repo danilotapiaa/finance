@@ -12,6 +12,7 @@ Aplicación de finanzas personales construida con React 19, TypeScript, Vite y S
 - Cuentas de banco, efectivo, tarjeta y ahorro con saldo consolidado.
 - Movimientos de ingreso y gasto, transferencias entre cuentas e historial por mes.
 - Deudas y pagos parciales, con seguimiento de saldo pendiente.
+- Metas de ahorro con aportes, avance y fecha objetivo.
 - Presupuestos mensuales por categoría con avance y alerta de exceso.
 - Automatizaciones de movimientos recurrentes (semanal, mensual o anual) que se registran al abrir la aplicación.
 - Preferencias de moneda, formato numérico y primer día de la semana.

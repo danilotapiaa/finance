@@ -128,3 +128,25 @@ export interface RecurringTransaction {
   account?: Account;
   category?: Category | null;
 }
+
+export interface GoalContribution {
+  id: string;
+  goal_id: string;
+  user_id: string;
+  amount: number;
+  date: string;
+  note: string | null;
+  created_at: string;
+}
+
+export interface SavingsGoal {
+  id: string;
+  user_id: string;
+  name: string;
+  target_amount: number;
+  target_date: string | null;
+  icon: string | null;
+  created_at: string;
+  updated_at: string;
+  contributions?: GoalContribution[];
+}

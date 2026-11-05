@@ -720,6 +720,129 @@ describe('financeService', () => {
     })
   })
 
+  describe('metas de ahorro', () => {
+    it('lista las metas con sus aportes ordenados por fecha descendente', async () => {
+      const goals = [
+        {
+          id: 'goal-1',
+          name: 'Viaje',
+          contributions: [
+            { id: 'c-1', date: '2026-01-01T12:00:00.000Z', amount: 100 },
+            { id: 'c-2', date: '2026-02-01T12:00:00.000Z', amount: 200 },
+          ],
+        },
+      ]
+      const query = createQuery({ data: goals, error: null })
+      mockSupabase.from.mockReturnValue(query)
+
+      const result = await financeService.getSavingsGoals()
+
+      expect(mockSupabase.from).toHaveBeenCalledWith('savings_goals')
+      expect(result[0].contributions?.map((contribution) => contribution.id)).toEqual([
+        'c-2',
+        'c-1',
+      ])
+    })
+
+    it('crea una meta con el user_id de la sesión', async () => {
+      const saved = { id: 'goal-1' }
+      const query = createQuery({ data: saved, error: null })
+      mockSupabase.from.mockReturnValue(query)
+
+      await expect(
+        financeService.createSavingsGoal({
+          name: 'Viaje',
+          target_amount: 1000,
+          target_date: '2026-12-31',
+          icon: 'flight',
+        })
+      ).resolves.toEqual(saved)
+
+      expect((query as never as { insert: ReturnType<typeof vi.fn> }).insert).toHaveBeenCalledWith([
+        {
+          user_id: 'user-1',
+          name: 'Viaje',
+          target_amount: 1000,
+          target_date: '2026-12-31',
+          icon: 'flight',
+        },
+      ])
+    })
+
+    it('rechaza crear una meta sin sesión', async () => {
+      mockSupabase.auth.getSession.mockResolvedValue(noSession)
+
+      await expect(
+        financeService.createSavingsGoal({ name: 'Viaje', target_amount: 1000 })
+      ).rejects.toThrow('No autenticado')
+    })
+
+    it('elimina una meta por id', async () => {
+      const query = createQuery({ data: null, error: null })
+      mockSupabase.from.mockReturnValue(query)
+
+      await expect(financeService.deleteSavingsGoal('goal-1')).resolves.toBeUndefined()
+      expect((query as never as { eq: ReturnType<typeof vi.fn> }).eq).toHaveBeenCalledWith(
+        'id',
+        'goal-1'
+      )
+    })
+
+    it('registra un aporte con el user_id de la sesión', async () => {
+      const query = createQuery({ data: null, error: null })
+      mockSupabase.from.mockReturnValue(query)
+
+      await expect(
+        financeService.addGoalContribution({
+          goal_id: 'goal-1',
+          amount: 250,
+          date: '2026-01-10T12:00:00.000Z',
+          note: 'Quincena',
+        })
+      ).resolves.toBeUndefined()
+
+      expect((query as never as { insert: ReturnType<typeof vi.fn> }).insert).toHaveBeenCalledWith([
+        {
+          user_id: 'user-1',
+          goal_id: 'goal-1',
+          amount: 250,
+          date: '2026-01-10T12:00:00.000Z',
+          note: 'Quincena',
+        },
+      ])
+    })
+
+    it('rechaza registrar un aporte sin sesión', async () => {
+      mockSupabase.auth.getSession.mockResolvedValue(noSession)
+
+      await expect(
+        financeService.addGoalContribution({
+          goal_id: 'goal-1',
+          amount: 250,
+          date: '2026-01-10T12:00:00.000Z',
+        })
+      ).rejects.toThrow('No autenticado')
+    })
+
+    it('elimina un aporte por id', async () => {
+      const query = createQuery({ data: null, error: null })
+      mockSupabase.from.mockReturnValue(query)
+
+      await expect(financeService.deleteGoalContribution('c-1')).resolves.toBeUndefined()
+      expect((query as never as { eq: ReturnType<typeof vi.fn> }).eq).toHaveBeenCalledWith(
+        'id',
+        'c-1'
+      )
+    })
+
+    it('propaga el error al listar metas', async () => {
+      const error = new Error('boom')
+      mockSupabase.from.mockReturnValue(createRejectedQuery(error))
+
+      await expect(financeService.getSavingsGoals()).rejects.toThrow('boom')
+    })
+  })
+
   describe('resetUserData', () => {
     it('rechaza sin sesión', async () => {
       mockSupabase.auth.getSession.mockResolvedValue(noSession)

@@ -4,6 +4,7 @@ import { useFormat } from '../hooks/useFormat';
 import type { Account } from '../types/database';
 import { TransferModal } from './TransferModal';
 import { AccountModal } from './AccountModal';
+import { SavingsGoalsSection } from './SavingsGoalsSection';
 
 export const AccountsScreen: React.FC = () => {
   const { formatMoney } = useFormat();
@@ -226,6 +227,9 @@ export const AccountsScreen: React.FC = () => {
             })}
           </div>
         </div>
+
+        {/* Metas de ahorro con aportes */}
+        <SavingsGoalsSection />
       </main>
 
       {/* Modal de Transferencias */}
