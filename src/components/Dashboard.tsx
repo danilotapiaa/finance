@@ -3,10 +3,12 @@ import { useAuth } from '../context/AuthContext';
 import { usePreferences } from '../context/PreferencesContext';
 import { financeService } from '../services/financeService';
 import { useFormat } from '../hooks/useFormat';
-import type { Account, Budget, Category, Transaction } from '../types/database';
+import type { Account, Budget, Category, RecurringTransaction, SavingsGoal, Transaction } from '../types/database';
 import { TransactionModal } from './TransactionModal';
 import { BudgetsSection } from './BudgetsSection';
 import { BudgetModal } from './BudgetModal';
+import { RemindersSection } from './RemindersSection';
+import { buildReminders } from '../lib/reminders';
 
 interface DashboardProps {
   onOpenProfile: () => void;
@@ -20,6 +22,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [budgets, setBudgets] = useState<Budget[]>([]);
+  const [recurringRules, setRecurringRules] = useState<RecurringTransaction[]>([]);
+  const [goals, setGoals] = useState<SavingsGoal[]>([]);
   const [loading, setLoading] = useState(true);
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -33,9 +37,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
         financeService.getCategories(),
         financeService.getTransactions(100),
         financeService.getBudgets(),
+        financeService.getRecurringTransactions(),
+        financeService.getSavingsGoals(),
       ]);
 
-      const [accRes, catRes, txRes, budgetRes] = results;
+      const [accRes, catRes, txRes, budgetRes, recurringRes, goalRes] = results;
 
       if (accRes.status === 'fulfilled') {
         setAccounts(accRes.value);
@@ -52,6 +58,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
         setBudgets(budgetRes.value ?? []);
       } else {
         setBudgets([]);
+      }
+      if (recurringRes.status === 'fulfilled') {
+        setRecurringRules(recurringRes.value ?? []);
+      } else {
+        setRecurringRules([]);
+      }
+      if (goalRes.status === 'fulfilled') {
+        setGoals(goalRes.value ?? []);
+      } else {
+        setGoals([]);
       }
     } catch (err) {
       console.error('Error cargando datos del dashboard:', err);
@@ -122,6 +138,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
     .join('')
     .substring(0, 2)
     .toUpperCase();
+
+  const reminders = buildReminders(recurringRules, goals);
 
   if (loading && accounts.length === 0) {
     return (
@@ -211,6 +229,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
             )}
           </div>
         </section>
+
+        {/* Recordatorios de la aplicación */}
+        <RemindersSection reminders={reminders} isBalanceVisible={isBalanceVisible} />
 
         {/* 3. Carrusel de Cuentas Reales */}
         <section className="flex flex-col space-y-3">

@@ -9,6 +9,8 @@ import {
   makeBudget,
   makeCategory,
   makeProfile,
+  makeRecurringTransaction,
+  makeSavingsGoal,
   makeTransaction,
   makeUser,
 } from '../test/fixtures'
@@ -92,6 +94,8 @@ const setupHappyPath = () => {
     }),
   ])
   financeServiceMock.getBudgets.mockResolvedValue([])
+  financeServiceMock.getRecurringTransactions.mockResolvedValue([])
+  financeServiceMock.getSavingsGoals.mockResolvedValue([])
 }
 
 const renderDashboard = () => {
@@ -190,6 +194,43 @@ describe('Dashboard', () => {
     await user.click(screen.getByRole('button', { name: /Configurar/ }))
 
     expect(screen.getByText('Presupuestos mensuales')).toBeInTheDocument()
+  })
+
+  it('muestra recordatorios de metas y movimientos recurrentes', async () => {
+    const inTwoDays = new Date()
+    inTwoDays.setDate(inTwoDays.getDate() + 2)
+    const dateOnly = `${inTwoDays.getFullYear()}-${String(inTwoDays.getMonth() + 1).padStart(2, '0')}-${String(inTwoDays.getDate()).padStart(2, '0')}`
+
+    financeServiceMock.getRecurringTransactions.mockResolvedValue([
+      makeRecurringTransaction({
+        id: 'recurring-1',
+        note: 'Internet',
+        amount: 40,
+        next_run_date: dateOnly,
+      }),
+    ])
+    financeServiceMock.getSavingsGoals.mockResolvedValue([
+      makeSavingsGoal({
+        id: 'goal-1',
+        name: 'Viaje',
+        target_amount: 100,
+        target_date: dateOnly,
+      }),
+    ])
+
+    renderDashboard()
+
+    expect(await screen.findByText('Recordatorios')).toBeInTheDocument()
+    expect(screen.getByText('Se registrará en 2 días · Mensual')).toBeInTheDocument()
+    expect(screen.getByText('Faltan $100.00 · vence en 2 días')).toBeInTheDocument()
+  })
+
+  it('no muestra recordatorios cuando no hay pendientes', async () => {
+    renderDashboard()
+
+    await screen.findByText('Hola, Danilo')
+
+    expect(screen.queryByText('Recordatorios')).not.toBeInTheDocument()
   })
 
   it('notifica al abrir el perfil', async () => {
