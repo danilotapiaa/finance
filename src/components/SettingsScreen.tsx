@@ -5,6 +5,7 @@ import { usePreferences } from '../context/PreferencesContext';
 import { useTheme } from '../context/ThemeContext';
 import { financeService } from '../services/financeService';
 import { THEMES } from '../theme/themes';
+import { RecurringSection } from './RecurringSection';
 import type { Profile } from '../types/database';
 
 interface SettingsScreenProps {
@@ -305,6 +306,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
             </div>
           </div>
         </section>
+
+        {/* Sección 3: Automatizaciones */}
+        <RecurringSection />
 
         {/* Sección 2: Datos y Respaldo */}
         <section className="space-y-1.5">

@@ -6,6 +6,7 @@ import { authState } from '../test/mocks/authContext'
 import { financeServiceMock } from '../test/mocks/financeService'
 import {
   makeAccount,
+  makeBudget,
   makeCategory,
   makeProfile,
   makeTransaction,
@@ -90,6 +91,7 @@ const setupHappyPath = () => {
       date: currentMonthDate,
     }),
   ])
+  financeServiceMock.getBudgets.mockResolvedValue([])
 }
 
 const renderDashboard = () => {
@@ -161,6 +163,33 @@ describe('Dashboard', () => {
     await user.click(screen.getByTitle('Nueva Transacción'))
 
     expect(screen.getByText('Modal de transacción')).toBeInTheDocument()
+  })
+
+  it('muestra los presupuestos del mes con su avance', async () => {
+    financeServiceMock.getBudgets.mockResolvedValue([
+      makeBudget({
+        id: 'budget-1',
+        category_id: 'cat-1',
+        amount: 100,
+        category: makeCategory({ id: 'cat-1', name: 'Alimentación' }),
+      }),
+    ])
+
+    renderDashboard()
+
+    expect(await screen.findByText('Presupuestos')).toBeInTheDocument()
+    expect(await screen.findByText('$50.00 / $100.00')).toBeInTheDocument()
+    expect(screen.getByText('50% usado')).toBeInTheDocument()
+  })
+
+  it('abre el modal para configurar presupuestos', async () => {
+    const user = userEvent.setup()
+    renderDashboard()
+    await screen.findByText('Presupuestos')
+
+    await user.click(screen.getByRole('button', { name: /Configurar/ }))
+
+    expect(screen.getByText('Presupuestos mensuales')).toBeInTheDocument()
   })
 
   it('notifica al abrir el perfil', async () => {

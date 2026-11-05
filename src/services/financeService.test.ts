@@ -24,6 +24,7 @@ const createQuery = (result: QueryResult = { data: null, error: null }) => {
   Object.assign(query, {
     select: vi.fn(chain),
     insert: vi.fn(chain),
+    upsert: vi.fn(chain),
     update: vi.fn(chain),
     delete: vi.fn(chain),
     eq: vi.fn(chain),
@@ -48,6 +49,7 @@ const createRejectedQuery = (error: unknown) => {
   Object.assign(query, {
     select: vi.fn(chain),
     insert: vi.fn(chain),
+    upsert: vi.fn(chain),
     update: vi.fn(chain),
     delete: vi.fn(chain),
     eq: vi.fn(chain),
@@ -481,6 +483,240 @@ describe('financeService', () => {
       expect((query as never as { insert: ReturnType<typeof vi.fn> }).insert).toHaveBeenCalledWith([
         { ...payload, user_id: 'user-1' },
       ])
+    })
+  })
+
+  describe('presupuestos', () => {
+    it('lista los presupuestos con su categoría', async () => {
+      const budgets = [{ id: 'budget-1' }]
+      const query = createQuery({ data: budgets, error: null })
+      mockSupabase.from.mockReturnValue(query)
+
+      await expect(financeService.getBudgets()).resolves.toEqual(budgets)
+      expect(mockSupabase.from).toHaveBeenCalledWith('budgets')
+      expect((query as never as { order: ReturnType<typeof vi.fn> }).order).toHaveBeenCalledWith(
+        'created_at',
+        { ascending: true }
+      )
+    })
+
+    it('crea o actualiza un presupuesto con el user_id de la sesión', async () => {
+      const saved = { id: 'budget-1' }
+      const query = createQuery({ data: saved, error: null })
+      mockSupabase.from.mockReturnValue(query)
+
+      await expect(
+        financeService.upsertBudget({ category_id: 'cat-1', amount: 150 })
+      ).resolves.toEqual(saved)
+
+      expect((query as never as { upsert: ReturnType<typeof vi.fn> }).upsert).toHaveBeenCalledWith(
+        [{ user_id: 'user-1', category_id: 'cat-1', amount: 150, period: 'monthly' }],
+        { onConflict: 'user_id,category_id,period' }
+      )
+    })
+
+    it('rechaza crear un presupuesto sin sesión', async () => {
+      mockSupabase.auth.getSession.mockResolvedValue(noSession)
+
+      await expect(
+        financeService.upsertBudget({ category_id: 'cat-1', amount: 150 })
+      ).rejects.toThrow('No autenticado')
+    })
+
+    it('elimina un presupuesto por id', async () => {
+      const query = createQuery({ data: null, error: null })
+      mockSupabase.from.mockReturnValue(query)
+
+      await expect(financeService.deleteBudget('budget-1')).resolves.toBeUndefined()
+      expect((query as never as { eq: ReturnType<typeof vi.fn> }).eq).toHaveBeenCalledWith(
+        'id',
+        'budget-1'
+      )
+    })
+
+    it('propaga el error al listar presupuestos', async () => {
+      const error = new Error('boom')
+      mockSupabase.from.mockReturnValue(createRejectedQuery(error))
+
+      await expect(financeService.getBudgets()).rejects.toThrow('boom')
+    })
+  })
+
+  describe('recurrencias', () => {
+    it('lista las automatizaciones ordenadas por próxima fecha', async () => {
+      const rules = [{ id: 'recurring-1' }]
+      const query = createQuery({ data: rules, error: null })
+      mockSupabase.from.mockReturnValue(query)
+
+      await expect(financeService.getRecurringTransactions()).resolves.toEqual(rules)
+      expect(mockSupabase.from).toHaveBeenCalledWith('recurring_transactions')
+      expect((query as never as { order: ReturnType<typeof vi.fn> }).order).toHaveBeenCalledWith(
+        'next_run_date',
+        { ascending: true }
+      )
+    })
+
+    it('crea una automatización usando la fecha de inicio como próxima ejecución', async () => {
+      const saved = { id: 'recurring-1' }
+      const query = createQuery({ data: saved, error: null })
+      mockSupabase.from.mockReturnValue(query)
+
+      await expect(
+        financeService.createRecurringTransaction({
+          account_id: 'acc-1',
+          category_id: 'cat-1',
+          type: 'expense',
+          amount: 30,
+          note: 'Internet',
+          frequency: 'monthly',
+          start_date: '2026-02-01',
+        })
+      ).resolves.toEqual(saved)
+
+      expect((query as never as { insert: ReturnType<typeof vi.fn> }).insert).toHaveBeenCalledWith([
+        {
+          account_id: 'acc-1',
+          category_id: 'cat-1',
+          type: 'expense',
+          amount: 30,
+          note: 'Internet',
+          frequency: 'monthly',
+          user_id: 'user-1',
+          next_run_date: '2026-02-01',
+        },
+      ])
+    })
+
+    it('rechaza crear una automatización sin sesión', async () => {
+      mockSupabase.auth.getSession.mockResolvedValue(noSession)
+
+      await expect(
+        financeService.createRecurringTransaction({
+          account_id: 'acc-1',
+          category_id: null,
+          type: 'expense',
+          amount: 30,
+          frequency: 'monthly',
+          start_date: '2026-02-01',
+        })
+      ).rejects.toThrow('No autenticado')
+    })
+
+    it('activa o pausa una automatización', async () => {
+      const query = createQuery({ data: null, error: null })
+      mockSupabase.from.mockReturnValue(query)
+
+      await expect(
+        financeService.toggleRecurringTransaction('recurring-1', false)
+      ).resolves.toBeUndefined()
+
+      expect((query as never as { update: ReturnType<typeof vi.fn> }).update).toHaveBeenCalledWith({
+        is_active: false,
+      })
+    })
+
+    it('elimina una automatización por id', async () => {
+      const query = createQuery({ data: null, error: null })
+      mockSupabase.from.mockReturnValue(query)
+
+      await expect(financeService.deleteRecurringTransaction('recurring-1')).resolves.toBeUndefined()
+      expect((query as never as { eq: ReturnType<typeof vi.fn> }).eq).toHaveBeenCalledWith(
+        'id',
+        'recurring-1'
+      )
+    })
+
+    it('no procesa nada sin sesión', async () => {
+      mockSupabase.auth.getSession.mockResolvedValue(noSession)
+
+      await expect(financeService.processRecurringTransactions()).resolves.toBe(0)
+      expect(mockSupabase.from).not.toHaveBeenCalled()
+    })
+
+    it('genera los movimientos pendientes y adelanta la próxima fecha', async () => {
+      const start = new Date()
+      start.setDate(start.getDate() - 2)
+      const startDate = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`
+
+      const rule = {
+        id: 'recurring-1',
+        account_id: 'acc-1',
+        category_id: 'cat-1',
+        type: 'expense',
+        amount: 30,
+        note: 'Internet',
+        frequency: 'weekly',
+        next_run_date: startDate,
+        is_active: true,
+      }
+
+      const recurringQuery = createQuery({ data: [rule], error: null })
+      const transactionsQuery = createQuery({ data: [{ id: 'tx-1' }], error: null })
+      const accountsQuery = createQuery({ data: { current_balance: 100 }, error: null })
+
+      mockSupabase.from.mockImplementation((table: string) => {
+        if (table === 'transactions') return transactionsQuery
+        if (table === 'accounts') return accountsQuery
+        return recurringQuery
+      })
+
+      await expect(financeService.processRecurringTransactions()).resolves.toBe(1)
+
+      expect(
+        (transactionsQuery as never as { insert: ReturnType<typeof vi.fn> }).insert
+      ).toHaveBeenCalledWith([
+        expect.objectContaining({
+          user_id: 'user-1',
+          account_id: 'acc-1',
+          amount: 30,
+          recurring_id: 'recurring-1',
+        }),
+      ])
+
+      expect(
+        (accountsQuery as never as { update: ReturnType<typeof vi.fn> }).update
+      ).toHaveBeenCalledWith({ current_balance: 70 })
+
+      const expectedNext = new Date(start)
+      expectedNext.setDate(expectedNext.getDate() + 7)
+      const expectedNextDate = `${expectedNext.getFullYear()}-${String(expectedNext.getMonth() + 1).padStart(2, '0')}-${String(expectedNext.getDate()).padStart(2, '0')}`
+
+      expect(
+        (recurringQuery as never as { update: ReturnType<typeof vi.fn> }).update
+      ).toHaveBeenCalledWith({ next_run_date: expectedNextDate })
+    })
+
+    it('omite ocurrencias duplicadas y no altera el saldo', async () => {
+      const start = new Date()
+      start.setDate(start.getDate() - 1)
+      const startDate = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`
+
+      const rule = {
+        id: 'recurring-1',
+        account_id: 'acc-1',
+        category_id: null,
+        type: 'expense',
+        amount: 15,
+        note: null,
+        frequency: 'monthly',
+        next_run_date: startDate,
+        is_active: true,
+      }
+
+      const recurringQuery = createQuery({ data: [rule], error: null })
+      const transactionsQuery = createQuery({ data: [], error: null })
+      const accountsQuery = createQuery({ data: { current_balance: 100 }, error: null })
+
+      mockSupabase.from.mockImplementation((table: string) => {
+        if (table === 'transactions') return transactionsQuery
+        if (table === 'accounts') return accountsQuery
+        return recurringQuery
+      })
+
+      await expect(financeService.processRecurringTransactions()).resolves.toBe(0)
+      expect(
+        (accountsQuery as never as { update: ReturnType<typeof vi.fn> }).update
+      ).not.toHaveBeenCalled()
     })
   })
 

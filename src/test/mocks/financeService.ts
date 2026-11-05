@@ -18,5 +18,13 @@ export const financeServiceMock = {
   deleteDebt: vi.fn(),
   getDebtPayments: vi.fn(),
   createDebtPayment: vi.fn(),
+  getBudgets: vi.fn(),
+  upsertBudget: vi.fn(),
+  deleteBudget: vi.fn(),
+  getRecurringTransactions: vi.fn(),
+  createRecurringTransaction: vi.fn(),
+  toggleRecurringTransaction: vi.fn(),
+  deleteRecurringTransaction: vi.fn(),
+  processRecurringTransactions: vi.fn(),
   resetUserData: vi.fn(),
 }

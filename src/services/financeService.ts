@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
-import type { Account, Category, Transaction, Transfer, Profile, Debt, DebtPayment } from '../types/database';
+import { nextOccurrence, occurrenceTimestamp, parseDateOnly, toDateOnly } from '../lib/recurrence';
+import type { Account, Category, Transaction, Transfer, Profile, Debt, DebtPayment, Budget, RecurringTransaction } from '../types/database';
 
 export interface ResetOptions {
   /**
@@ -363,6 +364,203 @@ export const financeService = {
       .eq('id', payment.debt_id);
     
     return data;
+  },
+
+  // ==========================================
+  // PRESUPUESTOS MENSUALES
+  // ==========================================
+  async getBudgets(): Promise<Budget[]> {
+    const { data, error } = await supabase
+      .from('budgets')
+      .select(`
+        *,
+        category:categories(*)
+      `)
+      .order('created_at', { ascending: true });
+
+    if (error) throw error;
+    return data || [];
+  },
+
+  async upsertBudget(budget: { category_id: string; amount: number }): Promise<Budget> {
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
+    if (!user) throw new Error('No autenticado');
+
+    const { data, error } = await supabase
+      .from('budgets')
+      .upsert(
+        [{
+          user_id: user.id,
+          category_id: budget.category_id,
+          amount: budget.amount,
+          period: 'monthly',
+        }],
+        { onConflict: 'user_id,category_id,period' }
+      )
+      .select(`
+        *,
+        category:categories(*)
+      `)
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteBudget(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('budgets')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  },
+
+  // ==========================================
+  // MOVIMIENTOS RECURRENTES
+  // ==========================================
+  async getRecurringTransactions(): Promise<RecurringTransaction[]> {
+    const { data, error } = await supabase
+      .from('recurring_transactions')
+      .select(`
+        *,
+        account:accounts(*),
+        category:categories(*)
+      `)
+      .order('next_run_date', { ascending: true });
+
+    if (error) throw error;
+    return data || [];
+  },
+
+  async createRecurringTransaction(rule: {
+    account_id: string;
+    category_id: string | null;
+    type: 'expense' | 'income';
+    amount: number;
+    note?: string | null;
+    frequency: 'weekly' | 'monthly' | 'yearly';
+    start_date: string;
+  }): Promise<RecurringTransaction> {
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
+    if (!user) throw new Error('No autenticado');
+
+    const { start_date, ...rest } = rule;
+
+    const { data, error } = await supabase
+      .from('recurring_transactions')
+      .insert([{
+        ...rest,
+        user_id: user.id,
+        next_run_date: start_date,
+      }])
+      .select(`
+        *,
+        account:accounts(*),
+        category:categories(*)
+      `)
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async toggleRecurringTransaction(id: string, isActive: boolean): Promise<void> {
+    const { error } = await supabase
+      .from('recurring_transactions')
+      .update({ is_active: isActive })
+      .eq('id', id);
+
+    if (error) throw error;
+  },
+
+  async deleteRecurringTransaction(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('recurring_transactions')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  },
+
+  /**
+   * Genera los movimientos pendientes de las reglas activas y adelanta su
+   * próxima fecha. Es idempotente: el índice único por regla y fecha evita
+   * duplicados si se ejecuta desde varios dispositivos.
+   */
+  async processRecurringTransactions(): Promise<number> {
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
+    if (!user) return 0;
+
+    const today = toDateOnly(new Date());
+
+    const { data: rules, error } = await supabase
+      .from('recurring_transactions')
+      .select('*')
+      .eq('is_active', true)
+      .lte('next_run_date', today);
+
+    if (error) throw error;
+    if (!rules || rules.length === 0) return 0;
+
+    let created = 0;
+
+    for (const rule of rules) {
+      let cursor = parseDateOnly(rule.next_run_date);
+      let guard = 0;
+
+      while (toDateOnly(cursor) <= today && guard < 60) {
+        guard += 1;
+
+        const { data: inserted, error: insertError } = await supabase
+          .from('transactions')
+          .insert([{
+            user_id: user.id,
+            account_id: rule.account_id,
+            category_id: rule.category_id,
+            type: rule.type,
+            amount: rule.amount,
+            date: occurrenceTimestamp(toDateOnly(cursor)),
+            note: rule.note,
+            recurring_id: rule.id,
+          }])
+          .select('id');
+
+        if (insertError) {
+          if (insertError.code !== '23505') throw insertError;
+        } else if (inserted && inserted.length > 0) {
+          created += 1;
+
+          const { data: account } = await supabase
+            .from('accounts')
+            .select('current_balance')
+            .eq('id', rule.account_id)
+            .single();
+
+          const current = Number(account?.current_balance ?? 0);
+          const newBalance = rule.type === 'income'
+            ? current + Number(rule.amount)
+            : current - Number(rule.amount);
+
+          await supabase
+            .from('accounts')
+            .update({ current_balance: newBalance })
+            .eq('id', rule.account_id);
+        }
+
+        cursor = nextOccurrence(cursor, rule.frequency);
+      }
+
+      await supabase
+        .from('recurring_transactions')
+        .update({ next_run_date: toDateOnly(cursor) })
+        .eq('id', rule.id);
+    }
+
+    return created;
   },
 
   // ==========================================

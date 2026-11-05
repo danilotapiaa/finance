@@ -3,6 +3,8 @@ export type TransactionType = 'expense' | 'income';
 export type CategoryType = 'expense' | 'income';
 export type DebtType = 'lend' | 'borrow'; // 'lend' = me deben, 'borrow' = debo
 export type DebtStatus = 'pending' | 'partial' | 'paid';
+export type BudgetPeriod = 'monthly';
+export type RecurringFrequency = 'weekly' | 'monthly' | 'yearly';
 
 export interface Profile {
   id: string;
@@ -53,6 +55,7 @@ export interface Transaction {
   date: string;
   note: string | null;
   receipt_url: string | null;
+  recurring_id?: string | null;
   created_at: string;
   updated_at: string;
   account?: Account;
@@ -96,4 +99,32 @@ export interface DebtPayment {
   note: string | null;
   created_at: string;
   account?: Account;
+}
+
+export interface Budget {
+  id: string;
+  user_id: string;
+  category_id: string;
+  amount: number;
+  period: BudgetPeriod;
+  created_at: string;
+  updated_at: string;
+  category?: Category | null;
+}
+
+export interface RecurringTransaction {
+  id: string;
+  user_id: string;
+  account_id: string;
+  category_id: string | null;
+  type: TransactionType;
+  amount: number;
+  note: string | null;
+  frequency: RecurringFrequency;
+  next_run_date: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  account?: Account;
+  category?: Category | null;
 }

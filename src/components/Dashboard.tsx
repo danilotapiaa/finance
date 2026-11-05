@@ -3,8 +3,10 @@ import { useAuth } from '../context/AuthContext';
 import { usePreferences } from '../context/PreferencesContext';
 import { financeService } from '../services/financeService';
 import { useFormat } from '../hooks/useFormat';
-import type { Account, Category, Transaction } from '../types/database';
+import type { Account, Budget, Category, Transaction } from '../types/database';
 import { TransactionModal } from './TransactionModal';
+import { BudgetsSection } from './BudgetsSection';
+import { BudgetModal } from './BudgetModal';
 
 interface DashboardProps {
   onOpenProfile: () => void;
@@ -17,9 +19,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [budgets, setBudgets] = useState<Budget[]>([]);
   const [loading, setLoading] = useState(true);
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
 
   // Carga robusta de datos: independiente y no bloqueante
   const loadData = useCallback(async () => {
@@ -28,9 +32,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
         financeService.getAccounts(),
         financeService.getCategories(),
         financeService.getTransactions(100),
+        financeService.getBudgets(),
       ]);
 
-      const [accRes, catRes, txRes] = results;
+      const [accRes, catRes, txRes, budgetRes] = results;
 
       if (accRes.status === 'fulfilled') {
         setAccounts(accRes.value);
@@ -43,6 +48,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
       } else {
         setTransactions([]);
       }
+      if (budgetRes.status === 'fulfilled') {
+        setBudgets(budgetRes.value ?? []);
+      } else {
+        setBudgets([]);
+      }
     } catch (err) {
       console.error('Error cargando datos del dashboard:', err);
     } finally {
@@ -54,9 +64,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
   useEffect(() => {
     // Carga inicial: los cambios de estado ocurren después del await.
     const fetchDashboard = async () => {
-      if (user?.id) {
-        await loadData();
+      if (!user?.id) return;
+
+      try {
+        await financeService.processRecurringTransactions();
+      } catch (err) {
+        console.error('Error procesando movimientos recurrentes:', err);
       }
+
+      await loadData();
     };
     void fetchDashboard();
   }, [user?.id, loadData]);
@@ -269,7 +285,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
           </div>
         </section>
 
-        {/* 5. Movimientos Recientes */}
+        {/* 5. Presupuestos del mes */}
+        <BudgetsSection
+          budgets={budgets}
+          monthTransactions={monthTransactions}
+          isBalanceVisible={isBalanceVisible}
+          onConfigure={() => setIsBudgetModalOpen(true)}
+        />
+
+        {/* 6. Movimientos Recientes */}
         <section className="flex flex-col space-y-2.5">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold text-ink">Movimientos recientes</h2>
@@ -330,6 +354,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
         accounts={accounts}
         categories={categories}
         onSuccess={loadData}
+      />
+
+      <BudgetModal
+        isOpen={isBudgetModalOpen}
+        onClose={() => setIsBudgetModalOpen(false)}
+        categories={categories}
+        budgets={budgets}
+        onSaved={loadData}
       />
     </div>
   );

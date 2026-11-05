@@ -1,9 +1,11 @@
 import type {
   Account,
+  Budget,
   Category,
   Debt,
   DebtPayment,
   Profile,
+  RecurringTransaction,
   Transaction,
 } from '../types/database'
 
@@ -81,6 +83,38 @@ export const makeDebtPayment = (
   note: null,
   created_at: '2026-01-01T00:00:00.000Z',
   account: makeAccount(),
+  ...overrides,
+})
+
+export const makeBudget = (overrides: Partial<Budget> = {}): Budget => ({
+  id: 'budget-1',
+  user_id: 'user-1',
+  category_id: 'cat-1',
+  amount: 200,
+  period: 'monthly',
+  created_at: '2026-01-01T00:00:00.000Z',
+  updated_at: '2026-01-01T00:00:00.000Z',
+  category: makeCategory(),
+  ...overrides,
+})
+
+export const makeRecurringTransaction = (
+  overrides: Partial<RecurringTransaction> = {}
+): RecurringTransaction => ({
+  id: 'recurring-1',
+  user_id: 'user-1',
+  account_id: 'acc-1',
+  category_id: 'cat-1',
+  type: 'expense',
+  amount: 30,
+  note: 'Internet del hogar',
+  frequency: 'monthly',
+  next_run_date: '2026-01-15',
+  is_active: true,
+  created_at: '2026-01-01T00:00:00.000Z',
+  updated_at: '2026-01-01T00:00:00.000Z',
+  account: makeAccount(),
+  category: makeCategory(),
   ...overrides,
 })
 
