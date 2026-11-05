@@ -3,10 +3,12 @@ import { financeService } from '../services/financeService';
 import { useFormat } from '../hooks/useFormat';
 import type { Transaction } from '../types/database';
 import { TransactionDetailModal } from './TransactionDetailModal';
+import { MonthlyComparison } from './MonthlyComparison';
 
 export const HistoryScreen: React.FC = () => {
   const { formatMoney, formatSignedMoney, formatDate } = useFormat();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [previousTransactions, setPreviousTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<'all' | 'expense' | 'income'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -20,10 +22,28 @@ export const HistoryScreen: React.FC = () => {
     try {
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth() + 1;
-      const data = await financeService.getTransactionsByMonth(year, month);
-      setTransactions(data);
-    } catch (err) {
-      console.error('Error cargando historial:', err);
+      const previousDate = new Date(year, month - 2, 1);
+
+      const [currentResult, previousResult] = await Promise.allSettled([
+        financeService.getTransactionsByMonth(year, month),
+        financeService.getTransactionsByMonth(
+          previousDate.getFullYear(),
+          previousDate.getMonth() + 1
+        ),
+      ]);
+
+      if (currentResult.status === 'fulfilled') {
+        setTransactions(currentResult.value ?? []);
+      } else {
+        console.error('Error cargando historial:', currentResult.reason);
+        setTransactions([]);
+      }
+
+      if (previousResult.status === 'fulfilled') {
+        setPreviousTransactions(previousResult.value ?? []);
+      } else {
+        setPreviousTransactions([]);
+      }
     } finally {
       setLoading(false);
     }
@@ -183,6 +203,14 @@ export const HistoryScreen: React.FC = () => {
             </div>
           </div>
         </section>
+
+        {/* Comparación contra el mes anterior */}
+        {!loading && (
+          <MonthlyComparison
+            currentTransactions={transactions}
+            previousTransactions={previousTransactions}
+          />
+        )}
 
         {/* Buscador de Movimientos */}
         <div className="relative flex items-center bg-surface rounded-xl border border-ink/[0.06] px-3.5 py-2 shadow-sm">

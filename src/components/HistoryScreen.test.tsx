@@ -65,8 +65,8 @@ describe('HistoryScreen', () => {
     render(<HistoryScreen />)
 
     expect(await screen.findAllByText('+$250.00')).toHaveLength(2)
-    expect(screen.getByText('$300.00')).toBeInTheDocument()
-    expect(screen.getByText('$50.00')).toBeInTheDocument()
+    expect(screen.getAllByText('$300.00').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('$50.00').length).toBeGreaterThan(0)
     expect(screen.getByText('17% del ingreso gastado')).toBeInTheDocument()
   })
 
