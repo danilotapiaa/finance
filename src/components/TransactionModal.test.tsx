@@ -43,6 +43,11 @@ const pressKeys = async (
   }
 }
 
+const chooseAccount = async (user: ReturnType<typeof userEvent.setup>) => {
+  await user.click(screen.getByRole('combobox', { name: 'Cuenta' }))
+  await user.click(screen.getByRole('option', { name: /Banco/ }))
+}
+
 describe('TransactionModal', () => {
   beforeEach(() => {
     Object.values(financeServiceMock).forEach((mock) => mock.mockReset())
@@ -112,6 +117,42 @@ describe('TransactionModal', () => {
     expect(select).not.toHaveClass('text-expense')
   })
 
+  it('abre un selector de cuenta con el tema de la app', async () => {
+    const user = userEvent.setup()
+    renderModal()
+
+    const trigger = screen.getByRole('combobox', { name: 'Cuenta' })
+    expect(trigger).toHaveTextContent('Seleccionar cuenta...')
+
+    await user.click(trigger)
+
+    expect(screen.getByRole('listbox', { name: 'Cuenta' })).toHaveClass('bg-surface')
+    expect(screen.getByRole('option', { name: /Banco/ })).toHaveAttribute(
+      'aria-selected',
+      'false'
+    )
+
+    await user.click(screen.getByRole('option', { name: /Banco/ }))
+
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+    expect(trigger).toHaveTextContent('Banco ($100.00)')
+  })
+
+  it('permite elegir la cuenta con el teclado', () => {
+    renderModal()
+
+    const trigger = screen.getByRole('combobox', { name: 'Cuenta' })
+    trigger.focus()
+
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' })
+    expect(screen.getByRole('listbox', { name: 'Cuenta' })).toBeInTheDocument()
+
+    fireEvent.keyDown(trigger, { key: 'Enter' })
+
+    expect(trigger).toHaveTextContent('Banco ($100.00)')
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+  })
+
   it('exige seleccionar una cuenta', async () => {
     const user = userEvent.setup()
     renderModal()
@@ -130,9 +171,7 @@ describe('TransactionModal', () => {
     const { onClose, onSuccess } = renderModal()
 
     await pressKeys(user, ['5', '0'])
-    fireEvent.change(screen.getByRole('combobox'), {
-      target: { value: 'acc-1' },
-    })
+    await chooseAccount(user)
     await user.click(screen.getByText('Añadir nota'))
     await user.type(screen.getByPlaceholderText('Nota'), '  Café  ')
     await user.click(screen.getByRole('button', { name: 'Guardar gasto' }))
@@ -157,9 +196,7 @@ describe('TransactionModal', () => {
 
     await user.click(screen.getByRole('button', { name: 'Ingreso' }))
     await pressKeys(user, ['1', '0', '0'])
-    fireEvent.change(screen.getByRole('combobox'), {
-      target: { value: 'acc-1' },
-    })
+    await chooseAccount(user)
     await user.click(screen.getByRole('button', { name: 'Guardar ingreso' }))
 
     await waitFor(() =>
@@ -180,9 +217,7 @@ describe('TransactionModal', () => {
     renderModal()
 
     await pressKeys(user, ['5'])
-    fireEvent.change(screen.getByRole('combobox'), {
-      target: { value: 'acc-1' },
-    })
+    await chooseAccount(user)
     await user.click(screen.getByRole('button', { name: 'Guardar gasto' }))
 
     expect(await screen.findByText('Saldo insuficiente')).toBeInTheDocument()
@@ -202,9 +237,7 @@ describe('TransactionModal', () => {
 
     await user.click(screen.getByRole('button', { name: 'Ingreso' }))
     await pressKeys(user, ['4', '5'])
-    fireEvent.change(screen.getByRole('combobox'), {
-      target: { value: 'acc-1' },
-    })
+    await chooseAccount(user)
     await user.click(screen.getByText('Añadir nota'))
     await user.type(screen.getByPlaceholderText('Nota'), 'Nota')
 
@@ -213,7 +246,9 @@ describe('TransactionModal', () => {
 
     expect(screen.getByRole('button', { name: 'Guardar gasto' })).toBeInTheDocument()
     expect(screen.queryByText('45')).not.toBeInTheDocument()
-    expect(screen.getByRole('combobox')).toHaveValue('')
+    expect(screen.getByRole('combobox', { name: 'Cuenta' })).toHaveTextContent(
+      'Seleccionar cuenta...'
+    )
     expect(screen.getByText('Añadir nota')).toBeInTheDocument()
   })
 

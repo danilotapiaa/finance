@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Dashboard } from './Dashboard'
@@ -173,6 +173,33 @@ describe('Dashboard', () => {
       expect(financeServiceMock.getAccounts).toHaveBeenCalledTimes(accountCalls + 1)
     )
     expect(financeServiceMock.processRecurringTransactions).toHaveBeenCalledTimes(2)
+  })
+
+  it('detiene la recarga aunque el servicio no responda', async () => {
+    financeServiceMock.processRecurringTransactions.mockResolvedValue(0)
+    renderDashboard()
+    await screen.findByText('Hola, Danilo')
+
+    financeServiceMock.processRecurringTransactions.mockReturnValue(
+      new Promise(() => {})
+    )
+
+    vi.useFakeTimers()
+    try {
+      fireEvent.click(screen.getByTitle('Actualizar datos'))
+
+      const icon = screen.getByText('refresh')
+      expect(icon).toHaveClass('animate-spin')
+
+      await act(async () => {
+        vi.advanceTimersByTime(8000)
+        await Promise.resolve()
+      })
+
+      expect(icon).not.toHaveClass('animate-spin')
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('abre el modal de nueva transacción', async () => {

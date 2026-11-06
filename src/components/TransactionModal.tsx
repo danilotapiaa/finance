@@ -3,6 +3,7 @@ import type { Account, Category, TransactionType } from '../types/database';
 import { financeService } from '../services/financeService';
 import { useFormat } from '../hooks/useFormat';
 import { toMaterialIcon } from '../lib/icons';
+import { SelectField } from './SelectField';
 
 interface TransactionModalProps {
   isOpen: boolean;
@@ -226,25 +227,20 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             <span className="text-muted font-medium">
               Cuenta <span className="text-expense">*</span>
             </span>
-            <select
-              required
+            <SelectField
+              ariaLabel="Cuenta"
               value={selectedAccountId}
-              onChange={(e) => {
-                setSelectedAccountId(e.target.value);
+              placeholder="Seleccionar cuenta..."
+              options={accounts.map((acc) => ({
+                value: acc.id,
+                label: `${acc.name} (${formatMoney(Number(acc.current_balance))})`,
+              }))}
+              onChange={(accountId) => {
+                setSelectedAccountId(accountId);
                 setAccountError(false);
                 setErrorMessage(null);
               }}
-              className="bg-transparent font-semibold cursor-pointer outline-none text-right text-xs max-w-[220px] truncate text-ink"
-            >
-              <option value="" disabled>
-                Seleccionar cuenta...
-              </option>
-              {accounts.map((acc) => (
-                <option key={acc.id} value={acc.id}>
-                  {acc.name} ({formatMoney(Number(acc.current_balance))})
-                </option>
-              ))}
-            </select>
+            />
           </div>
 
           {/* Categorías */}

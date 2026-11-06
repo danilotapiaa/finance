@@ -17,6 +17,34 @@ interface DashboardProps {
   onOpenProfile: () => void;
 }
 
+const REFRESH_TIMEOUT_MS = 8000;
+
+const withTimeout = <T,>(promise: Promise<T>, action: string): Promise<T> =>
+  new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`Tiempo de espera agotado al ${action}`));
+    }, REFRESH_TIMEOUT_MS);
+
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error) => {
+        clearTimeout(timer);
+        reject(error);
+      }
+    );
+  });
+
+const processRecurringSafely = async () => {
+  try {
+    await withTimeout(financeService.processRecurringTransactions(), 'procesar las recurrencias');
+  } catch (err) {
+    console.error('Error procesando movimientos recurrentes:', err);
+  }
+};
+
 export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
   const { user } = useAuth();
   const { profile } = usePreferences();
@@ -87,14 +115,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
     setIsRefreshing(true);
 
     try {
-      await financeService.processRecurringTransactions();
-    } catch (err) {
-      console.error('Error procesando movimientos recurrentes:', err);
-    }
+      const [, dataResult] = await Promise.allSettled([
+        processRecurringSafely(),
+        withTimeout(loadData(), 'cargar los datos'),
+      ]);
 
-    try {
-      await loadData();
-      toast({ message: 'Datos actualizados' });
+      if (dataResult.status === 'fulfilled') {
+        toast({ message: 'Datos actualizados' });
+      } else {
+        console.error('Error actualizando datos:', dataResult.reason);
+        toast({
+          message: 'No se pudo actualizar. Revisa tu conexión.',
+          variant: 'error',
+        });
+      }
     } finally {
       setIsRefreshing(false);
     }
@@ -106,12 +140,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
     const fetchDashboard = async () => {
       if (!user?.id) return;
 
-      try {
-        await financeService.processRecurringTransactions();
-      } catch (err) {
-        console.error('Error procesando movimientos recurrentes:', err);
-      }
-
+      await processRecurringSafely();
       await loadData();
     };
     void fetchDashboard();
