@@ -103,6 +103,28 @@ describe('RecurringSection', () => {
     expect(screen.getByText('Nueva automatización')).toBeInTheDocument()
   })
 
+  it('abre el modal para editar una automatización', async () => {
+    financeServiceMock.getRecurringTransactions.mockResolvedValue([
+      makeRecurringTransaction({
+        id: 'recurring-1',
+        note: 'Internet del hogar',
+        account_id: 'acc-1',
+        category_id: 'cat-1',
+      }),
+    ])
+
+    const user = userEvent.setup()
+    renderSection()
+
+    await screen.findByText('Internet del hogar')
+    await user.click(
+      screen.getByRole('button', { name: 'Editar Internet del hogar' })
+    )
+
+    expect(await screen.findByText('Editar automatización')).toBeInTheDocument()
+    expect(screen.getByLabelText('Descripción')).toHaveValue('Internet del hogar')
+  })
+
   it('elimina una automatización tras confirmar', async () => {
     financeServiceMock.getRecurringTransactions.mockResolvedValue([
       makeRecurringTransaction({ id: 'recurring-1', note: 'Internet del hogar' }),

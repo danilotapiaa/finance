@@ -8,7 +8,7 @@ import { ThemeProvider } from '../context/ThemeProvider'
 import { THEME_STORAGE_KEY } from '../theme/themes'
 import { authState } from '../test/mocks/authContext'
 import { financeServiceMock } from '../test/mocks/financeService'
-import { makeProfile, makeTransaction, makeUser } from '../test/fixtures'
+import { makeCategory, makeProfile, makeTransaction, makeUser } from '../test/fixtures'
 
 vi.mock('../context/AuthContext', async () => {
   const { authState: state } = await import('../test/mocks/authContext')
@@ -47,6 +47,8 @@ describe('SettingsScreen', () => {
         first_day_of_week: 'sunday',
       })
     )
+    financeServiceMock.getCategories.mockResolvedValue([])
+    financeServiceMock.getBudgets.mockResolvedValue([])
   })
 
   it('muestra el spinner mientras carga el perfil', () => {
@@ -119,6 +121,47 @@ describe('SettingsScreen', () => {
 
     await waitFor(() => expect(error).toHaveBeenCalled())
     expect(screen.queryByText('Preferencia guardada')).not.toBeInTheDocument()
+  })
+
+  it('abre los presupuestos mensuales desde ajustes', async () => {
+    financeServiceMock.getCategories.mockResolvedValue([makeCategory()])
+    const user = userEvent.setup()
+    renderSettings()
+    await screen.findByText('Danilo Tapia')
+
+    await user.click(
+      screen.getByRole('button', { name: /Presupuestos mensuales/ })
+    )
+
+    expect(await screen.findByText(/Deja el campo vacío/)).toBeInTheDocument()
+  })
+
+  it('abre la gestión de categorías desde ajustes', async () => {
+    const user = userEvent.setup()
+    renderSettings()
+    await screen.findByText('Danilo Tapia')
+
+    await user.click(screen.getByRole('button', { name: /Categorías/ }))
+
+    expect(
+      await screen.findByText(/Estas categorías se usan/)
+    ).toBeInTheDocument()
+  })
+
+  it('muestra el error si no puede cargar los presupuestos', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    financeServiceMock.getBudgets.mockRejectedValue(new Error('boom'))
+    const user = userEvent.setup()
+    renderSettings()
+    await screen.findByText('Danilo Tapia')
+
+    await user.click(
+      screen.getByRole('button', { name: /Presupuestos mensuales/ })
+    )
+
+    expect(
+      await screen.findByText('No se pudieron cargar los presupuestos.')
+    ).toBeInTheDocument()
   })
 
   it('exporta las transacciones a CSV', async () => {

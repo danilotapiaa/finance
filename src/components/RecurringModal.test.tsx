@@ -1,9 +1,9 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+﻿import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { RecurringModal } from './RecurringModal'
 import { financeServiceMock } from '../test/mocks/financeService'
-import { makeAccount, makeCategory } from '../test/fixtures'
+import { makeAccount, makeCategory, makeRecurringTransaction } from '../test/fixtures'
 import { toDateOnly } from '../lib/recurrence'
 
 vi.mock('../services/financeService', async () => {
@@ -32,6 +32,7 @@ describe('RecurringModal', () => {
     financeServiceMock.getAccounts.mockResolvedValue(accounts)
     financeServiceMock.getCategories.mockResolvedValue(categories)
     financeServiceMock.createRecurringTransaction.mockResolvedValue({})
+    financeServiceMock.updateRecurringTransaction.mockResolvedValue(undefined)
   })
 
   it('no renderiza nada cerrado', () => {
@@ -104,6 +105,50 @@ describe('RecurringModal', () => {
         frequency: 'monthly',
         start_date: toDateOnly(new Date()),
       })
+    })
+
+    expect(onSaved).toHaveBeenCalled()
+    expect(onClose).toHaveBeenCalled()
+  })
+
+  it('precarga y actualiza una automatización existente', async () => {
+    const user = userEvent.setup()
+    const { onSaved, onClose } = renderModal({
+      ruleToEdit: makeRecurringTransaction({
+        id: 'recurring-1',
+        note: 'Spotify',
+        amount: 2,
+        account_id: 'acc-1',
+        category_id: 'cat-1',
+        frequency: 'monthly',
+        next_run_date: '2020-01-01',
+      }),
+    })
+
+    await screen.findByRole('option', { name: 'Cuenta principal' })
+
+    expect(screen.getByText('Editar automatización')).toBeInTheDocument()
+    expect(screen.getByLabelText('Monto')).toHaveValue(2)
+    expect(screen.getByLabelText('Descripción')).toHaveValue('Spotify')
+    expect(screen.getByLabelText('Próxima fecha')).toHaveValue('2020-01-01')
+
+    await user.clear(screen.getByLabelText('Monto'))
+    await user.type(screen.getByLabelText('Monto'), '35.50')
+    await user.click(screen.getByRole('button', { name: 'Guardar cambios' }))
+
+    await waitFor(() => {
+      expect(financeServiceMock.updateRecurringTransaction).toHaveBeenCalledWith(
+        'recurring-1',
+        {
+          account_id: 'acc-1',
+          category_id: 'cat-1',
+          type: 'expense',
+          amount: 35.5,
+          note: 'Spotify',
+          frequency: 'monthly',
+          next_run_date: '2020-01-01',
+        }
+      )
     })
 
     expect(onSaved).toHaveBeenCalled()

@@ -260,6 +260,162 @@ describe('financeService', () => {
         'income'
       )
     })
+
+    it('oculta las categorías generales reemplazadas por una copia propia', async () => {
+      const globalCategory = {
+        id: 'global-1',
+        user_id: null,
+        name: 'Alimentación',
+        type: 'expense',
+        icon: 'restaurant',
+      }
+      const clone = {
+        id: 'clone-1',
+        user_id: 'user-1',
+        name: 'Comida',
+        type: 'expense',
+        icon: 'restaurant',
+        source_category_id: 'global-1',
+      }
+      const ownCategory = {
+        id: 'own-1',
+        user_id: 'user-1',
+        name: 'Mascotas',
+        type: 'expense',
+        icon: 'pets',
+        source_category_id: null,
+      }
+      const query = createQuery({
+        data: [globalCategory, clone, ownCategory],
+        error: null,
+      })
+      mockSupabase.from.mockReturnValue(query)
+
+      await expect(financeService.getCategories()).resolves.toEqual([clone, ownCategory])
+    })
+
+    it('crea una categoría propia para el usuario', async () => {
+      const saved = { id: 'cat-2', name: 'Mascotas' }
+      const query = createQuery({ data: saved, error: null })
+      mockSupabase.from.mockReturnValue(query)
+
+      await expect(
+        financeService.createCategory({
+          name: 'Mascotas',
+          type: 'expense',
+          icon: 'pets',
+        })
+      ).resolves.toEqual(saved)
+
+      expect((query as never as { insert: ReturnType<typeof vi.fn> }).insert).toHaveBeenCalledWith([
+        {
+          user_id: 'user-1',
+          name: 'Mascotas',
+          type: 'expense',
+          icon: 'pets',
+          color: null,
+        },
+      ])
+    })
+
+    it('actualiza una categoría propia', async () => {
+      const current = {
+        id: 'cat-1',
+        user_id: 'user-1',
+        name: 'Comida',
+        type: 'expense',
+        icon: 'restaurant',
+      }
+      const updated = { ...current, name: 'Alimentos' }
+      const currentQuery = createQuery({ data: current, error: null })
+      const updateQuery = createQuery({ data: updated, error: null })
+      mockSupabase.from
+        .mockReturnValueOnce(currentQuery)
+        .mockReturnValueOnce(updateQuery)
+
+      await expect(
+        financeService.updateCategory('cat-1', {
+          name: 'Alimentos',
+          icon: 'restaurant',
+        })
+      ).resolves.toEqual(updated)
+
+      expect(
+        (updateQuery as never as { update: ReturnType<typeof vi.fn> }).update
+      ).toHaveBeenCalledWith({ name: 'Alimentos', icon: 'restaurant' })
+    })
+
+    it('personaliza una categoría general creando una copia y trasladando sus datos', async () => {
+      const globalCategory = {
+        id: 'global-1',
+        user_id: null,
+        name: 'Alimentación',
+        type: 'expense',
+        icon: 'restaurant',
+        color: '#EF4444',
+      }
+      const created = {
+        id: 'clone-1',
+        user_id: 'user-1',
+        name: 'Comida',
+        type: 'expense',
+        icon: 'restaurant',
+        color: '#EF4444',
+        source_category_id: 'global-1',
+      }
+      const currentQuery = createQuery({ data: globalCategory, error: null })
+      const cloneQuery = createQuery({ data: null, error: null })
+      const insertQuery = createQuery({ data: created, error: null })
+      const transactionsQuery = createQuery({ data: null, error: null })
+      const recurringQuery = createQuery({ data: null, error: null })
+      const budgetsQuery = createQuery({ data: null, error: null })
+
+      mockSupabase.from
+        .mockReturnValueOnce(currentQuery)
+        .mockReturnValueOnce(cloneQuery)
+        .mockReturnValueOnce(insertQuery)
+        .mockReturnValueOnce(transactionsQuery)
+        .mockReturnValueOnce(recurringQuery)
+        .mockReturnValueOnce(budgetsQuery)
+
+      await expect(
+        financeService.updateCategory('global-1', {
+          name: 'Comida',
+          icon: 'restaurant',
+        })
+      ).resolves.toEqual(created)
+
+      expect((insertQuery as never as { insert: ReturnType<typeof vi.fn> }).insert).toHaveBeenCalledWith([
+        {
+          user_id: 'user-1',
+          name: 'Comida',
+          type: 'expense',
+          icon: 'restaurant',
+          color: '#EF4444',
+          source_category_id: 'global-1',
+        },
+      ])
+      expect(
+        (transactionsQuery as never as { update: ReturnType<typeof vi.fn> }).update
+      ).toHaveBeenCalledWith({ category_id: 'clone-1' })
+      expect(
+        (recurringQuery as never as { update: ReturnType<typeof vi.fn> }).update
+      ).toHaveBeenCalledWith({ category_id: 'clone-1' })
+      expect(
+        (budgetsQuery as never as { update: ReturnType<typeof vi.fn> }).update
+      ).toHaveBeenCalledWith({ category_id: 'clone-1' })
+    })
+
+    it('elimina una categoría por id', async () => {
+      const query = createQuery({ data: null, error: null })
+      mockSupabase.from.mockReturnValue(query)
+
+      await expect(financeService.deleteCategory('cat-1')).resolves.toBeUndefined()
+      expect((query as never as { eq: ReturnType<typeof vi.fn> }).eq).toHaveBeenCalledWith(
+        'id',
+        'cat-1'
+      )
+    })
   })
 
   describe('transacciones', () => {
@@ -667,6 +823,84 @@ describe('financeService', () => {
 
       expect(
         (query as never as { insert: ReturnType<typeof vi.fn> }).insert
+      ).not.toHaveBeenCalled()
+    })
+
+    it('actualiza una automatización existente', async () => {
+      const query = createQuery({ data: null, error: null })
+      mockSupabase.from.mockReturnValue(query)
+
+      await expect(
+        financeService.updateRecurringTransaction('recurring-1', {
+          account_id: 'acc-1',
+          category_id: 'cat-1',
+          type: 'expense',
+          amount: 35,
+          note: 'Internet',
+          frequency: 'monthly',
+          next_run_date: '2099-02-01',
+        })
+      ).resolves.toBeUndefined()
+
+      expect((query as never as { update: ReturnType<typeof vi.fn> }).update).toHaveBeenCalledWith({
+        account_id: 'acc-1',
+        category_id: 'cat-1',
+        type: 'expense',
+        amount: 35,
+        note: 'Internet',
+        frequency: 'monthly',
+        next_run_date: '2099-02-01',
+        updated_at: expect.any(String),
+      })
+      expect((query as never as { eq: ReturnType<typeof vi.fn> }).eq).toHaveBeenCalledWith(
+        'id',
+        'recurring-1'
+      )
+    })
+
+    it('permite conservar la fecha de una automatización vencida al editarla', async () => {
+      const query = createQuery({ data: null, error: null })
+      mockSupabase.from.mockReturnValue(query)
+
+      await expect(
+        financeService.updateRecurringTransaction('recurring-1', {
+          account_id: 'acc-1',
+          category_id: null,
+          type: 'expense',
+          amount: 35,
+          frequency: 'monthly',
+          next_run_date: '2020-01-01',
+        })
+      ).resolves.toBeUndefined()
+
+      expect((query as never as { update: ReturnType<typeof vi.fn> }).update).toHaveBeenCalledWith({
+        account_id: 'acc-1',
+        category_id: null,
+        type: 'expense',
+        amount: 35,
+        frequency: 'monthly',
+        next_run_date: '2020-01-01',
+        updated_at: expect.any(String),
+      })
+    })
+
+    it('rechaza una fecha con formato inválido', async () => {
+      const query = createQuery({ data: null, error: null })
+      mockSupabase.from.mockReturnValue(query)
+
+      await expect(
+        financeService.updateRecurringTransaction('recurring-1', {
+          account_id: 'acc-1',
+          category_id: null,
+          type: 'expense',
+          amount: 35,
+          frequency: 'monthly',
+          next_run_date: '01/02/2026',
+        })
+      ).rejects.toThrow('La fecha de inicio no es válida')
+
+      expect(
+        (query as never as { update: ReturnType<typeof vi.fn> }).update
       ).not.toHaveBeenCalled()
     })
 

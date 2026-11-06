@@ -13,6 +13,7 @@ export const RecurringSection: React.FC = () => {
   const [rules, setRules] = useState<RecurringTransaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [ruleToEdit, setRuleToEdit] = useState<RecurringTransaction | null>(null);
 
   const loadRules = async () => {
     try {
@@ -72,6 +73,21 @@ export const RecurringSection: React.FC = () => {
     }
   };
 
+  const openNewRule = () => {
+    setRuleToEdit(null);
+    setIsModalOpen(true);
+  };
+
+  const openEditRule = (rule: RecurringTransaction) => {
+    setRuleToEdit(rule);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setRuleToEdit(null);
+  };
+
   return (
     <section className="bg-surface rounded-2xl p-4 border border-ink/[0.04] shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
       <div className="flex items-center justify-between mb-2">
@@ -83,7 +99,7 @@ export const RecurringSection: React.FC = () => {
         </div>
         <button
           type="button"
-          onClick={() => setIsModalOpen(true)}
+          onClick={openNewRule}
           className="h-8 px-3 rounded-lg bg-ink text-canvas text-[11px] font-semibold transition active:scale-95 cursor-pointer"
         >
           Nueva
@@ -136,6 +152,15 @@ export const RecurringSection: React.FC = () => {
                 <div className="flex items-center gap-1 shrink-0">
                   <button
                     type="button"
+                    onClick={() => openEditRule(rule)}
+                    aria-label={`Editar ${label}`}
+                    className="w-7 h-7 rounded-lg text-muted hover:bg-surface-muted hover:text-ink transition flex items-center justify-center cursor-pointer"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">edit</span>
+                  </button>
+
+                  <button
+                    type="button"
                     role="switch"
                     aria-checked={rule.is_active}
                     aria-label={`${rule.is_active ? 'Pausar' : 'Activar'} ${label}`}
@@ -168,8 +193,9 @@ export const RecurringSection: React.FC = () => {
 
       <RecurringModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={closeModal}
         onSaved={loadRules}
+        ruleToEdit={ruleToEdit}
       />
     </section>
   );

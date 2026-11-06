@@ -42,6 +42,7 @@ export interface Category {
   type: CategoryType;
   icon: string;
   color: string | null;
+  source_category_id?: string | null;
   created_at: string;
 }
 

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { financeService } from '../services/financeService';
 import { toDateOnly } from '../lib/recurrence';
-import type { Account, Category, RecurringFrequency, TransactionType } from '../types/database';
+import type { Account, Category, RecurringFrequency, RecurringTransaction, TransactionType } from '../types/database';
 
 interface RecurringModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSaved: () => void;
+  ruleToEdit?: RecurringTransaction | null;
 }
 
 const frequencies: { value: RecurringFrequency; label: string }[] = [
@@ -19,6 +20,7 @@ export const RecurringModal: React.FC<RecurringModalProps> = ({
   isOpen,
   onClose,
   onSaved,
+  ruleToEdit = null,
 }) => {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -40,11 +42,15 @@ export const RecurringModal: React.FC<RecurringModalProps> = ({
     setPrevIsOpen(isOpen);
 
     if (isOpen) {
-      setType('expense');
-      setAmountStr('');
-      setNote('');
-      setFrequency('monthly');
-      setStartDate(toDateOnly(new Date()));
+      setType(ruleToEdit?.type ?? 'expense');
+      setAmountStr(ruleToEdit ? String(ruleToEdit.amount) : '');
+      setNote(ruleToEdit?.note ?? '');
+      setFrequency(ruleToEdit?.frequency ?? 'monthly');
+      setStartDate(
+        ruleToEdit ? ruleToEdit.next_run_date.slice(0, 10) : toDateOnly(new Date())
+      );
+      setAccountId(ruleToEdit?.account_id ?? '');
+      setCategoryId(ruleToEdit?.category_id ?? null);
       setErrorMessage(null);
       setIsSaving(false);
     }
@@ -72,10 +78,16 @@ export const RecurringModal: React.FC<RecurringModalProps> = ({
 
         setAccounts(safeAccounts);
         setCategories(safeCategories);
-        setAccountId(safeAccounts[0]?.id ?? '');
-        setCategoryId(
-          safeCategories.find((category) => category.type === 'expense')?.id ?? null
-        );
+
+        if (ruleToEdit) {
+          setAccountId(ruleToEdit.account_id);
+          setCategoryId(ruleToEdit.category_id);
+        } else {
+          setAccountId(safeAccounts[0]?.id ?? '');
+          setCategoryId(
+            safeCategories.find((category) => category.type === 'expense')?.id ?? null
+          );
+        }
       } catch {
         if (!cancelled) {
           setErrorMessage('No se pudieron cargar las cuentas y categorías.');
@@ -92,7 +104,7 @@ export const RecurringModal: React.FC<RecurringModalProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [isOpen]);
+  }, [isOpen, ruleToEdit]);
 
   const filteredCategories = categories.filter((category) => category.type === type);
 
@@ -110,7 +122,12 @@ export const RecurringModal: React.FC<RecurringModalProps> = ({
     setErrorMessage(null);
 
     const today = toDateOnly(new Date());
-    if (!startDate || startDate < today) {
+    if (!startDate) {
+      setErrorMessage('Selecciona una fecha');
+      return;
+    }
+
+    if (!ruleToEdit && startDate < today) {
       setErrorMessage('La fecha de inicio no puede ser anterior a hoy');
       return;
     }
@@ -130,22 +147,34 @@ export const RecurringModal: React.FC<RecurringModalProps> = ({
     setIsSaving(true);
 
     try {
-      await financeService.createRecurringTransaction({
-        account_id: accountId,
-        category_id: categoryId,
-        type,
-        amount,
-        note: note.trim() || null,
-        frequency,
-        start_date: startDate,
-      });
+      if (ruleToEdit) {
+        await financeService.updateRecurringTransaction(ruleToEdit.id, {
+          account_id: accountId,
+          category_id: categoryId,
+          type,
+          amount,
+          note: note.trim() || null,
+          frequency,
+          next_run_date: startDate,
+        });
+      } else {
+        await financeService.createRecurringTransaction({
+          account_id: accountId,
+          category_id: categoryId,
+          type,
+          amount,
+          note: note.trim() || null,
+          frequency,
+          start_date: startDate,
+        });
+      }
       onSaved();
       onClose();
     } catch (err: unknown) {
       if (err instanceof Error) {
         setErrorMessage(err.message);
       } else {
-        setErrorMessage('No se pudo crear la automatización.');
+        setErrorMessage('No se pudo guardar la automatización.');
       }
     } finally {
       setIsSaving(false);
@@ -166,7 +195,9 @@ export const RecurringModal: React.FC<RecurringModalProps> = ({
           >
             <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
-          <h2 className="text-[15px] font-semibold text-ink">Nueva automatización</h2>
+          <h2 className="text-[15px] font-semibold text-ink">
+            {ruleToEdit ? 'Editar automatización' : 'Nueva automatización'}
+          </h2>
           <div className="w-8"></div>
         </div>
 
@@ -299,12 +330,16 @@ export const RecurringModal: React.FC<RecurringModalProps> = ({
 
               <div>
                 <label className="block text-[11px] font-medium text-muted mb-1" htmlFor="recurring-date">
-                  Primera fecha
+                  {ruleToEdit ? 'Próxima fecha' : 'Primera fecha'}
                 </label>
                 <input
                   id="recurring-date"
                   type="date"
-                  min={toDateOnly(new Date())}
+                  min={
+                    ruleToEdit
+                      ? ruleToEdit.next_run_date.slice(0, 10)
+                      : toDateOnly(new Date())
+                  }
                   value={startDate}
                   onChange={(event) => setStartDate(event.target.value)}
                   className="w-full h-10 px-3 bg-canvas border border-ink/[0.06] rounded-xl text-sm text-ink focus:outline-none focus:border-ink"
@@ -317,7 +352,11 @@ export const RecurringModal: React.FC<RecurringModalProps> = ({
               disabled={isSaving || accounts.length === 0}
               className="w-full h-11 bg-ink text-canvas rounded-xl text-sm font-semibold transition active:scale-95 disabled:opacity-50 cursor-pointer"
             >
-              {isSaving ? 'Guardando...' : 'Crear automatización'}
+              {isSaving
+                ? 'Guardando...'
+                : ruleToEdit
+                  ? 'Guardar cambios'
+                  : 'Crear automatización'}
             </button>
           </form>
         )}

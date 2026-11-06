@@ -93,7 +93,148 @@ export const financeService = {
     }
     const { data, error } = await query;
     if (error) throw error;
-    return data || [];
+
+    const categories = data || [];
+    const { data: { session } } = await supabase.auth.getSession();
+    const userId = session?.user?.id;
+    if (!userId) return categories;
+
+    const replacedGlobalIds = new Set(
+      categories
+        .filter(
+          (category) =>
+            category.user_id === userId && Boolean(category.source_category_id)
+        )
+        .map((category) => category.source_category_id as string)
+    );
+
+    return categories.filter(
+      (category) =>
+        !(category.user_id === null && replacedGlobalIds.has(category.id))
+    );
+  },
+
+  async createCategory(category: {
+    name: string;
+    type: 'expense' | 'income';
+    icon: string;
+  }): Promise<Category> {
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
+    if (!user) throw new Error('No autenticado');
+
+    const { data, error } = await supabase
+      .from('categories')
+      .insert([{
+        user_id: user.id,
+        name: category.name,
+        type: category.type,
+        icon: category.icon,
+        color: null,
+      }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async updateCategory(
+    id: string,
+    updates: { name: string; icon: string }
+  ): Promise<Category> {
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
+    if (!user) throw new Error('No autenticado');
+
+    const { data: current, error: currentError } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (currentError) throw currentError;
+
+    if (current.user_id === user.id) {
+      const { data, error } = await supabase
+        .from('categories')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    }
+
+    const reassign = async (targetId: string) => {
+      const results = await Promise.all([
+        supabase
+          .from('transactions')
+          .update({ category_id: targetId })
+          .eq('category_id', current.id),
+        supabase
+          .from('recurring_transactions')
+          .update({ category_id: targetId })
+          .eq('category_id', current.id),
+        supabase
+          .from('budgets')
+          .update({ category_id: targetId })
+          .eq('category_id', current.id),
+      ]);
+
+      const failed = results.find((result) => result.error);
+      if (failed?.error) throw failed.error;
+    };
+
+    const { data: existingClone, error: cloneError } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('source_category_id', current.id)
+      .maybeSingle();
+
+    if (cloneError) throw cloneError;
+
+    if (existingClone) {
+      const { data, error } = await supabase
+        .from('categories')
+        .update(updates)
+        .eq('id', existingClone.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      await reassign(existingClone.id);
+      return data;
+    }
+
+    const { data: created, error: createError } = await supabase
+      .from('categories')
+      .insert([{
+        user_id: user.id,
+        name: updates.name,
+        type: current.type,
+        icon: updates.icon,
+        color: current.color,
+        source_category_id: current.id,
+      }])
+      .select()
+      .single();
+
+    if (createError) throw createError;
+
+    await reassign(created.id);
+    return created;
+  },
+
+  async deleteCategory(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('categories')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
   },
 
   // ==========================================
@@ -508,6 +649,33 @@ export const financeService = {
 
     if (error) throw error;
     return data;
+  },
+
+  async updateRecurringTransaction(
+    id: string,
+    updates: {
+      account_id: string;
+      category_id: string | null;
+      type: 'expense' | 'income';
+      amount: number;
+      note?: string | null;
+      frequency: 'weekly' | 'monthly' | 'yearly';
+      next_run_date: string;
+    }
+  ): Promise<void> {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(updates.next_run_date)) {
+      throw new Error('La fecha de inicio no es válida');
+    }
+
+    const { error } = await supabase
+      .from('recurring_transactions')
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id);
+
+    if (error) throw error;
   },
 
   async toggleRecurringTransaction(id: string, isActive: boolean): Promise<void> {

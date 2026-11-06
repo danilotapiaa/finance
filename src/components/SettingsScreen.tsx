@@ -6,7 +6,9 @@ import { useTheme } from '../context/ThemeContext';
 import { financeService } from '../services/financeService';
 import { THEMES } from '../theme/themes';
 import { RecurringSection } from './RecurringSection';
-import type { Profile } from '../types/database';
+import { BudgetModal } from './BudgetModal';
+import { CategoriesManager } from './CategoriesManager';
+import type { Budget, Category, Profile } from '../types/database';
 
 interface SettingsScreenProps {
   onClose: () => void;
@@ -20,6 +22,13 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
   const { theme, setTheme } = useTheme();
   const [isExporting, setIsExporting] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+
+  // Estados para presupuestos y categorías
+  const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
+  const [budgetCategories, setBudgetCategories] = useState<Category[]>([]);
+  const [budgets, setBudgets] = useState<Budget[]>([]);
+  const [isLoadingBudgets, setIsLoadingBudgets] = useState(false);
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
 
   // Estados para restablecer datos
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
@@ -54,9 +63,35 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
     }
   };
 
+  const handleOpenBudgets = async () => {
+    setIsLoadingBudgets(true);
+
+    try {
+      const [categoriesData, budgetsData] = await Promise.all([
+        financeService.getCategories(),
+        financeService.getBudgets(),
+      ]);
+      setBudgetCategories(categoriesData ?? []);
+      setBudgets(budgetsData ?? []);
+      setIsBudgetModalOpen(true);
+    } catch (err) {
+      console.error('Error cargando presupuestos:', err);
+      toast({ message: 'No se pudieron cargar los presupuestos.', variant: 'error' });
+    } finally {
+      setIsLoadingBudgets(false);
+    }
+  };
+
+  const reloadBudgets = async () => {
+    try {
+      setBudgets(await financeService.getBudgets());
+    } catch (err) {
+      console.error('Error recargando presupuestos:', err);
+    }
+  };
+
   // Exportar todas las transacciones reales a CSV
-  const handleExportCSV = async () => {
-    setIsExporting(true);
+  const handleExportCSV = async () => {    setIsExporting(true);
     try {
       const transactions = await financeService.getTransactions(1000);
       if (transactions.length === 0) {
@@ -307,6 +342,57 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
           </div>
         </section>
 
+        {/* Sección: Finanzas */}
+        <section className="space-y-1.5">
+          <h3 className="px-2 text-xs font-medium text-muted">Finanzas</h3>
+          <div className="bg-surface rounded-2xl border border-ink/[0.05] divide-y divide-ink/[0.05] shadow-sm overflow-hidden text-xs">
+            <button
+              type="button"
+              onClick={handleOpenBudgets}
+              disabled={isLoadingBudgets}
+              className="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-surface-muted active:bg-ink/5 transition-colors cursor-pointer"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-7 h-7 rounded-lg bg-surface-muted text-ink flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[17px]">savings</span>
+                </div>
+                <div>
+                  <span className="text-[13px] font-medium text-ink block">
+                    Presupuestos mensuales
+                  </span>
+                  <span className="text-[11px] text-muted">
+                    Define límites por categoría
+                  </span>
+                </div>
+              </div>
+              <span className="material-symbols-outlined text-[18px] text-subtle">
+                {isLoadingBudgets ? 'hourglass_empty' : 'chevron_right'}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsCategoriesOpen(true)}
+              className="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-surface-muted active:bg-ink/5 transition-colors cursor-pointer"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-7 h-7 rounded-lg bg-surface-muted text-ink flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[17px]">category</span>
+                </div>
+                <div>
+                  <span className="text-[13px] font-medium text-ink block">Categorías</span>
+                  <span className="text-[11px] text-muted">
+                    Gastos e ingresos disponibles
+                  </span>
+                </div>
+              </div>
+              <span className="material-symbols-outlined text-[18px] text-subtle">
+                chevron_right
+              </span>
+            </button>
+          </div>
+        </section>
+
         {/* Sección 3: Automatizaciones */}
         <RecurringSection />
 
@@ -462,6 +548,18 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onClose }) => {
           </div>
         </div>
       )}
+      <BudgetModal
+        isOpen={isBudgetModalOpen}
+        onClose={() => setIsBudgetModalOpen(false)}
+        categories={budgetCategories}
+        budgets={budgets}
+        onSaved={reloadBudgets}
+      />
+
+      <CategoriesManager
+        isOpen={isCategoriesOpen}
+        onClose={() => setIsCategoriesOpen(false)}
+      />
     </div>
   );
 };
