@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Dashboard } from './Dashboard'
@@ -157,6 +157,22 @@ describe('Dashboard', () => {
     expect(screen.getAllByText('••••••')).toHaveLength(4)
     expect(screen.queryByText('150.00')).not.toBeInTheDocument()
     expect(screen.queryByText(/\$200\.00 en ahorros/)).not.toBeInTheDocument()
+  })
+
+  it('recarga los datos desde la base al pulsar actualizar', async () => {
+    const user = userEvent.setup()
+    financeServiceMock.processRecurringTransactions.mockResolvedValue(0)
+    renderDashboard()
+    await screen.findByText('Hola, Danilo')
+
+    const accountCalls = financeServiceMock.getAccounts.mock.calls.length
+
+    await user.click(screen.getByTitle('Actualizar datos'))
+
+    await waitFor(() =>
+      expect(financeServiceMock.getAccounts).toHaveBeenCalledTimes(accountCalls + 1)
+    )
+    expect(financeServiceMock.processRecurringTransactions).toHaveBeenCalledTimes(2)
   })
 
   it('abre el modal de nueva transacción', async () => {

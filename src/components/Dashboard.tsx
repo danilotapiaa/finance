@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { usePreferences } from '../context/PreferencesContext';
+import { useFeedback } from '../context/FeedbackContext';
 import { financeService } from '../services/financeService';
 import { useFormat } from '../hooks/useFormat';
 import type { Account, Budget, Category, RecurringTransaction, SavingsGoal, Transaction } from '../types/database';
@@ -19,6 +20,7 @@ interface DashboardProps {
 export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
   const { user } = useAuth();
   const { profile } = usePreferences();
+  const { toast } = useFeedback();
   const { formatAmount, formatMoney, formatSignedMoney, formatDate } = useFormat();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -27,6 +29,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
   const [recurringRules, setRecurringRules] = useState<RecurringTransaction[]>([]);
   const [goals, setGoals] = useState<SavingsGoal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
@@ -77,6 +80,25 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
       setLoading(false);
     }
   }, []);
+
+  const handleRefresh = async () => {
+    if (isRefreshing) return;
+
+    setIsRefreshing(true);
+
+    try {
+      await financeService.processRecurringTransactions();
+    } catch (err) {
+      console.error('Error procesando movimientos recurrentes:', err);
+    }
+
+    try {
+      await loadData();
+      toast({ message: 'Datos actualizados' });
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   // Se ejecuta de inmediato cuando el usuario se autentica
   useEffect(() => {
@@ -169,6 +191,23 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
           </div>
 
           <div className="flex items-center space-x-2.5">
+            <button
+              type="button"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="w-9 h-9 rounded-full bg-surface-muted border border-ink/5 flex items-center justify-center shadow-sm active:scale-95 transition-transform disabled:opacity-60 cursor-pointer"
+              title="Actualizar datos"
+              aria-label="Actualizar datos"
+            >
+              <span
+                className={`material-symbols-outlined text-[19px] text-ink ${
+                  isRefreshing ? 'animate-spin' : ''
+                }`}
+              >
+                refresh
+              </span>
+            </button>
+
             <button
               type="button"
               onClick={() => setIsModalOpen(true)}
