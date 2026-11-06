@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { financeService } from '../services/financeService';
+import { toMaterialIcon } from '../lib/icons';
 import type { Budget, Category } from '../types/database';
 
 interface BudgetModalProps {
@@ -140,7 +141,7 @@ export const BudgetModal: React.FC<BudgetModalProps> = ({
               >
                 <div className="flex items-center space-x-2.5 min-w-0">
                   <span className="material-symbols-outlined text-[18px] text-ink">
-                    {category.icon}
+                    {toMaterialIcon(category.icon)}
                   </span>
                   <span className="text-[13px] font-medium text-ink truncate">
                     {category.name}

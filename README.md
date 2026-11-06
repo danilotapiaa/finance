@@ -14,7 +14,7 @@ Aplicación de finanzas personales construida con React 19, TypeScript, Vite y S
 - Comparación mensual de gastos por categoría frente al mes anterior.
 - Deudas y pagos parciales, con seguimiento de saldo pendiente.
 - Metas de ahorro con aportes, avance y fecha objetivo.
-- Recordatorios dentro de la app para movimientos recurrentes próximos y metas por vencer o casi completadas.
+- Recordatorios dentro de la app para movimientos recurrentes próximos, metas por vencer y presupuestos al 80% o excedidos.
 - Presupuestos mensuales por categoría con avance y alerta de exceso.
 - Automatizaciones de movimientos recurrentes (semanal, mensual o anual) que se registran al abrir la aplicación.
 - Preferencias de moneda, formato numérico y primer día de la semana.

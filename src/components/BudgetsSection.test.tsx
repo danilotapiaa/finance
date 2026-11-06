@@ -56,6 +56,18 @@ describe('BudgetsSection', () => {
     expect(screen.getByText('Excedido por $50.00')).toBeInTheDocument()
   })
 
+  it('indica cuando se alcanza justo el límite', () => {
+    renderSection({
+      monthTransactions: [
+        makeTransaction({ id: 'tx-1', category_id: 'cat-1', type: 'expense', amount: 200 }),
+      ],
+    })
+
+    expect(screen.getByText('100% usado')).toBeInTheDocument()
+    expect(screen.getByText('Límite alcanzado')).toBeInTheDocument()
+    expect(screen.queryByText(/Excedido por/)).not.toBeInTheDocument()
+  })
+
   it('oculta los montos cuando el balance está oculto', () => {
     renderSection({
       isBalanceVisible: false,

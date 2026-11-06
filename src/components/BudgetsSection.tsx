@@ -1,5 +1,6 @@
 import React from 'react';
 import { useFormat } from '../hooks/useFormat';
+import { toMaterialIcon } from '../lib/icons';
 import type { Budget, Transaction } from '../types/database';
 
 interface BudgetsSectionProps {
@@ -63,8 +64,9 @@ export const BudgetsSection: React.FC<BudgetsSectionProps> = ({
             const ratio = limit > 0 ? spent / limit : 0;
             const percent = Math.min(100, Math.round(ratio * 100));
             const exceeded = spent > limit;
+            const reached = spent >= limit;
             const remaining = Math.max(0, limit - spent);
-            const barColor = exceeded
+            const barColor = reached
               ? 'bg-expense'
               : percent >= 80
                 ? 'bg-amber-500'
@@ -76,7 +78,7 @@ export const BudgetsSection: React.FC<BudgetsSectionProps> = ({
                   <div className="flex items-center space-x-2.5 min-w-0">
                     <div className="w-8 h-8 rounded-full bg-surface-muted flex items-center justify-center text-ink flex-shrink-0">
                       <span className="material-symbols-outlined text-[17px]">
-                        {budget.category?.icon || 'category'}
+                        {toMaterialIcon(budget.category?.icon)}
                       </span>
                     </div>
                     <span className="text-[13px] font-medium text-ink truncate">
@@ -106,11 +108,13 @@ export const BudgetsSection: React.FC<BudgetsSectionProps> = ({
 
                 <div className="flex items-center justify-between text-[11px] text-muted">
                   <span>{percent}% usado</span>
-                  <span className={exceeded ? 'text-expense font-medium' : 'tabular-nums'}>
+                  <span className={reached ? 'text-expense font-medium' : 'tabular-nums'}>
                     {isBalanceVisible
                       ? exceeded
                         ? `Excedido por ${formatMoney(spent - limit)}`
-                        : `Quedan ${formatMoney(remaining)}`
+                        : reached
+                          ? 'Límite alcanzado'
+                          : `Quedan ${formatMoney(remaining)}`
                       : ''}
                   </span>
                 </div>

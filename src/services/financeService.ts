@@ -305,6 +305,44 @@ export const financeService = {
     return data;
   },
 
+  async updateDebt(id: string, debt: {
+    person_name: string;
+    type: 'lend' | 'borrow';
+    total_amount: number;
+    due_date?: string | null;
+    note?: string | null;
+  }): Promise<Debt> {
+    const { data: current, error: currentError } = await supabase
+      .from('debts')
+      .select('paid_amount')
+      .eq('id', id)
+      .single();
+
+    if (currentError) throw currentError;
+
+    const paid = Number(current?.paid_amount ?? 0);
+    if (debt.total_amount < paid) {
+      throw new Error('El monto total no puede ser menor a lo ya abonado');
+    }
+
+    const status: 'pending' | 'partial' | 'paid' =
+      paid >= debt.total_amount ? 'paid' : paid > 0 ? 'partial' : 'pending';
+
+    const { data, error } = await supabase
+      .from('debts')
+      .update({
+        ...debt,
+        status,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
   async deleteDebt(id: string): Promise<void> {
     const { error } = await supabase
       .from('debts')
@@ -447,6 +485,11 @@ export const financeService = {
     const user = session?.user;
     if (!user) throw new Error('No autenticado');
 
+    const today = toDateOnly(new Date());
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(rule.start_date) || rule.start_date < today) {
+      throw new Error('La fecha de inicio no puede ser anterior a hoy');
+    }
+
     const { start_date, ...rest } = rule;
 
     const { data, error } = await supabase
@@ -515,40 +558,44 @@ export const financeService = {
       while (toDateOnly(cursor) <= today && guard < 60) {
         guard += 1;
 
-        const { data: inserted, error: insertError } = await supabase
-          .from('transactions')
-          .insert([{
-            user_id: user.id,
-            account_id: rule.account_id,
-            category_id: rule.category_id,
-            type: rule.type,
-            amount: rule.amount,
-            date: occurrenceTimestamp(toDateOnly(cursor)),
-            note: rule.note,
-            recurring_id: rule.id,
-          }])
-          .select('id');
+        // Las ocurrencias vencidas se saltan sin descontar: el monto se
+        // registra recién en la próxima fecha programada.
+        if (toDateOnly(cursor) === today) {
+          const { data: inserted, error: insertError } = await supabase
+            .from('transactions')
+            .insert([{
+              user_id: user.id,
+              account_id: rule.account_id,
+              category_id: rule.category_id,
+              type: rule.type,
+              amount: rule.amount,
+              date: occurrenceTimestamp(toDateOnly(cursor)),
+              note: rule.note,
+              recurring_id: rule.id,
+            }])
+            .select('id');
 
-        if (insertError) {
-          if (insertError.code !== '23505') throw insertError;
-        } else if (inserted && inserted.length > 0) {
-          created += 1;
+          if (insertError) {
+            if (insertError.code !== '23505') throw insertError;
+          } else if (inserted && inserted.length > 0) {
+            created += 1;
 
-          const { data: account } = await supabase
-            .from('accounts')
-            .select('current_balance')
-            .eq('id', rule.account_id)
-            .single();
+            const { data: account } = await supabase
+              .from('accounts')
+              .select('current_balance')
+              .eq('id', rule.account_id)
+              .single();
 
-          const current = Number(account?.current_balance ?? 0);
-          const newBalance = rule.type === 'income'
-            ? current + Number(rule.amount)
-            : current - Number(rule.amount);
+            const current = Number(account?.current_balance ?? 0);
+            const newBalance = rule.type === 'income'
+              ? current + Number(rule.amount)
+              : current - Number(rule.amount);
 
-          await supabase
-            .from('accounts')
-            .update({ current_balance: newBalance })
-            .eq('id', rule.account_id);
+            await supabase
+              .from('accounts')
+              .update({ current_balance: newBalance })
+              .eq('id', rule.account_id);
+          }
         }
 
         cursor = nextOccurrence(cursor, rule.frequency);

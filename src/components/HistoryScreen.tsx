@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { financeService } from '../services/financeService';
 import { useFormat } from '../hooks/useFormat';
+import { toDateOnly } from '../lib/recurrence';
+import { toMaterialIcon } from '../lib/icons';
 import type { Transaction } from '../types/database';
 import { TransactionDetailModal } from './TransactionDetailModal';
 import { MonthlyComparison } from './MonthlyComparison';
@@ -16,8 +18,12 @@ export const HistoryScreen: React.FC = () => {
 
   // Fecha del mes seleccionado
   const [currentDate, setCurrentDate] = useState(() => new Date());
+  const requestIdRef = useRef(0);
 
   const loadMonthTransactions = useCallback(async () => {
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
+
     setLoading(true);
     try {
       const year = currentDate.getFullYear();
@@ -32,6 +38,8 @@ export const HistoryScreen: React.FC = () => {
         ),
       ]);
 
+      if (requestIdRef.current !== requestId) return;
+
       if (currentResult.status === 'fulfilled') {
         setTransactions(currentResult.value ?? []);
       } else {
@@ -45,7 +53,9 @@ export const HistoryScreen: React.FC = () => {
         setPreviousTransactions([]);
       }
     } finally {
-      setLoading(false);
+      if (requestIdRef.current === requestId) {
+        setLoading(false);
+      }
     }
   }, [currentDate]);
 
@@ -101,12 +111,12 @@ export const HistoryScreen: React.FC = () => {
 
   filteredTransactions.forEach((tx) => {
     const d = new Date(tx.date);
-    const dateKey = d.toISOString().split('T')[0];
+    const dateKey = toDateOnly(d);
 
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = toDateOnly(new Date());
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    const yesterdayStr = toDateOnly(yesterday);
 
     let label = formatDate(d, { weekday: 'long', day: 'numeric', month: 'short' });
     if (dateKey === todayStr) label = `Hoy — ${label}`;
@@ -317,7 +327,11 @@ export const HistoryScreen: React.FC = () => {
                               }`}
                             >
                               <span className="material-symbols-outlined text-[20px]">
-                                {tx.category?.icon || (isInc ? 'payments' : 'receipt_long')}
+                                {tx.category?.icon
+                                  ? toMaterialIcon(tx.category.icon)
+                                  : isInc
+                                    ? 'payments'
+                                    : 'receipt_long'}
                               </span>
                             </div>
                             <div className="min-w-0">

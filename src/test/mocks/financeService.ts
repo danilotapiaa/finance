@@ -15,6 +15,7 @@ export const financeServiceMock = {
   createTransfer: vi.fn(),
   getDebts: vi.fn(),
   createDebt: vi.fn(),
+  updateDebt: vi.fn(),
   deleteDebt: vi.fn(),
   getDebtPayments: vi.fn(),
   createDebtPayment: vi.fn(),

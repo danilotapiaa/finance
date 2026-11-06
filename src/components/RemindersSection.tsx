@@ -39,6 +39,56 @@ export const RemindersSection: React.FC<RemindersSectionProps> = ({
 
       <ul className="space-y-2">
         {reminders.map((reminder) => {
+          if (reminder.type === 'budget') {
+            const reached = reminder.progress >= 100;
+            const exceeded = reminder.spent > reminder.limit;
+
+            return (
+              <li
+                key={reminder.id}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 border ${
+                  reached
+                    ? 'bg-expense-soft border-expense/20'
+                    : 'bg-amber-50 border-amber-200/60'
+                }`}
+              >
+                <div
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                    reached ? 'bg-expense/10' : 'bg-amber-100'
+                  }`}
+                >
+                  <span
+                    className={`material-symbols-outlined text-[16px] ${
+                      reached ? 'text-expense' : 'text-amber-600'
+                    }`}
+                  >
+                    {reached ? 'error' : 'warning'}
+                  </span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[12px] font-medium text-ink truncate">
+                    {reminder.title}
+                  </p>
+                  <p
+                    className={`text-[10px] ${
+                      reached ? 'text-expense' : 'text-amber-700'
+                    }`}
+                  >
+                    {exceeded
+                      ? `${reminder.progress}% · excedido por ${money(
+                          reminder.spent - reminder.limit
+                        )}`
+                      : reached
+                        ? `${reminder.progress}% · límite alcanzado`
+                        : `${reminder.progress}% del presupuesto · quedan ${money(
+                            reminder.limit - reminder.spent
+                          )}`}
+                  </p>
+                </div>
+              </li>
+            );
+          }
+
           if (reminder.type === 'recurring') {
             return (
               <li

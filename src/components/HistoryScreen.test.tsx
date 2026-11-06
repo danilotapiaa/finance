@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { HistoryScreen } from './HistoryScreen'
@@ -78,6 +78,7 @@ describe('HistoryScreen', () => {
     expect(screen.getByText('+$300.00')).toBeInTheDocument()
     expect(screen.getByText('-$50.00')).toBeInTheDocument()
     expect(screen.getAllByText(/Hoy/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText('restaurant').length).toBeGreaterThan(0)
   })
 
   it('filtra por gastos e ingresos', async () => {
@@ -143,6 +144,45 @@ describe('HistoryScreen', () => {
         next.getMonth() + 1
       )
     )
+  })
+
+  it('ignora la respuesta tardía del mes que ya no está seleccionado', async () => {
+    const user = userEvent.setup()
+    let resolveInitial: (value: Transaction[]) => void = () => {}
+    const initialRequest = new Promise<Transaction[]>((resolve) => {
+      resolveInitial = resolve
+    })
+
+    const previousMonthTransactions = [
+      makeTransaction({
+        id: 'tx-previous',
+        type: 'expense',
+        amount: 20,
+        note: 'Movimiento del mes anterior',
+        date: new Date(now.getFullYear(), now.getMonth() - 1, 10).toISOString(),
+      }),
+    ]
+
+    financeServiceMock.getTransactionsByMonth
+      .mockReturnValueOnce(initialRequest)
+      .mockReturnValueOnce(initialRequest)
+      .mockResolvedValueOnce(previousMonthTransactions)
+      .mockResolvedValueOnce([])
+
+    render(<HistoryScreen />)
+
+    await user.click(screen.getByTitle('Mes anterior'))
+    expect(
+      await screen.findByText('Movimiento del mes anterior')
+    ).toBeInTheDocument()
+
+    await act(async () => {
+      resolveInitial(transactions)
+      await Promise.resolve()
+    })
+
+    expect(screen.getByText('Movimiento del mes anterior')).toBeInTheDocument()
+    expect(screen.queryByText('Salario')).not.toBeInTheDocument()
   })
 
   it('muestra el estado vacío sin movimientos', async () => {

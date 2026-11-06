@@ -3,6 +3,7 @@ import { financeService } from '../services/financeService';
 import { useFormat } from '../hooks/useFormat';
 import { useFeedback } from '../context/FeedbackContext';
 import { parseDateOnly } from '../lib/recurrence';
+import { toMaterialIcon } from '../lib/icons';
 import { GoalModal } from './GoalModal';
 import { ContributionModal } from './ContributionModal';
 import type { SavingsGoal } from '../types/database';
@@ -122,7 +123,7 @@ export const SavingsGoalsSection: React.FC = () => {
                 <div className="flex items-start gap-3">
                   <div className="w-9 h-9 rounded-xl bg-surface flex items-center justify-center shrink-0">
                     <span className="material-symbols-outlined text-[18px] text-ink">
-                      {goal.icon || 'savings'}
+                        {toMaterialIcon(goal.icon, 'savings')}
                     </span>
                   </div>
 

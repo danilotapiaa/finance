@@ -9,6 +9,8 @@ import { BudgetsSection } from './BudgetsSection';
 import { BudgetModal } from './BudgetModal';
 import { RemindersSection } from './RemindersSection';
 import { buildReminders } from '../lib/reminders';
+import { buildBudgetAlerts } from '../lib/budgetAlerts';
+import { toMaterialIcon } from '../lib/icons';
 
 interface DashboardProps {
   onOpenProfile: () => void;
@@ -139,7 +141,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
     .substring(0, 2)
     .toUpperCase();
 
-  const reminders = buildReminders(recurringRules, goals);
+  const reminders = [
+    ...buildBudgetAlerts(budgets, monthTransactions),
+    ...buildReminders(recurringRules, goals),
+  ];
 
   if (loading && accounts.length === 0) {
     return (
@@ -247,7 +252,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
               >
                 <div className="flex items-center justify-between">
                   <div className="w-8 h-8 rounded-full bg-surface-muted flex items-center justify-center text-ink">
-                    <span className="material-symbols-outlined text-[18px]">{acc.icon || 'account_balance'}</span>
+                      <span className="material-symbols-outlined text-[18px]">{toMaterialIcon(acc.icon, 'account_balance')}</span>
                   </div>
                   <span className="text-[11px] text-muted font-mono">{acc.account_number_masked}</span>
                 </div>
@@ -340,7 +345,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenProfile }) => {
                         }`}
                       >
                         <span className="material-symbols-outlined text-[18px]">
-                          {tx.category?.icon || (isIncome ? 'payments' : 'receipt_long')}
+                          {tx.category?.icon
+                            ? toMaterialIcon(tx.category.icon)
+                            : isIncome
+                              ? 'payments'
+                              : 'receipt_long'}
                         </span>
                       </div>
                       <div className="flex flex-col min-w-0">

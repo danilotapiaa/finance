@@ -17,7 +17,23 @@ export const DebtsScreen: React.FC = () => {
 
   // Modales
   const [isNewDebtOpen, setIsNewDebtOpen] = useState(false);
+  const [debtToEdit, setDebtToEdit] = useState<Debt | null>(null);
   const [selectedDebtForPayment, setSelectedDebtForPayment] = useState<Debt | null>(null);
+
+  const openNewDebt = () => {
+    setDebtToEdit(null);
+    setIsNewDebtOpen(true);
+  };
+
+  const openEditDebt = (debt: Debt) => {
+    setDebtToEdit(debt);
+    setIsNewDebtOpen(true);
+  };
+
+  const closeDebtModal = () => {
+    setIsNewDebtOpen(false);
+    setDebtToEdit(null);
+  };
 
   const loadData = useCallback(async () => {
     try {
@@ -95,7 +111,7 @@ export const DebtsScreen: React.FC = () => {
           <h1 className="text-[24px] font-bold text-ink tracking-tight">Deudas</h1>
           <button
             type="button"
-            onClick={() => setIsNewDebtOpen(true)}
+            onClick={openNewDebt}
             className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-full bg-ink text-canvas transition active:scale-95 text-xs font-semibold shadow-sm cursor-pointer"
           >
             <span className="material-symbols-outlined text-[16px]">add</span>
@@ -264,13 +280,22 @@ export const DebtsScreen: React.FC = () => {
 
                   {/* Acciones */}
                   <div className="flex items-center justify-between pt-1 border-t border-ink/5 text-xs">
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteDebt(debt.id, debt.person_name)}
-                      className="text-subtle hover:text-expense transition text-[11px] cursor-pointer"
-                    >
-                      Eliminar
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteDebt(debt.id, debt.person_name)}
+                        className="text-subtle hover:text-expense transition text-[11px] cursor-pointer"
+                      >
+                        Eliminar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => openEditDebt(debt)}
+                        className="text-subtle hover:text-ink transition text-[11px] cursor-pointer"
+                      >
+                        Editar
+                      </button>
+                    </div>
 
                     {debt.status !== 'paid' && (
                       <button
@@ -292,8 +317,9 @@ export const DebtsScreen: React.FC = () => {
       {/* Modales */}
       <DebtModal
         isOpen={isNewDebtOpen}
-        onClose={() => setIsNewDebtOpen(false)}
+        onClose={closeDebtModal}
         onSuccess={loadData}
+        debtToEdit={debtToEdit}
       />
 
       <DebtPaymentModal

@@ -1,14 +1,20 @@
 import React, { useState } from 'react';
-import type { DebtType } from '../types/database';
+import type { Debt, DebtType } from '../types/database';
 import { financeService } from '../services/financeService';
 
 interface DebtModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  debtToEdit?: Debt | null;
 }
 
-export const DebtModal: React.FC<DebtModalProps> = ({ isOpen, onClose, onSuccess }) => {
+export const DebtModal: React.FC<DebtModalProps> = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  debtToEdit = null,
+}) => {
   const [personName, setPersonName] = useState('');
   const [type, setType] = useState<DebtType>('lend'); // 'lend' = presté dinero (me deben)
   const [amountStr, setAmountStr] = useState('');
@@ -23,11 +29,19 @@ export const DebtModal: React.FC<DebtModalProps> = ({ isOpen, onClose, onSuccess
     setPrevIsOpen(isOpen);
 
     if (isOpen) {
-      setPersonName('');
-      setType('lend');
-      setAmountStr('');
-      setDueDate('');
-      setNote('');
+      if (debtToEdit) {
+        setPersonName(debtToEdit.person_name);
+        setType(debtToEdit.type);
+        setAmountStr(String(Number(debtToEdit.total_amount)));
+        setDueDate(debtToEdit.due_date ? debtToEdit.due_date.slice(0, 10) : '');
+        setNote(debtToEdit.note ?? '');
+      } else {
+        setPersonName('');
+        setType('lend');
+        setAmountStr('');
+        setDueDate('');
+        setNote('');
+      }
       setErrorMessage(null);
       setIsSubmitting(false);
     }
@@ -48,17 +62,28 @@ export const DebtModal: React.FC<DebtModalProps> = ({ isOpen, onClose, onSuccess
       return;
     }
 
+    if (debtToEdit && numericAmount < Number(debtToEdit.paid_amount)) {
+      setErrorMessage('El monto total no puede ser menor a lo ya abonado');
+      return;
+    }
+
     setIsSubmitting(true);
     setErrorMessage(null);
 
+    const payload = {
+      person_name: personName.trim(),
+      type,
+      total_amount: numericAmount,
+      due_date: dueDate || null,
+      note: note.trim() || null,
+    };
+
     try {
-      await financeService.createDebt({
-        person_name: personName.trim(),
-        type,
-        total_amount: numericAmount,
-        due_date: dueDate ? new Date(dueDate).toISOString() : null,
-        note: note.trim() || null,
-      });
+      if (debtToEdit) {
+        await financeService.updateDebt(debtToEdit.id, payload);
+      } else {
+        await financeService.createDebt(payload);
+      }
 
       onSuccess();
       onClose();
@@ -87,7 +112,13 @@ export const DebtModal: React.FC<DebtModalProps> = ({ isOpen, onClose, onSuccess
             <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
           <h2 className="text-[15px] font-semibold text-ink">
-            {type === 'lend' ? 'Nuevo préstamo' : 'Nueva deuda'}
+            {debtToEdit
+              ? type === 'lend'
+                ? 'Editar préstamo'
+                : 'Editar deuda'
+              : type === 'lend'
+                ? 'Nuevo préstamo'
+                : 'Nueva deuda'}
           </h2>
           <div className="w-8"></div>
         </div>
@@ -186,6 +217,8 @@ export const DebtModal: React.FC<DebtModalProps> = ({ isOpen, onClose, onSuccess
           >
             {isSubmitting ? (
               <span className="inline-block w-4 h-4 border-2 border-canvas/30 border-t-canvas rounded-full animate-spin"></span>
+            ) : debtToEdit ? (
+              'Guardar cambios'
             ) : (
               'Guardar deuda'
             )}

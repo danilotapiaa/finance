@@ -29,6 +29,33 @@ const goalNear: Reminder = {
   progress: 95,
 }
 
+const budgetWarning: Reminder = {
+  id: 'budget-1',
+  type: 'budget',
+  title: 'Alimentación',
+  spent: 85,
+  limit: 100,
+  progress: 85,
+}
+
+const budgetExceeded: Reminder = {
+  id: 'budget-2',
+  type: 'budget',
+  title: 'Transporte',
+  spent: 120,
+  limit: 100,
+  progress: 120,
+}
+
+const budgetReached: Reminder = {
+  id: 'budget-3',
+  type: 'budget',
+  title: 'Servicios',
+  spent: 100,
+  limit: 100,
+  progress: 100,
+}
+
 describe('RemindersSection', () => {
   it('no renderiza nada sin recordatorios', () => {
     const { container } = render(<RemindersSection reminders={[]} />)
@@ -59,12 +86,37 @@ describe('RemindersSection', () => {
     expect(screen.getByText('Te faltan $50.00 · 95% completado')).toBeInTheDocument()
   })
 
+  it('muestra un aviso de presupuesto al 80%', () => {
+    render(<RemindersSection reminders={[budgetWarning]} />)
+
+    expect(screen.getByText('Alimentación')).toBeInTheDocument()
+    expect(
+      screen.getByText('85% del presupuesto · quedan $15.00')
+    ).toBeInTheDocument()
+  })
+
+  it('muestra un aviso de presupuesto excedido', () => {
+    render(<RemindersSection reminders={[budgetExceeded]} />)
+
+    expect(screen.getByText('Transporte')).toBeInTheDocument()
+    expect(screen.getByText('120% · excedido por $20.00')).toBeInTheDocument()
+  })
+
+  it('indica cuando se alcanzó justo el límite del presupuesto', () => {
+    render(<RemindersSection reminders={[budgetReached]} />)
+
+    expect(screen.getByText('Servicios')).toBeInTheDocument()
+    expect(screen.getByText('100% · límite alcanzado')).toBeInTheDocument()
+  })
+
   it('oculta los montos cuando el balance está oculto', () => {
-    render(<RemindersSection reminders={[recurring, goalDeadline, goalNear]} isBalanceVisible={false} />)
+    render(<RemindersSection reminders={[recurring, goalDeadline, goalNear, budgetWarning, budgetExceeded]} isBalanceVisible={false} />)
 
     expect(screen.getByText('-••••••')).toBeInTheDocument()
     expect(screen.getByText('Faltan •••••• · vence en 4 días')).toBeInTheDocument()
     expect(screen.getByText('Te faltan •••••• · 95% completado')).toBeInTheDocument()
+    expect(screen.getByText('85% del presupuesto · quedan ••••••')).toBeInTheDocument()
+    expect(screen.getByText('120% · excedido por ••••••')).toBeInTheDocument()
   })
 
   it('indica "hoy" y "mañana" según los días restantes', () => {

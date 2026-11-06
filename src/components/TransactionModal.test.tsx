@@ -103,6 +103,15 @@ describe('TransactionModal', () => {
     ).toBeInTheDocument()
   })
 
+  it('no marca la cuenta en rojo antes de intentar guardar', () => {
+    renderModal()
+
+    const select = screen.getByRole('combobox')
+
+    expect(select).toHaveClass('text-ink')
+    expect(select).not.toHaveClass('text-expense')
+  })
+
   it('exige seleccionar una cuenta', async () => {
     const user = userEvent.setup()
     renderModal()

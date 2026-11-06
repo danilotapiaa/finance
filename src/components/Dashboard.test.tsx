@@ -225,6 +225,22 @@ describe('Dashboard', () => {
     expect(screen.getByText('Faltan $100.00 · vence en 2 días')).toBeInTheDocument()
   })
 
+  it('muestra el aviso cuando se supera un presupuesto', async () => {
+    financeServiceMock.getBudgets.mockResolvedValue([
+      makeBudget({
+        id: 'budget-1',
+        category_id: 'cat-1',
+        amount: 50,
+        category: makeCategory({ id: 'cat-1', name: 'Alimentación' }),
+      }),
+    ])
+
+    renderDashboard()
+
+    expect(await screen.findByText('Recordatorios')).toBeInTheDocument()
+    expect(screen.getByText('100% · límite alcanzado')).toBeInTheDocument()
+  })
+
   it('no muestra recordatorios cuando no hay pendientes', async () => {
     renderDashboard()
 

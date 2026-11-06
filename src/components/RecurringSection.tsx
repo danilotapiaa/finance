@@ -138,7 +138,7 @@ export const RecurringSection: React.FC = () => {
                     type="button"
                     role="switch"
                     aria-checked={rule.is_active}
-                    aria-label={`Activar ${label}`}
+                    aria-label={`${rule.is_active ? 'Pausar' : 'Activar'} ${label}`}
                     onClick={() => handleToggle(rule)}
                     className={`w-9 h-5 rounded-full transition relative cursor-pointer ${
                       rule.is_active ? 'bg-accent' : 'bg-ink/20'

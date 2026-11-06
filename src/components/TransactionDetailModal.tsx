@@ -3,6 +3,7 @@ import type { Transaction, Account, Category, TransactionType } from '../types/d
 import { useFeedback } from '../context/FeedbackContext';
 import { financeService } from '../services/financeService';
 import { useFormat } from '../hooks/useFormat';
+import { toMaterialIcon } from '../lib/icons';
 
 interface TransactionDetailModalProps {
   transaction: Transaction | null;
@@ -315,7 +316,11 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 }`}
               >
                 <span className="material-symbols-outlined text-2xl">
-                  {transaction.category?.icon || (isIncome ? 'payments' : 'receipt_long')}
+                  {transaction.category?.icon
+                    ? toMaterialIcon(transaction.category.icon)
+                    : isIncome
+                      ? 'payments'
+                      : 'receipt_long'}
                 </span>
               </div>
 

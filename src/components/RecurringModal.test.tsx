@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { RecurringModal } from './RecurringModal'
@@ -59,6 +59,29 @@ describe('RecurringModal', () => {
     await user.click(screen.getByRole('button', { name: 'Crear automatización' }))
 
     expect(screen.getByText('Ingresa un monto válido mayor a 0')).toBeInTheDocument()
+    expect(financeServiceMock.createRecurringTransaction).not.toHaveBeenCalled()
+  })
+
+  it('rechaza una fecha de inicio anterior a hoy', async () => {
+    const user = userEvent.setup()
+    renderModal()
+
+    await screen.findByRole('option', { name: 'Cuenta principal' })
+    await user.type(screen.getByLabelText('Monto'), '20')
+
+    const yesterday = new Date()
+    yesterday.setDate(yesterday.getDate() - 1)
+
+    fireEvent.change(screen.getByLabelText('Primera fecha'), {
+      target: { value: toDateOnly(yesterday) },
+    })
+    fireEvent.submit(
+      screen.getByRole('button', { name: 'Crear automatización' }).closest('form')!
+    )
+
+    expect(
+      screen.getByText('La fecha de inicio no puede ser anterior a hoy')
+    ).toBeInTheDocument()
     expect(financeServiceMock.createRecurringTransaction).not.toHaveBeenCalled()
   })
 

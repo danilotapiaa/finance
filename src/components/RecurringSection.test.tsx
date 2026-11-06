@@ -58,13 +58,13 @@ describe('RecurringSection', () => {
     const user = userEvent.setup()
     renderSection()
 
-    const toggle = await screen.findByRole('switch', { name: /Activar/ })
+    const toggle = await screen.findByRole('switch', { name: /Pausar/ })
     expect(toggle).toHaveAttribute('aria-checked', 'true')
 
     await user.click(toggle)
 
     await waitFor(() => {
-      expect(screen.getByRole('switch', { name: /Activar/ })).toHaveAttribute(
+      expect(screen.getByRole('switch', { name: /Pausar/ })).toHaveAttribute(
         'aria-checked',
         'true'
       )
@@ -84,7 +84,7 @@ describe('RecurringSection', () => {
     const user = userEvent.setup()
     renderSection()
 
-    await user.click(await screen.findByRole('switch', { name: /Activar/ }))
+    await user.click(await screen.findByRole('switch', { name: /Pausar/ }))
 
     expect(screen.getByRole('switch', { name: /Activar/ })).toHaveAttribute(
       'aria-checked',

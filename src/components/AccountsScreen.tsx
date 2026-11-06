@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { financeService } from '../services/financeService';
 import { useFormat } from '../hooks/useFormat';
+import { toMaterialIcon } from '../lib/icons';
 import type { Account } from '../types/database';
 import { TransferModal } from './TransferModal';
 import { AccountModal } from './AccountModal';
@@ -191,7 +192,7 @@ export const AccountsScreen: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 rounded-xl bg-surface-muted flex items-center justify-center text-ink">
-                        <span className="material-symbols-outlined text-[20px]">{acc.icon || 'account_balance'}</span>
+                        <span className="material-symbols-outlined text-[20px]">{toMaterialIcon(acc.icon, 'account_balance')}</span>
                       </div>
                       <div>
                         <h4 className="text-sm font-semibold text-ink">{acc.name}</h4>

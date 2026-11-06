@@ -1,6 +1,7 @@
 import React from 'react';
 import { useFormat } from '../hooks/useFormat';
 import { expenseByCategory, percentChange, summarizeMonth } from '../lib/monthlySummary';
+import { toMaterialIcon } from '../lib/icons';
 import type { Transaction } from '../types/database';
 
 interface MonthlyComparisonProps {
@@ -91,7 +92,7 @@ export const MonthlyComparison: React.FC<MonthlyComparisonProps> = ({
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="w-7 h-7 rounded-lg bg-canvas flex items-center justify-center shrink-0">
                     <span className="material-symbols-outlined text-[15px] text-ink">
-                      {category.icon || 'receipt_long'}
+                      {toMaterialIcon(category.icon, 'receipt_long')}
                     </span>
                   </div>
                   <span className="text-[12px] text-ink truncate">{category.name}</span>

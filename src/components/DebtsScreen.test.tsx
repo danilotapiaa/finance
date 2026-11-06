@@ -13,8 +13,12 @@ vi.mock('../services/financeService', async () => {
 })
 
 vi.mock('./DebtModal', () => ({
-  DebtModal: ({ isOpen }: { isOpen: boolean }) =>
-    isOpen ? <div>Modal nueva deuda</div> : null,
+  DebtModal: ({ isOpen, debtToEdit }: { isOpen: boolean; debtToEdit?: Debt | null }) =>
+    isOpen ? (
+      <div>
+        {debtToEdit ? `Modal editar ${debtToEdit.person_name}` : 'Modal nueva deuda'}
+      </div>
+    ) : null,
 }))
 
 vi.mock('./DebtPaymentModal', () => ({
@@ -132,6 +136,16 @@ describe('DebtsScreen', () => {
     await user.click(screen.getByRole('button', { name: /Nueva deuda/ }))
 
     expect(screen.getByText('Modal nueva deuda')).toBeInTheDocument()
+  })
+
+  it('abre el modal de edición con la deuda seleccionada', async () => {
+    const user = userEvent.setup()
+    renderDebts()
+    await screen.findByText('Carlos Martínez')
+
+    await user.click(screen.getByRole('button', { name: 'Editar' }))
+
+    expect(screen.getByText('Modal editar Carlos Martínez')).toBeInTheDocument()
   })
 
   it('abre el modal de abono con la deuda seleccionada', async () => {

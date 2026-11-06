@@ -442,6 +442,54 @@ describe('financeService', () => {
       ).rejects.toThrow('No autenticado')
     })
 
+    it('actualiza una deuda y recalcula su estado', async () => {
+      const current = createQuery({ data: { paid_amount: 20 }, error: null })
+      const updated = { id: 'debt-1', status: 'partial' }
+      const updateQuery = createQuery({ data: updated, error: null })
+      mockSupabase.from
+        .mockReturnValueOnce(current)
+        .mockReturnValueOnce(updateQuery)
+
+      const payload = {
+        person_name: 'Carlos',
+        type: 'lend' as const,
+        total_amount: 150,
+        due_date: '2026-12-31',
+        note: 'Nota editada',
+      }
+
+      await expect(financeService.updateDebt('debt-1', payload)).resolves.toEqual(updated)
+
+      expect(
+        (current as never as { select: ReturnType<typeof vi.fn> }).select
+      ).toHaveBeenCalledWith('paid_amount')
+      expect(
+        (updateQuery as never as { update: ReturnType<typeof vi.fn> }).update
+      ).toHaveBeenCalledWith({
+        ...payload,
+        status: 'partial',
+        updated_at: expect.any(String),
+      })
+      expect(
+        (updateQuery as never as { eq: ReturnType<typeof vi.fn> }).eq
+      ).toHaveBeenCalledWith('id', 'debt-1')
+    })
+
+    it('rechaza reducir el total por debajo de lo abonado', async () => {
+      const current = createQuery({ data: { paid_amount: 80 }, error: null })
+      mockSupabase.from.mockReturnValueOnce(current)
+
+      await expect(
+        financeService.updateDebt('debt-1', {
+          person_name: 'Carlos',
+          type: 'lend',
+          total_amount: 50,
+        })
+      ).rejects.toThrow('El monto total no puede ser menor a lo ya abonado')
+
+      expect(mockSupabase.from).toHaveBeenCalledTimes(1)
+    })
+
     it('elimina una deuda por id', async () => {
       const query = createQuery({ data: null, error: null })
       mockSupabase.from.mockReturnValue(query)
@@ -569,7 +617,7 @@ describe('financeService', () => {
           amount: 30,
           note: 'Internet',
           frequency: 'monthly',
-          start_date: '2026-02-01',
+          start_date: '2099-02-01',
         })
       ).resolves.toEqual(saved)
 
@@ -582,7 +630,7 @@ describe('financeService', () => {
           note: 'Internet',
           frequency: 'monthly',
           user_id: 'user-1',
-          next_run_date: '2026-02-01',
+          next_run_date: '2099-02-01',
         },
       ])
     })
@@ -597,9 +645,29 @@ describe('financeService', () => {
           type: 'expense',
           amount: 30,
           frequency: 'monthly',
-          start_date: '2026-02-01',
+          start_date: '2099-02-01',
         })
       ).rejects.toThrow('No autenticado')
+    })
+
+    it('rechaza una fecha de inicio anterior a hoy', async () => {
+      const query = createQuery({ data: null, error: null })
+      mockSupabase.from.mockReturnValue(query)
+
+      await expect(
+        financeService.createRecurringTransaction({
+          account_id: 'acc-1',
+          category_id: null,
+          type: 'expense',
+          amount: 30,
+          frequency: 'monthly',
+          start_date: '2020-01-01',
+        })
+      ).rejects.toThrow('La fecha de inicio no puede ser anterior a hoy')
+
+      expect(
+        (query as never as { insert: ReturnType<typeof vi.fn> }).insert
+      ).not.toHaveBeenCalled()
     })
 
     it('activa o pausa una automatización', async () => {
@@ -633,9 +701,8 @@ describe('financeService', () => {
       expect(mockSupabase.from).not.toHaveBeenCalled()
     })
 
-    it('genera los movimientos pendientes y adelanta la próxima fecha', async () => {
+    it('genera el movimiento de hoy y adelanta la próxima fecha', async () => {
       const start = new Date()
-      start.setDate(start.getDate() - 2)
       const startDate = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`
 
       const rule = {
@@ -686,9 +753,53 @@ describe('financeService', () => {
       ).toHaveBeenCalledWith({ next_run_date: expectedNextDate })
     })
 
+    it('omite las ocurrencias vencidas sin descontar el saldo', async () => {
+      const start = new Date()
+      start.setDate(start.getDate() - 2)
+      const startDate = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`
+
+      const rule = {
+        id: 'recurring-1',
+        account_id: 'acc-1',
+        category_id: 'cat-1',
+        type: 'expense',
+        amount: 30,
+        note: 'Internet',
+        frequency: 'weekly',
+        next_run_date: startDate,
+        is_active: true,
+      }
+
+      const recurringQuery = createQuery({ data: [rule], error: null })
+      const transactionsQuery = createQuery({ data: [{ id: 'tx-1' }], error: null })
+      const accountsQuery = createQuery({ data: { current_balance: 100 }, error: null })
+
+      mockSupabase.from.mockImplementation((table: string) => {
+        if (table === 'transactions') return transactionsQuery
+        if (table === 'accounts') return accountsQuery
+        return recurringQuery
+      })
+
+      await expect(financeService.processRecurringTransactions()).resolves.toBe(0)
+
+      expect(
+        (transactionsQuery as never as { insert: ReturnType<typeof vi.fn> }).insert
+      ).not.toHaveBeenCalled()
+      expect(
+        (accountsQuery as never as { update: ReturnType<typeof vi.fn> }).update
+      ).not.toHaveBeenCalled()
+
+      const expectedNext = new Date(start)
+      expectedNext.setDate(expectedNext.getDate() + 7)
+      const expectedNextDate = `${expectedNext.getFullYear()}-${String(expectedNext.getMonth() + 1).padStart(2, '0')}-${String(expectedNext.getDate()).padStart(2, '0')}`
+
+      expect(
+        (recurringQuery as never as { update: ReturnType<typeof vi.fn> }).update
+      ).toHaveBeenCalledWith({ next_run_date: expectedNextDate })
+    })
+
     it('omite ocurrencias duplicadas y no altera el saldo', async () => {
       const start = new Date()
-      start.setDate(start.getDate() - 1)
       const startDate = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`
 
       const rule = {

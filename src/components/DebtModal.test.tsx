@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { DebtModal } from './DebtModal'
 import { financeServiceMock } from '../test/mocks/financeService'
+import { makeDebt } from '../test/fixtures'
 
 vi.mock('../services/financeService', async () => {
   const { financeServiceMock: mock } = await import('../test/mocks/financeService')
@@ -95,7 +96,7 @@ describe('DebtModal', () => {
         person_name: 'Carlos Martínez',
         type: 'lend',
         total_amount: 100,
-        due_date: expect.stringContaining('2026-12-31'),
+        due_date: '2026-12-31',
         note: 'Repuesto',
       })
     )
@@ -125,6 +126,72 @@ describe('DebtModal', () => {
         note: null,
       })
     )
+  })
+
+  it('edita una deuda existente y precarga sus datos', async () => {
+    const user = userEvent.setup()
+    const debt = makeDebt({
+      id: 'debt-1',
+      person_name: 'Carlos Martínez',
+      type: 'borrow',
+      total_amount: 200,
+      paid_amount: 50,
+      due_date: '2026-12-31',
+      note: 'Original',
+      status: 'partial',
+    })
+    financeServiceMock.updateDebt.mockResolvedValue({})
+
+    const { onClose, onSuccess } = renderModal({ debtToEdit: debt })
+
+    expect(screen.getByText('Editar deuda')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Ej. Carlos Martínez')).toHaveValue(
+      'Carlos Martínez'
+    )
+    expect(screen.getByPlaceholderText('0.00')).toHaveValue(200)
+    expect(document.querySelector('input[type="date"]')).toHaveValue('2026-12-31')
+    expect(
+      screen.getByPlaceholderText('Ej. Préstamo para repuesto de auto...')
+    ).toHaveValue('Original')
+
+    fireEvent.change(screen.getByPlaceholderText('0.00'), {
+      target: { value: '300' },
+    })
+    await user.click(screen.getByRole('button', { name: 'Guardar cambios' }))
+
+    await waitFor(() =>
+      expect(financeServiceMock.updateDebt).toHaveBeenCalledWith('debt-1', {
+        person_name: 'Carlos Martínez',
+        type: 'borrow',
+        total_amount: 300,
+        due_date: '2026-12-31',
+        note: 'Original',
+      })
+    )
+    expect(financeServiceMock.createDebt).not.toHaveBeenCalled()
+    expect(onSuccess).toHaveBeenCalled()
+    expect(onClose).toHaveBeenCalled()
+  })
+
+  it('no permite editar el total por debajo de lo abonado', async () => {
+    const user = userEvent.setup()
+    const debt = makeDebt({
+      id: 'debt-1',
+      total_amount: 200,
+      paid_amount: 50,
+      status: 'partial',
+    })
+    renderModal({ debtToEdit: debt })
+
+    fireEvent.change(screen.getByPlaceholderText('0.00'), {
+      target: { value: '40' },
+    })
+    await user.click(screen.getByRole('button', { name: 'Guardar cambios' }))
+
+    expect(
+      screen.getByText('El monto total no puede ser menor a lo ya abonado')
+    ).toBeInTheDocument()
+    expect(financeServiceMock.updateDebt).not.toHaveBeenCalled()
   })
 
   it('muestra el error del servicio', async () => {

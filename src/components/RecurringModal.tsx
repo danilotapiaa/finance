@@ -109,6 +109,12 @@ export const RecurringModal: React.FC<RecurringModalProps> = ({
     event.preventDefault();
     setErrorMessage(null);
 
+    const today = toDateOnly(new Date());
+    if (!startDate || startDate < today) {
+      setErrorMessage('La fecha de inicio no puede ser anterior a hoy');
+      return;
+    }
+
     const amount = Number(amountStr.replace(',', '.'));
 
     if (!Number.isFinite(amount) || amount <= 0) {
@@ -298,6 +304,7 @@ export const RecurringModal: React.FC<RecurringModalProps> = ({
                 <input
                   id="recurring-date"
                   type="date"
+                  min={toDateOnly(new Date())}
                   value={startDate}
                   onChange={(event) => setStartDate(event.target.value)}
                   className="w-full h-10 px-3 bg-canvas border border-ink/[0.06] rounded-xl text-sm text-ink focus:outline-none focus:border-ink"

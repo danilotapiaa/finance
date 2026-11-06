@@ -24,6 +24,14 @@ export type Reminder =
       title: string;
       remaining: number;
       progress: number;
+    }
+  | {
+      id: string;
+      type: 'budget';
+      title: string;
+      spent: number;
+      limit: number;
+      progress: number;
     };
 
 const DAY_MS = 24 * 60 * 60 * 1000;

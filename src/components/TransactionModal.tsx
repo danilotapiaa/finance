@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { Account, Category, TransactionType } from '../types/database';
 import { financeService } from '../services/financeService';
 import { useFormat } from '../hooks/useFormat';
+import { toMaterialIcon } from '../lib/icons';
 
 interface TransactionModalProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   const [isEditingNote, setIsEditingNote] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [accountError, setAccountError] = useState(false);
 
   const [prevIsOpen, setPrevIsOpen] = useState<boolean | null>(null);
   const [prevType, setPrevType] = useState<TransactionType | null>(null);
@@ -43,6 +45,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       setNote('');
       setIsEditingNote(false);
       setErrorMessage(null);
+      setAccountError(false);
       setSelectedAccountId(''); // Siempre inicia vacío para obligar al usuario a elegir
     }
   }
@@ -100,6 +103,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
     // Validación obligatoria: exige elegir una cuenta
     if (!selectedAccountId) {
+      setAccountError(true);
       setErrorMessage('Debes seleccionar la cuenta obligatoriamente');
       return;
     }
@@ -214,7 +218,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
           {/* Selector Obligatorio de Cuenta */}
           <div
             className={`flex items-center justify-between border rounded-xl px-3 py-2.5 text-xs transition ${
-              !selectedAccountId
+              accountError
                 ? 'bg-expense-soft border-expense/30'
                 : 'bg-canvas/80 border-ink/10'
             }`}
@@ -227,11 +231,10 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               value={selectedAccountId}
               onChange={(e) => {
                 setSelectedAccountId(e.target.value);
+                setAccountError(false);
                 setErrorMessage(null);
               }}
-              className={`bg-transparent font-semibold cursor-pointer outline-none text-right text-xs max-w-[220px] truncate ${
-                !selectedAccountId ? 'text-expense font-bold' : 'text-ink'
-              }`}
+              className="bg-transparent font-semibold cursor-pointer outline-none text-right text-xs max-w-[220px] truncate text-ink"
             >
               <option value="" disabled>
                 Seleccionar cuenta...
@@ -260,7 +263,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                       : 'bg-surface-muted text-muted hover:bg-ink/10'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-[15px]">{cat.icon}</span>
+                  <span className="material-symbols-outlined text-[15px]">{toMaterialIcon(cat.icon)}</span>
                   <span>{cat.name}</span>
                 </button>
               );
